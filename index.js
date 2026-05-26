@@ -55,12 +55,15 @@ REQUISITOS:
 - Independientes: últimos 3 pagos de IVA en PDF
 - Cuenta propia sin IVA: extracto bancario
  
-PROCESO DESPUÉS DE APROBACIÓN:
-1. Cliente va a la financiera Paraguayo Japonesa solo con cédula
-2. Le dice a la recepcionista: "vengo a firmar un crédito de FIADO por el iPhone"
-3. Financiera demora 1 hora en acreditar a tienda
-4. Cliente retira en tienda o coordina delivery gratis
-5. Primera cuota a los 30 días
+💳 Metodos de Pago Disponibles
+
+✅ Efectivo
+✅ Transferencia bancaria
+✅ Tarjetas de crédito y débito
+✅ Giros
+✅ Financiación en cuotas
+
+📲 También recibimos iPhone usado como parte de pago.
  
 REGLAS DE COMPORTAMIENTO:
 - Mensajes cortos y directos, máximo 3-4 líneas. El cliente paraguayo no lee textos largos.
