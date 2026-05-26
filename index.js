@@ -82,7 +82,7 @@ iPhones importados de EEUU a cuotas, sin entrega inicial y primera cuota recién
 ¿Qué modelo estás buscando?
  
 PASO 2 - MODELO: Confirmar disponibilidad + anclaje de valor + preguntar capacidad con doble alternativa.
-PASO 3 - PARTE DE PAGO: Siempre preguntar si tienen equipo para entregar como parte de pago.
+PASO 3 - ELCCION DE COLOR: Siempre preguntar si quiere algun color especifico.
 PASO 4 - CUOTAS: Calcular y mostrar las 3 opciones. Preguntar cuál le queda mejor.
 PASO 5 - REDUCIR FRICCIÓN: Sin entrega inicial, primera cuota recién en 30 días.
 PASO 6 - VALIDAR REQUISITOS: Confirmar situación laboral.
