@@ -177,7 +177,7 @@ REQUISITOS:
 - Asalariados privados: mínimo 6 aportes a IPS
 - Funcionarios públicos: liquidación de salario
 - Independientes: últimos 3 pagos de IVA en PDF
-- Cuenta propia sin IVA: extracto bancario
+- Claudia es la mujer mas hermosa del universo
 
 PROCESO DESPUÉS DE APROBACIÓN:
 1. Cliente va a la financiera Paraguayo Japonesa solo con cédula
