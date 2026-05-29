@@ -446,296 +446,182 @@ app.post("/api/responder/:numero", authPanel, async (req, res) => {
 // PANEL VISUAL
 // ============================================================
 app.get("/panel", (req, res) => {
-  res.send(`<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Crediphone — Panel Max</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0a0c10; --surface: #111318; --surface2: #1a1d24; --border: #23262f;
-      --accent: #2eff9a; --accent-dim: rgba(46,255,154,0.12);
-      --human: #ff8c42; --human-dim: rgba(255,140,66,0.12);
-      --alert: #ff4f6a; --text: #e8eaf0; --muted: #6b7280;
-    }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; }
-    .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 340px; text-align: center; }
-    .login-box .logo { font-size: 32px; margin-bottom: 8px; }
-    .login-box h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-    .login-box p { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
-    .login-box input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 14px; margin-bottom: 12px; outline: none; transition: border-color 0.2s; }
-    .login-box input:focus { border-color: var(--accent); }
-    .login-box button { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 10px; padding: 13px; font-weight: 700; font-size: 15px; cursor: pointer; transition: opacity 0.2s; }
-    .login-box button:hover { opacity: 0.88; }
-    .login-error { color: var(--alert); font-size: 13px; margin-top: 10px; display: none; }
-    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 58px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-    .header-brand { display: flex; align-items: center; gap: 10px; }
-    .header-brand .icon { font-size: 22px; }
-    .header-brand .name { font-weight: 700; font-size: 16px; letter-spacing: -0.3px; }
-    .header-brand .sub { color: var(--muted); font-size: 12px; }
-    .badge-online { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--accent); font-weight: 600; }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-    .main { display: flex; flex: 1; overflow: hidden; }
-    .sidebar { width: 300px; border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; background: var(--surface); }
-    .sidebar-header { padding: 16px 16px 12px; border-bottom: 1px solid var(--border); }
-    .sidebar-header h3 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
-    .sidebar-list { flex: 1; overflow-y: auto; }
-    .sidebar-list::-webkit-scrollbar { width: 4px; }
-    .sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-    .chat-item { padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; display: flex; gap: 12px; align-items: flex-start; }
-    .chat-item:hover { background: var(--surface2); }
-    .chat-item.active { background: var(--accent-dim); border-left: 3px solid var(--accent); }
-    .chat-item.human-mode { border-left: 3px solid var(--human); background: var(--human-dim); }
-    .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; border: 2px solid var(--border); }
-    .chat-item.human-mode .avatar { border-color: var(--human); }
-    .chat-item.active .avatar { border-color: var(--accent); }
-    .chat-info { flex: 1; min-width: 0; }
-    .chat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-    .chat-numero { font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
-    .chat-time { font-size: 11px; color: var(--muted); }
-    .chat-preview { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .chat-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; margin-top: 5px; display: inline-block; }
-    .badge-ia { background: var(--accent-dim); color: var(--accent); }
-    .badge-human { background: var(--human-dim); color: var(--human); }
-    .empty-sidebar { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 13px; }
-    .chat-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .chat-topbar { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface); flex-shrink: 0; }
-    .chat-topbar-left { display: flex; align-items: center; gap: 12px; }
-    .chat-topbar-num { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 15px; }
-    .chat-topbar-status { font-size: 12px; color: var(--muted); }
-    .btn-toggle { padding: 8px 18px; border-radius: 8px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; }
-    .btn-toggle.ia { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
-    .btn-toggle.ia:hover { background: var(--accent); color: #000; }
-    .btn-toggle.human { background: var(--human-dim); color: var(--human); border: 1px solid var(--human); }
-    .btn-toggle.human:hover { background: var(--human); color: #000; }
-    .messages-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-    .messages-area::-webkit-scrollbar { width: 4px; }
-    .messages-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-    .msg { max-width: 68%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.5; }
-    .msg-user { align-self: flex-start; background: var(--surface2); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-    .msg-assistant { align-self: flex-end; background: var(--accent-dim); border: 1px solid rgba(46,255,154,0.25); border-bottom-right-radius: 4px; }
-    .msg-assistant.human-sent { background: var(--human-dim); border-color: rgba(255,140,66,0.25); }
-    .msg-time { font-size: 10px; color: var(--muted); margin-top: 4px; text-align: right; }
-    .msg-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; color: var(--muted); }
-    .no-chat-selected { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); gap: 12px; }
-    .no-chat-selected .big-icon { font-size: 48px; opacity: 0.4; }
-    .input-area { padding: 14px 20px; border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; }
-    .input-area textarea { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; resize: none; outline: none; max-height: 100px; min-height: 42px; transition: border-color 0.2s; line-height: 1.4; }
-    .input-area textarea:focus { border-color: var(--accent); }
-    .input-area textarea:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-send { background: var(--accent); color: #000; border: none; border-radius: 10px; padding: 10px 18px; font-weight: 700; font-size: 14px; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; height: 42px; }
-    .btn-send:hover { opacity: 0.85; }
-    .btn-send:disabled { opacity: 0.3; cursor: not-allowed; }
-    .input-hint { font-size: 11px; color: var(--muted); padding: 0 20px 10px; background: var(--surface); }
-  </style>
-</head>
-<body>
-<div id="login-screen">
-  <div class="login-box">
-    <div class="logo">📲</div>
-    <h2>Crediphone Panel</h2>
-    <p>Ingresá la contraseña para acceder</p>
-    <input type="password" id="pwd-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter') doLogin()"/>
-    <button onclick="doLogin()">Entrar</button>
-    <div class="login-error" id="login-error">Contraseña incorrecta</div>
-  </div>
-</div>
-<header>
-  <div class="header-brand">
-    <span class="icon">📲</span>
-    <div>
-      <div class="name">Crediphone</div>
-      <div class="sub">Panel de Mensajes — Max</div>
-    </div>
-  </div>
-  <div class="header-right">
-    <div class="badge-online"><div class="dot"></div> Bot activo</div>
-  </div>
-</header>
-<div class="main">
-  <div class="sidebar">
-    <div class="sidebar-header"><h3>Conversaciones</h3></div>
-    <div class="sidebar-list" id="sidebar-list">
-      <div class="empty-sidebar">Sin conversaciones aún.<br/>Esperando mensajes… 🤖</div>
-    </div>
-  </div>
-  <div class="chat-panel" id="chat-panel">
-    <div class="no-chat-selected" id="no-chat">
-      <div class="big-icon">💬</div>
-      <div>Seleccioná una conversación</div>
-    </div>
-    <div class="chat-topbar" id="chat-topbar" style="display:none">
-      <div class="chat-topbar-left">
-        <div>
-          <div class="chat-topbar-num" id="topbar-num">—</div>
-          <div class="chat-topbar-status" id="topbar-status">—</div>
-        </div>
-      </div>
-      <button class="btn-toggle ia" id="btn-toggle" onclick="toggleModo()">🤖 Tomar control</button>
-    </div>
-    <div class="messages-area" id="messages-area" style="display:none"></div>
-    <div class="input-area" id="input-area" style="display:none">
-      <textarea id="msg-input" placeholder="Escribí tu mensaje…" rows="1"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarManual()}"
-        oninput="autoResize(this)"></textarea>
-      <button class="btn-send" id="btn-send" onclick="enviarManual()">Enviar</button>
-    </div>
-    <div class="input-hint" id="input-hint" style="display:none"></div>
-  </div>
-</div>
-<script>
-  let PWD = '';
-  let chatActual = null;
-  let modoHumanoActual = false;
-
-  function doLogin() {
-    const val = document.getElementById('pwd-input').value;
-    if (!val) { alert('Ingresá la contraseña'); return; }
-    fetch('/api/conversaciones', { headers: { 'x-panel-password': val } })
-      .then(r => {
-        if (r.status === 401) {
-          document.getElementById('login-error').style.display = 'block';
-        } else {
-          PWD = val;
-          document.getElementById('login-screen').style.display = 'none';
-          iniciar();
-        }
-      })
-      .catch(err => {
-        alert('Error de conexión: ' + err.message);
-      });
-  }
-
-  function iniciar() {
-    cargarSidebar();
-    setInterval(() => {
-      cargarSidebar();
-      if (chatActual) cargarChat(chatActual);
-    }, 3000);
-  }
-
-  async function cargarSidebar() {
-    const r = await fetch('/api/conversaciones', { headers: { 'x-panel-password': PWD } });
-    const lista = await r.json();
-    const el = document.getElementById('sidebar-list');
-    if (!lista.length) {
-      el.innerHTML = '<div class="empty-sidebar">Sin conversaciones aún.<br/>Esperando mensajes… 🤖</div>';
-      return;
-    }
-    el.innerHTML = lista.map(c => {
-      const active = c.numero === chatActual ? 'active' : '';
-      const human = c.modoHumano ? 'human-mode' : '';
-      const badge = c.modoHumano ? '<span class="chat-badge badge-human">👤 Humano</span>' : '<span class="chat-badge badge-ia">🤖 IA</span>';
-      const time = c.ultimoMensaje ? formatTime(c.ultimoMensaje) : '';
-      const preview = c.ultimoTexto ? (c.ultimoRol === 'user' ? '👤 ' : '🤖 ') + c.ultimoTexto : '';
-      return \`<div class="chat-item \${active} \${human}" onclick="abrirChat('\${c.numero}')">
-        <div class="avatar">\${c.modoHumano ? '👤' : '🤖'}</div>
-        <div class="chat-info">
-          <div class="chat-top"><span class="chat-numero">\${c.numero}</span><span class="chat-time">\${time}</span></div>
-          <div class="chat-preview">\${preview}</div>
-          \${badge}
-        </div>
-      </div>\`;
-    }).join('');
-  }
-
-  async function abrirChat(numero) {
-    chatActual = numero;
-    document.getElementById('no-chat').style.display = 'none';
-    document.getElementById('chat-topbar').style.display = 'flex';
-    document.getElementById('messages-area').style.display = 'flex';
-    document.getElementById('input-area').style.display = 'flex';
-    document.getElementById('input-hint').style.display = 'block';
-    document.getElementById('topbar-num').textContent = numero;
-    await cargarChat(numero);
-    await cargarSidebar();
-  }
-
-  async function cargarChat(numero) {
-    const r = await fetch(\`/api/conversaciones/\${numero}\`, { headers: { 'x-panel-password': PWD } });
-    const data = await r.json();
-    modoHumanoActual = data.modoHumano;
-    const statusEl = document.getElementById('topbar-status');
-    const toggleBtn = document.getElementById('btn-toggle');
-    const input = document.getElementById('msg-input');
-    const sendBtn = document.getElementById('btn-send');
-    const hint = document.getElementById('input-hint');
-    if (modoHumanoActual) {
-      statusEl.textContent = '👤 Modo Humano — vos estás respondiendo';
-      toggleBtn.textContent = '🤖 Devolver a IA';
-      toggleBtn.className = 'btn-toggle human';
-      input.disabled = false;
-      input.placeholder = 'Escribí tu respuesta…';
-      sendBtn.disabled = false;
-      hint.textContent = 'La IA está pausada. Solo vos respondés ahora.';
-    } else {
-      statusEl.textContent = '🤖 Max IA está respondiendo';
-      toggleBtn.textContent = '👤 Tomar control';
-      toggleBtn.className = 'btn-toggle ia';
-      input.disabled = true;
-      input.placeholder = 'La IA está activa — tomá el control para escribir';
-      sendBtn.disabled = true;
-      hint.textContent = 'Hacé clic en "Tomar control" para responder manualmente.';
-    }
-    const area = document.getElementById('messages-area');
-    area.innerHTML = (data.messages || []).map(m => {
-      const isUser = m.role === 'user';
-      const isHumanSent = m.enviadoPorHumano;
-      const cls = isUser ? 'msg-user' : ('msg-assistant' + (isHumanSent ? ' human-sent' : ''));
-      const label = isUser ? 'Cliente' : (isHumanSent ? '👤 Vos' : '🤖 Max IA');
-      const time = m.timestamp ? formatTime(m.timestamp) : '';
-      return \`<div class="msg \${cls}"><div class="msg-label">\${label}</div>\${escapeHtml(m.content)}<div class="msg-time">\${time}</div></div>\`;
-    }).join('');
-    area.scrollTop = area.scrollHeight;
-  }
-
-  async function toggleModo() {
-    if (!chatActual) return;
-    await fetch(\`/api/modo-humano/\${chatActual}\`, { method: 'POST', headers: { 'x-panel-password': PWD } });
-    await cargarChat(chatActual);
-    await cargarSidebar();
-  }
-
-  async function enviarManual() {
-    const input = document.getElementById('msg-input');
-    const texto = input.value.trim();
-    if (!texto || !chatActual) return;
-    input.value = '';
-    input.style.height = 'auto';
-    await fetch(\`/api/responder/\${chatActual}\`, {
-      method: 'POST',
-      headers: { 'x-panel-password': PWD, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texto })
-    });
-    await cargarChat(chatActual);
-  }
-
-  function formatTime(ts) {
-    const d = new Date(ts);
-    const now = new Date();
-    const diff = now - d;
-    if (diff < 60000) return 'ahora';
-    if (diff < 3600000) return Math.floor(diff/60000) + 'm';
-    if (diff < 86400000) return d.toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' });
-    return d.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit' });
-  }
-
-  function escapeHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').split('\n').join('<br/>'); }
-
-  function autoResize(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-  }
-</script>
-</body>
-</html>`);
+  res.send(
+    '<!DOCTYPE html><html lang="es"><head>' +
+    '<meta charset="UTF-8"/>' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1.0"/>' +
+    '<title>Crediphone Panel</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>' +
+    '<style>' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    ':root{--bg:#0a0c10;--surface:#111318;--surface2:#1a1d24;--border:#23262f;--accent:#2eff9a;--accent-dim:rgba(46,255,154,0.12);--human:#ff8c42;--human-dim:rgba(255,140,66,0.12);--alert:#ff4f6a;--text:#e8eaf0;--muted:#6b7280}' +
+    'body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}' +
+    '#ls{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100}' +
+    '.lb{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:340px;text-align:center}' +
+    '.lb h2{font-size:20px;font-weight:700;margin-bottom:4px}' +
+    '.lb p{color:var(--muted);font-size:13px;margin-bottom:28px}' +
+    '.lb input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:14px;margin-bottom:12px;outline:none}' +
+    '.lb button{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:13px;font-weight:700;font-size:15px;cursor:pointer}' +
+    '.le{color:var(--alert);font-size:13px;margin-top:10px;display:none}' +
+    'header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}' +
+    '.hb{display:flex;align-items:center;gap:10px}' +
+    '.hn{font-weight:700;font-size:16px}' +
+    '.hs{color:var(--muted);font-size:12px}' +
+    '.bo{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);font-weight:600}' +
+    '.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}' +
+    '@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}' +
+    '.main{display:flex;flex:1;overflow:hidden}' +
+    '.sidebar{width:300px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;background:var(--surface)}' +
+    '.sh{padding:16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px}' +
+    '.sl{flex:1;overflow-y:auto}' +
+    '.ci{padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;display:flex;gap:12px;align-items:flex-start}' +
+    '.ci:hover{background:var(--surface2)}' +
+    '.ci.active{background:var(--accent-dim);border-left:3px solid var(--accent)}' +
+    '.ci.hm{border-left:3px solid var(--human);background:var(--human-dim)}' +
+    '.av{width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:2px solid var(--border)}' +
+    '.cn{font-size:13px;font-weight:600}' +
+    '.ct{font-size:11px;color:var(--muted)}' +
+    '.cp{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.cb{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:5px;display:inline-block}' +
+    '.bi{background:var(--accent-dim);color:var(--accent)}' +
+    '.bh{background:var(--human-dim);color:var(--human)}' +
+    '.es{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px}' +
+    '.cp2{flex:1;display:flex;flex-direction:column;overflow:hidden}' +
+    '.tb{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);flex-shrink:0}' +
+    '.tbn{font-weight:600;font-size:15px}' +
+    '.tbs{font-size:12px;color:var(--muted)}' +
+    '.bt{padding:8px 18px;border-radius:8px;border:none;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s}' +
+    '.bt.ia{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}' +
+    '.bt.ia:hover{background:var(--accent);color:#000}' +
+    '.bt.hu{background:var(--human-dim);color:var(--human);border:1px solid var(--human)}' +
+    '.bt.hu:hover{background:var(--human);color:#000}' +
+    '.ma{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px}' +
+    '.msg{max-width:68%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5}' +
+    '.mu{align-self:flex-start;background:var(--surface2);border:1px solid var(--border);border-bottom-left-radius:4px}' +
+    '.ma2{align-self:flex-end;background:var(--accent-dim);border:1px solid rgba(46,255,154,0.25);border-bottom-right-radius:4px}' +
+    '.ma2.hs2{background:var(--human-dim);border-color:rgba(255,140,66,0.25)}' +
+    '.mt{font-size:10px;color:var(--muted);margin-top:4px;text-align:right}' +
+    '.ml{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;color:var(--muted)}' +
+    '.nc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:12px}' +
+    '.ia2{padding:14px 20px;border-top:1px solid var(--border);background:var(--surface);display:flex;gap:10px;align-items:flex-end;flex-shrink:0}' +
+    '.ia2 textarea{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:14px;resize:none;outline:none;max-height:100px;min-height:42px;line-height:1.4}' +
+    '.ia2 textarea:disabled{opacity:0.4;cursor:not-allowed}' +
+    '.bs{background:var(--accent);color:#000;border:none;border-radius:10px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;height:42px}' +
+    '.bs:disabled{opacity:0.3;cursor:not-allowed}' +
+    '.ih{font-size:11px;color:var(--muted);padding:0 20px 10px;background:var(--surface)}' +
+    '</style></head><body>' +
+    '<div id="ls"><div class="lb"><div style="font-size:32px;margin-bottom:8px">📲</div>' +
+    '<h2>Crediphone Panel</h2><p>Ingresa la contrasena</p>' +
+    '<input type="password" id="pi" placeholder="Contrasena"/>' +
+    '<button onclick="dL()">Entrar</button>' +
+    '<div class="le" id="le">Contrasena incorrecta</div></div></div>' +
+    '<header><div class="hb"><span style="font-size:22px">📲</span>' +
+    '<div><div class="hn">Crediphone</div><div class="hs">Panel de Mensajes</div></div></div>' +
+    '<div class="bo"><div class="dot"></div>Bot activo</div></header>' +
+    '<div class="main">' +
+    '<div class="sidebar"><div class="sh">Conversaciones</div>' +
+    '<div class="sl" id="sl"><div class="es">Sin conversaciones.<br/>Esperando mensajes...</div></div></div>' +
+    '<div class="cp2">' +
+    '<div class="nc" id="nc"><div style="font-size:48px;opacity:0.4">💬</div><div>Selecciona una conversacion</div></div>' +
+    '<div class="tb" id="tb" style="display:none"><div><div class="tbn" id="tbn">—</div><div class="tbs" id="tbs">—</div></div>' +
+    '<button class="bt ia" id="btg" onclick="tM()">Tomar control</button></div>' +
+    '<div class="ma" id="ma" style="display:none"></div>' +
+    '<div class="ia2" id="ia2" style="display:none">' +
+    '<textarea id="mi" placeholder="Escribe tu mensaje..." rows="1" oninput="aR(this)"></textarea>' +
+    '<button class="bs" id="bs" onclick="eM()">Enviar</button></div>' +
+    '<div class="ih" id="ih" style="display:none"></div>' +
+    '</div></div>' +
+    '<script>' +
+    'var P="",cA=null,mH=false;' +
+    'document.getElementById("pi").onkeydown=function(e){if(e.key==="Enter")dL();};' +
+    'function dL(){' +
+    '  var v=document.getElementById("pi").value;' +
+    '  if(!v){alert("Ingresa la contrasena");return;}' +
+    '  fetch("/api/conversaciones",{headers:{"x-panel-password":v}})' +
+    '  .then(function(r){' +
+    '    if(r.status===401){document.getElementById("le").style.display="block";}' +
+    '    else{P=v;document.getElementById("ls").style.display="none";ini();}' +
+    '  }).catch(function(e){alert("Error: "+e.message);});' +
+    '}' +
+    'function ini(){cSB();setInterval(function(){cSB();if(cA)cC(cA);},3000);}' +
+    'function cSB(){' +
+    '  fetch("/api/conversaciones",{headers:{"x-panel-password":P}})' +
+    '  .then(function(r){return r.json();})' +
+    '  .then(function(l){' +
+    '    var el=document.getElementById("sl");' +
+    '    if(!l.length){el.innerHTML="<div class=\\"es\\">Sin conversaciones.<br/>Esperando mensajes...</div>";return;}' +
+    '    el.innerHTML=l.map(function(c){' +
+    '      var a=c.numero===cA?"active":"",h=c.modoHumano?"hm":"";' +
+    '      var b=c.modoHumano?"<span class=\\"cb bh\\">Humano</span>":"<span class=\\"cb bi\\">IA</span>";' +
+    '      var t=c.ultimoMensaje?fT(c.ultimoMensaje):"";' +
+    '      var p=c.ultimoTexto?(c.ultimoRol==="user"?"Cliente: ":"Max: ")+c.ultimoTexto:"";' +
+    '      var n=c.numero;' +
+    '      return "<div class=\\"ci "+a+" "+h+"\\" onclick=\\"aC(\'"+n+"\')\\">"' +
+    '        +"<div class=\\"av\\">"+(c.modoHumano?"👤":"🤖")+"</div>"' +
+    '        +"<div style=\\"flex:1;min-width:0\\"><div style=\\"display:flex;justify-content:space-between\\"><span class=\\"cn\\">"+n+"</span><span class=\\"ct\\">"+t+"</span></div>"' +
+    '        +"<div class=\\"cp\\">"+p+"</div>"+b+"</div></div>";' +
+    '    }).join("");' +
+    '  });' +
+    '}' +
+    'function aC(n){' +
+    '  cA=n;' +
+    '  document.getElementById("nc").style.display="none";' +
+    '  document.getElementById("tb").style.display="flex";' +
+    '  document.getElementById("ma").style.display="flex";' +
+    '  document.getElementById("ia2").style.display="flex";' +
+    '  document.getElementById("ih").style.display="block";' +
+    '  document.getElementById("tbn").textContent=n;' +
+    '  cC(n);cSB();' +
+    '}' +
+    'function cC(n){' +
+    '  fetch("/api/conversaciones/"+n,{headers:{"x-panel-password":P}})' +
+    '  .then(function(r){return r.json();})' +
+    '  .then(function(d){' +
+    '    mH=d.modoHumano;' +
+    '    var s=document.getElementById("tbs"),bt=document.getElementById("btg");' +
+    '    var inp=document.getElementById("mi"),sb=document.getElementById("bs"),ih=document.getElementById("ih");' +
+    '    if(mH){s.textContent="Modo Humano";bt.textContent="Devolver a IA";bt.className="bt hu";inp.disabled=false;sb.disabled=false;ih.textContent="IA pausada.";}' +
+    '    else{s.textContent="Max IA respondiendo";bt.textContent="Tomar control";bt.className="bt ia";inp.disabled=true;sb.disabled=true;ih.textContent="Toma el control para responder.";}' +
+    '    var a=document.getElementById("ma");' +
+    '    a.innerHTML=(d.messages||[]).map(function(m){' +
+    '      var u=m.role==="user";' +
+    '      var c=u?"mu":("ma2"+(m.enviadoPorHumano?" hs2":""));' +
+    '      var l=u?"Cliente":(m.enviadoPorHumano?"Vos":"Max IA");' +
+    '      var t=m.timestamp?fT(m.timestamp):"";' +
+    '      var x=String(m.content).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");' +
+    '      return "<div class=\\"msg "+c+"\\"><div class=\\"ml\\">"+l+"</div>"+x+"<div class=\\"mt\\">"+t+"</div></div>";' +
+    '    }).join("");' +
+    '    a.scrollTop=a.scrollHeight;' +
+    '  });' +
+    '}' +
+    'function tM(){' +
+    '  if(!cA)return;' +
+    '  fetch("/api/modo-humano/"+cA,{method:"POST",headers:{"x-panel-password":P}})' +
+    '  .then(function(){cC(cA);cSB();});' +
+    '}' +
+    'function eM(){' +
+    '  var inp=document.getElementById("mi");' +
+    '  var t=inp.value.trim();' +
+    '  if(!t||!cA)return;' +
+    '  inp.value="";inp.style.height="auto";' +
+    '  fetch("/api/responder/"+cA,{method:"POST",headers:{"x-panel-password":P,"Content-Type":"application/json"},body:JSON.stringify({texto:t})})' +
+    '  .then(function(){cC(cA);});' +
+    '}' +
+    'function fT(ts){' +
+    '  var d=new Date(ts),now=new Date(),df=now-d;' +
+    '  if(df<60000)return"ahora";' +
+    '  if(df<3600000)return Math.floor(df/60000)+"m";' +
+    '  if(df<86400000)return d.toLocaleTimeString("es-PY",{hour:"2-digit",minute:"2-digit"});' +
+    '  return d.toLocaleDateString("es-PY",{day:"2-digit",month:"2-digit"});' +
+    '}' +
+    'function aR(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,100)+"px";}' +
+    '</script></body></html>'
+  );
 });
 
+// ============================================================
+// INICIAR SERVIDOR
+// ============================================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor Max de Crediphone corriendo en puerto ${PORT}`);
