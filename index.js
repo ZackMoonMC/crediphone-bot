@@ -546,7 +546,8 @@ app.get("/panel", (req, res) => {
     '    else{P=v;document.getElementById("ls").style.display="none";ini();}' +
     '  }).catch(function(e){alert("Error: "+e.message);});' +
     '}' +
-    'function ini(){cSB();setInterval(function(){cSB();if(cA)cC(cA);},3000);}' +
+    'var pollingTimer=null;' +
+    'function ini(){cSB();pollingTimer=setInterval(function(){cSB();if(cA&&!mH)cC(cA);},3000);}' +
     'function cSB(){' +
     '  fetch("/api/conversaciones",{headers:{"x-panel-password":P}})' +
     '  .then(function(r){return r.json();})' +
