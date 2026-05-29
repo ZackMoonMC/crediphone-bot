@@ -251,24 +251,42 @@ async function redisKeys(pattern) {
   }
 }
 
-// ✅ FIX: getConv con validación robusta
+// ✅ Memoria RAM (siempre funciona) + Redis como backup
+const memoriaLocal = {};
+
 async function getConv(numero) {
-  const data = await redisGet(`conv:${numero}`);
-  if (data) {
-    if (!Array.isArray(data.messages)) data.messages = [];
-    if (typeof data.modoHumano !== 'boolean') data.modoHumano = false;
-    if (!data.ultimoMensaje) data.ultimoMensaje = new Date().toISOString();
-    return data;
+  // 1. Si ya está en RAM, usarla
+  if (memoriaLocal[numero]) return memoriaLocal[numero];
+
+  // 2. Intentar cargar de Redis
+  try {
+    const data = await redisGet(`conv:${numero}`);
+    if (data && Array.isArray(data.messages)) {
+      memoriaLocal[numero] = data;
+      return data;
+    }
+  } catch (e) {
+    console.error("Redis GET falló, usando RAM:", e.message);
   }
-  return {
+
+  // 3. Crear nueva conversación
+  memoriaLocal[numero] = {
     messages: [],
     modoHumano: false,
     ultimoMensaje: new Date().toISOString(),
   };
+  return memoriaLocal[numero];
 }
 
 async function saveConv(numero, conv) {
-  await redisSet(`conv:${numero}`, conv);
+  // Siempre guardar en RAM
+  memoriaLocal[numero] = conv;
+  // Intentar guardar en Redis (si falla, no pasa nada)
+  try {
+    await redisSet(`conv:${numero}`, conv);
+  } catch (e) {
+    console.error("Redis SET falló, solo en RAM:", e.message);
+  }
 }
 
 // ============================================================
@@ -376,23 +394,18 @@ function authPanel(req, res, next) {
 
 app.get("/api/conversaciones", authPanel, async (req, res) => {
   try {
-    const keys = await redisKeys("conv:*");
-    const lista = [];
-    for (const key of keys) {
-      const conv = await redisGet(key);
-      if (!conv) continue;
+    const lista = Object.entries(memoriaLocal).map(([numero, conv]) => {
       const msgs = Array.isArray(conv.messages) ? conv.messages : [];
-      const numero = key.replace("conv:", "");
       const ultimo = msgs.length > 0 ? msgs[msgs.length - 1] : null;
-      lista.push({
+      return {
         numero,
         modoHumano: conv.modoHumano || false,
         ultimoMensaje: conv.ultimoMensaje,
         totalMensajes: msgs.length,
         ultimoTexto: ultimo ? ultimo.content.substring(0, 60) : "",
         ultimoRol: ultimo ? ultimo.role : "",
-      });
-    }
+      };
+    });
     lista.sort((a, b) => new Date(b.ultimoMensaje) - new Date(a.ultimoMensaje));
     res.json(lista);
   } catch (e) {
