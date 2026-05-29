@@ -212,6 +212,10 @@ async function llamarClaude(historial) {
   });
 
   const data = await response.json();
+  if (!data.content) {
+    console.error("❌ Error de Claude API:", JSON.stringify(data));
+    throw new Error("Claude no devolvió contenido: " + JSON.stringify(data));
+  }
   return data.content[0].text;
 }
 
