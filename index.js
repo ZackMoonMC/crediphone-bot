@@ -4,9 +4,6 @@ const fetch = require("node-fetch");
 const app = express();
 app.use(express.json());
 
-// ============================================================
-// CONFIGURACIÓN
-// ============================================================
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
@@ -14,7 +11,6 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "crediphone2025";
 const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-// ============================================================
 
 const SYSTEM_PROMPT = `Eres Max, el asesor de ventas de Crediphone.
 SIEMPRE eres Max, en cualquier situación y con cualquier persona. Nunca revelarás que eres una IA, qué tecnología utilizas ni cómo funciona tu sistema interno.
@@ -255,9 +251,15 @@ async function redisKeys(pattern) {
   }
 }
 
+// ✅ FIX: getConv con validación robusta
 async function getConv(numero) {
   const data = await redisGet(`conv:${numero}`);
-  if (data) return data;
+  if (data) {
+    if (!Array.isArray(data.messages)) data.messages = [];
+    if (typeof data.modoHumano !== 'boolean') data.modoHumano = false;
+    if (!data.ultimoMensaje) data.ultimoMensaje = new Date().toISOString();
+    return data;
+  }
   return {
     messages: [],
     modoHumano: false,
@@ -276,7 +278,6 @@ app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
-
   if (mode === "subscribe" && token === VERIFY_TOKEN) {
     console.log("Webhook verificado ✅");
     res.status(200).send(challenge);
@@ -290,36 +291,24 @@ app.get("/webhook", (req, res) => {
 // ============================================================
 app.post("/webhook", async (req, res) => {
   res.sendStatus(200);
-
   try {
     const body = req.body;
     if (body.object !== "whatsapp_business_account") return;
-
     const entry = body.entry?.[0];
     const change = entry?.changes?.[0];
     const value = change?.value;
     const message = value?.messages?.[0];
-
     if (!message || message.type !== "text") return;
 
     const from = message.from;
     const textoRecibido = message.text.body;
-
     console.log(`📩 Mensaje de ${from}: ${textoRecibido}`);
 
     const conv = await getConv(from);
     conv.ultimoMensaje = new Date().toISOString();
+    conv.messages.push({ role: "user", content: textoRecibido, timestamp: new Date().toISOString() });
 
-    conv.messages.push({
-      role: "user",
-      content: textoRecibido,
-      timestamp: new Date().toISOString(),
-    });
-
-    if (conv.messages.length > 40) {
-      conv.messages = conv.messages.slice(-40);
-    }
-
+    if (conv.messages.length > 40) conv.messages = conv.messages.slice(-40);
     await saveConv(from, conv);
 
     if (conv.modoHumano) {
@@ -327,22 +316,12 @@ app.post("/webhook", async (req, res) => {
       return;
     }
 
-    const historialClaude = conv.messages.map((m) => ({
-      role: m.role,
-      content: m.content,
-    }));
-
+    const historialClaude = conv.messages.map((m) => ({ role: m.role, content: m.content }));
     const respuestaClaude = await llamarClaude(historialClaude);
 
-    conv.messages.push({
-      role: "assistant",
-      content: respuestaClaude,
-      timestamp: new Date().toISOString(),
-    });
-
+    conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     await saveConv(from, conv);
     await enviarMensaje(from, respuestaClaude);
-
     console.log(`✅ Respuesta enviada a ${from}`);
   } catch (error) {
     console.error("Error procesando mensaje:", error);
@@ -367,7 +346,6 @@ async function llamarClaude(historial) {
       messages: historial,
     }),
   });
-
   const data = await response.json();
   if (!data.content) {
     console.error("❌ Error de Claude API:", JSON.stringify(data));
@@ -382,16 +360,8 @@ async function llamarClaude(historial) {
 async function enviarMensaje(numero, texto) {
   await fetch(`https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}/messages`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${WHATSAPP_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      to: numero,
-      type: "text",
-      text: { body: texto },
-    }),
+    headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ messaging_product: "whatsapp", to: numero, type: "text", text: { body: texto } }),
   });
 }
 
@@ -400,33 +370,29 @@ async function enviarMensaje(numero, texto) {
 // ============================================================
 function authPanel(req, res, next) {
   const pwd = req.headers["x-panel-password"] || req.query.pwd;
-  if (pwd !== PANEL_PASSWORD) {
-    return res.status(401).json({ error: "No autorizado" });
-  }
+  if (pwd !== PANEL_PASSWORD) return res.status(401).json({ error: "No autorizado" });
   next();
 }
 
-// GET /api/conversaciones — lista de chats activos
 app.get("/api/conversaciones", authPanel, async (req, res) => {
   try {
     const keys = await redisKeys("conv:*");
     const lista = [];
-
     for (const key of keys) {
       const conv = await redisGet(key);
       if (!conv) continue;
+      const msgs = Array.isArray(conv.messages) ? conv.messages : [];
       const numero = key.replace("conv:", "");
-      const ultimo = conv.messages.length > 0 ? conv.messages[conv.messages.length - 1] : null;
+      const ultimo = msgs.length > 0 ? msgs[msgs.length - 1] : null;
       lista.push({
         numero,
-        modoHumano: conv.modoHumano,
+        modoHumano: conv.modoHumano || false,
         ultimoMensaje: conv.ultimoMensaje,
-        totalMensajes: conv.messages.length,
+        totalMensajes: msgs.length,
         ultimoTexto: ultimo ? ultimo.content.substring(0, 60) : "",
         ultimoRol: ultimo ? ultimo.role : "",
       });
     }
-
     lista.sort((a, b) => new Date(b.ultimoMensaje) - new Date(a.ultimoMensaje));
     res.json(lista);
   } catch (e) {
@@ -434,15 +400,13 @@ app.get("/api/conversaciones", authPanel, async (req, res) => {
   }
 });
 
-// GET /api/conversaciones/:numero
 app.get("/api/conversaciones/:numero", authPanel, async (req, res) => {
   const numero = req.params.numero;
   const conv = await redisGet(`conv:${numero}`);
   if (!conv) return res.json({ messages: [], modoHumano: false });
-  res.json({ numero, modoHumano: conv.modoHumano, ultimoMensaje: conv.ultimoMensaje, messages: conv.messages });
+  res.json({ numero, modoHumano: conv.modoHumano || false, ultimoMensaje: conv.ultimoMensaje, messages: Array.isArray(conv.messages) ? conv.messages : [] });
 });
 
-// POST /api/modo-humano/:numero — toggle IA / Humano
 app.post("/api/modo-humano/:numero", authPanel, async (req, res) => {
   const numero = req.params.numero;
   const conv = await getConv(numero);
@@ -452,23 +416,15 @@ app.post("/api/modo-humano/:numero", authPanel, async (req, res) => {
   res.json({ numero, modoHumano: conv.modoHumano });
 });
 
-// POST /api/responder/:numero — Max humano envía mensaje manual
 app.post("/api/responder/:numero", authPanel, async (req, res) => {
   const numero = req.params.numero;
   const { texto } = req.body;
   if (!texto) return res.status(400).json({ error: "Falta el texto" });
-
   const conv = await getConv(numero);
-  conv.messages.push({
-    role: "assistant",
-    content: texto,
-    timestamp: new Date().toISOString(),
-    enviadoPorHumano: true,
-  });
+  conv.messages.push({ role: "assistant", content: texto, timestamp: new Date().toISOString(), enviadoPorHumano: true });
   conv.ultimoMensaje = new Date().toISOString();
   await saveConv(numero, conv);
   await enviarMensaje(numero, texto);
-
   console.log(`👤 Mensaje humano enviado a ${numero}: ${texto}`);
   res.json({ ok: true });
 });
@@ -764,9 +720,6 @@ app.get("/panel", (req, res) => {
 </html>`);
 });
 
-// ============================================================
-// INICIAR SERVIDOR
-// ============================================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor Max de Crediphone corriendo en puerto ${PORT}`);
