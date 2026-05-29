@@ -600,7 +600,15 @@ app.get("/panel", (req, res) => {
     'function tM(){' +
     '  if(!cA)return;' +
     '  fetch("/api/modo-humano/"+cA,{method:"POST",headers:{"x-panel-password":P}})' +
-    '  .then(function(){cC(cA);cSB();});' +
+    '  .then(function(r){return r.json();})' +
+    '  .then(function(d){' +
+    '    mH=d.modoHumano;' +
+    '    var inp=document.getElementById("mi"),sb=document.getElementById("bs");' +
+    '    var bt=document.getElementById("btg"),s=document.getElementById("tbs"),ih=document.getElementById("ih");' +
+    '    if(mH){s.textContent="Modo Humano";bt.textContent="Devolver a IA";bt.className="bt hu";inp.disabled=false;sb.disabled=false;ih.textContent="IA pausada.";}' +
+    '    else{s.textContent="Max IA respondiendo";bt.textContent="Tomar control";bt.className="bt ia";inp.disabled=true;sb.disabled=true;ih.textContent="Toma el control para responder.";}' +
+    '    cSB();' +
+    '  });' +
     '}' +
     'function eM(){' +
     '  var inp=document.getElementById("mi");' +
