@@ -394,18 +394,24 @@ function authPanel(req, res, next) {
 
 app.get("/api/conversaciones", authPanel, async (req, res) => {
   try {
-    const lista = Object.entries(memoriaLocal).map(([numero, conv]) => {
+    // Leer siempre de Redis para que el panel vea todos los chats
+    const keys = await redisKeys("conv:*");
+    const lista = [];
+    for (const key of keys) {
+      const conv = await redisGet(key);
+      if (!conv) continue;
+      const numero = key.replace("conv:", "");
       const msgs = Array.isArray(conv.messages) ? conv.messages : [];
       const ultimo = msgs.length > 0 ? msgs[msgs.length - 1] : null;
-      return {
+      lista.push({
         numero,
         modoHumano: conv.modoHumano || false,
         ultimoMensaje: conv.ultimoMensaje,
         totalMensajes: msgs.length,
         ultimoTexto: ultimo ? ultimo.content.substring(0, 60) : "",
         ultimoRol: ultimo ? ultimo.role : "",
-      };
-    });
+      });
+    }
     lista.sort((a, b) => new Date(b.ultimoMensaje) - new Date(a.ultimoMensaje));
     res.json(lista);
   } catch (e) {
