@@ -725,9 +725,7 @@ app.get("/panel", (req, res) => {
     return d.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit' });
   }
 
-  function escapeHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
-  }
+  function escapeHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').split('\n').join('<br/>'); }
 
   function autoResize(el) {
     el.style.height = 'auto';
