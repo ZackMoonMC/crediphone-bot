@@ -595,15 +595,20 @@ app.get("/panel", (req, res) => {
 
   function doLogin() {
     const val = document.getElementById('pwd-input').value;
-    fetch('/api/conversaciones', { headers: { 'x-panel-password': val } }).then(r => {
-      if (r.status === 401) {
-        document.getElementById('login-error').style.display = 'block';
-      } else {
-        PWD = val;
-        document.getElementById('login-screen').style.display = 'none';
-        iniciar();
-      }
-    });
+    if (!val) { alert('Ingresá la contraseña'); return; }
+    fetch('/api/conversaciones', { headers: { 'x-panel-password': val } })
+      .then(r => {
+        if (r.status === 401) {
+          document.getElementById('login-error').style.display = 'block';
+        } else {
+          PWD = val;
+          document.getElementById('login-screen').style.display = 'none';
+          iniciar();
+        }
+      })
+      .catch(err => {
+        alert('Error de conexión: ' + err.message);
+      });
   }
 
   function iniciar() {
