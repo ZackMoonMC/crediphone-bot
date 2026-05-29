@@ -417,7 +417,10 @@ app.get("/api/conversaciones/:numero", authPanel, async (req, res) => {
   const numero = req.params.numero;
   const conv = await redisGet(`conv:${numero}`);
   if (!conv) return res.json({ messages: [], modoHumano: false });
-  res.json({ numero, modoHumano: conv.modoHumano || false, ultimoMensaje: conv.ultimoMensaje, messages: Array.isArray(conv.messages) ? conv.messages : [] });
+  // Compatibilidad: acepta tanto 'messages' como 'mensajes'
+  const msgs = Array.isArray(conv.messages) ? conv.messages :
+               Array.isArray(conv.mensajes) ? conv.mensajes : [];
+  res.json({ numero, modoHumano: conv.modoHumano || false, ultimoMensaje: conv.ultimoMensaje, messages: msgs });
 });
 
 app.post("/api/modo-humano/:numero", authPanel, async (req, res) => {
