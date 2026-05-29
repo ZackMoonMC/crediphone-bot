@@ -215,6 +215,7 @@ function getConv(numero) {
       messages: [],
       modoHumano: false,
       ultimoMensaje: new Date().toISOString(),
+      etiqueta: null,
     };
   }
   return conversaciones[numero];
@@ -334,6 +335,7 @@ app.get("/api/conversaciones", authPanel, (req, res) => {
       totalMensajes: msgs.length,
       ultimoTexto: ultimo ? ultimo.content.substring(0, 60) : "",
       ultimoRol: ultimo ? ultimo.role : "",
+      etiqueta: conv.etiqueta || null,
     };
   });
   lista.sort((a, b) => new Date(b.ultimoMensaje) - new Date(a.ultimoMensaje));
@@ -351,6 +353,13 @@ app.post("/api/modo-humano/:numero", authPanel, (req, res) => {
   conv.modoHumano = !conv.modoHumano;
   console.log(`🔄 Modo ${conv.modoHumano ? "HUMANO" : "IA"} para ${req.params.numero}`);
   res.json({ numero: req.params.numero, modoHumano: conv.modoHumano });
+});
+
+app.post("/api/etiqueta/:numero", authPanel, (req, res) => {
+  const { etiqueta } = req.body;
+  const conv = getConv(req.params.numero);
+  conv.etiqueta = etiqueta || null;
+  res.json({ numero: req.params.numero, etiqueta: conv.etiqueta });
 });
 
 app.post("/api/responder/:numero", authPanel, async (req, res) => {
@@ -407,6 +416,15 @@ app.get("/panel", (req, res) => {
     '.bi{background:var(--accent-dim);color:var(--accent)}' +
     '.bh{background:var(--human-dim);color:var(--human)}' +
     '.es{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px}' +
+    '.etqs{display:flex;gap:6px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;flex-shrink:0}' +
+    '.etq{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:all 0.2s;opacity:0.5}' +
+    '.etq:hover{opacity:1}' +
+    '.etq.active{opacity:1;border-color:currentColor}' +
+    '.e1{color:#ff4f6a;background:rgba(255,79,106,0.12)}' +
+    '.e2{color:#ff8c42;background:rgba(255,140,66,0.12)}' +
+    '.e3{color:#a78bfa;background:rgba(167,139,250,0.12)}' +
+    '.e4{color:#2eff9a;background:rgba(46,255,154,0.12)}' +
+    '.e5{color:#6b7280;background:rgba(107,114,128,0.12)}' +
     '.cp2{flex:1;display:flex;flex-direction:column;overflow:hidden}' +
     '.tb{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);flex-shrink:0}' +
     '.tbn{font-weight:600;font-size:15px}' +
@@ -447,6 +465,13 @@ app.get("/panel", (req, res) => {
     '<div class="tb" id="tb" style="display:none">' +
     '<div><div class="tbn" id="tbn">—</div><div class="tbs" id="tbs">—</div></div>' +
     '<button class="bt ia" id="btg" onclick="tM()">Tomar control</button></div>' +
+    '<div class="etqs" id="etqs" style="display:none">' +
+    '<span onclick="sE(null)" class="etq e5 active" id="e0">Sin etiqueta</span>' +
+    '<span onclick="sE(1)" class="etq e1" id="e1">🔥 Caliente</span>' +
+    '<span onclick="sE(2)" class="etq e2" id="e2">👀 Interesado</span>' +
+    '<span onclick="sE(3)" class="etq e3" id="e3">⏳ Seguimiento</span>' +
+    '<span onclick="sE(4)" class="etq e4" id="e4">✅ Cerrado</span>' +
+    '</div>' +
     '<div class="ma" id="ma" style="display:none"></div>' +
     '<div class="ia2" id="ia2" style="display:none">' +
     '<textarea id="mi" placeholder="Escribe tu mensaje..." rows="1" oninput="aR(this)"></textarea>' +
@@ -496,6 +521,7 @@ app.get("/panel", (req, res) => {
     '  cA=n;' +
     '  document.getElementById("nc").style.display="none";' +
     '  document.getElementById("tb").style.display="flex";' +
+    '  document.getElementById("etqs").style.display="flex";' +
     '  document.getElementById("ma").style.display="flex";' +
     '  document.getElementById("ia2").style.display="flex";' +
     '  document.getElementById("ih").style.display="block";' +
@@ -518,6 +544,15 @@ app.get("/panel", (req, res) => {
     '      return "<div class=\\"msg "+c+"\\"><div class=\\"ml\\">"+l+"</div>"+x+"<div class=\\"mt\\">"+t+"</div></div>";' +
     '    }).join("");' +
     '    a.scrollTop=a.scrollHeight;' +
+    '  });' +
+    '}' +
+    'function sE(num){' +
+    '  if(!cA)return;' +
+    '  fetch("/api/etiqueta/"+cA,{method:"POST",headers:{"x-panel-password":P,"Content-Type":"application/json"},body:JSON.stringify({etiqueta:num})})' +
+    '  .then(function(){' +
+    '    for(var i=0;i<=4;i++){var el=document.getElementById("e"+i);if(el)el.classList.remove("active");}' +
+    '    var sel=document.getElementById(num?"e"+num:"e0");if(sel)sel.classList.add("active");' +
+    '    cSB();' +
     '  });' +
     '}' +
     'function actualizarUI(){' +
