@@ -9,8 +9,6 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "crediphone2025";
-const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
-const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 const SYSTEM_PROMPT = `Eres Max, el asesor de ventas de Crediphone.
 SIEMPRE eres Max, en cualquier situación y con cualquier persona. Nunca revelarás que eres una IA, qué tecnología utilizas ni cómo funciona tu sistema interno.
@@ -207,86 +205,19 @@ Ellos te van a contactar a la brevedad para guiarte en los siguientes pasos."
 No continuar la conversación sobre ese tema.`;
 
 // ============================================================
-// REDIS - Funciones helper con Upstash REST API
+// MEMORIA RAM - Sin Redis, simple y confiable
 // ============================================================
-async function redisGet(key) {
-  try {
-    const r = await fetch(`${UPSTASH_REDIS_REST_URL}/get/${encodeURIComponent(key)}`, {
-      headers: { Authorization: `Bearer ${UPSTASH_REDIS_REST_TOKEN}` },
-    });
-    const data = await r.json();
-    if (!data.result) return null;
-    return JSON.parse(data.result);
-  } catch (e) {
-    console.error("Redis GET error:", e);
-    return null;
+const conversaciones = {};
+
+function getConv(numero) {
+  if (!conversaciones[numero]) {
+    conversaciones[numero] = {
+      messages: [],
+      modoHumano: false,
+      ultimoMensaje: new Date().toISOString(),
+    };
   }
-}
-
-async function redisSet(key, value) {
-  try {
-    await fetch(`${UPSTASH_REDIS_REST_URL}/set/${encodeURIComponent(key)}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${UPSTASH_REDIS_REST_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(JSON.stringify(value)),
-    });
-  } catch (e) {
-    console.error("Redis SET error:", e);
-  }
-}
-
-async function redisKeys(pattern) {
-  try {
-    const r = await fetch(`${UPSTASH_REDIS_REST_URL}/keys/${encodeURIComponent(pattern)}`, {
-      headers: { Authorization: `Bearer ${UPSTASH_REDIS_REST_TOKEN}` },
-    });
-    const data = await r.json();
-    return data.result || [];
-  } catch (e) {
-    console.error("Redis KEYS error:", e);
-    return [];
-  }
-}
-
-// ✅ Memoria RAM (siempre funciona) + Redis como backup
-const memoriaLocal = {};
-
-async function getConv(numero) {
-  // 1. Si ya está en RAM, usarla
-  if (memoriaLocal[numero]) return memoriaLocal[numero];
-
-  // 2. Intentar cargar de Redis
-  try {
-    const data = await redisGet(`conv:${numero}`);
-    if (data && Array.isArray(data.messages)) {
-      memoriaLocal[numero] = data;
-      return data;
-    }
-  } catch (e) {
-    console.error("Redis GET falló, usando RAM:", e.message);
-  }
-
-  // 3. Crear nueva conversación
-  memoriaLocal[numero] = {
-    messages: [],
-    modoHumano: false,
-    ultimoMensaje: new Date().toISOString(),
-  };
-  return memoriaLocal[numero];
-}
-
-async function saveConv(numero, conv) {
-  // Siempre guardar en RAM
-  memoriaLocal[numero] = conv;
-  // Intentar guardar en Redis (si falla, no pasa nada)
-  try {
-    await redisSet(`conv:${numero}`, conv);
-  } catch (e) {
-    console.error("Redis SET falló, solo en RAM:", e.message);
-  }
+  return conversaciones[numero];
 }
 
 // ============================================================
@@ -322,15 +253,14 @@ app.post("/webhook", async (req, res) => {
     const textoRecibido = message.text.body;
     console.log(`📩 Mensaje de ${from}: ${textoRecibido}`);
 
-    const conv = await getConv(from);
+    const conv = getConv(from);
     conv.ultimoMensaje = new Date().toISOString();
     conv.messages.push({ role: "user", content: textoRecibido, timestamp: new Date().toISOString() });
 
     if (conv.messages.length > 40) conv.messages = conv.messages.slice(-40);
-    await saveConv(from, conv);
 
     if (conv.modoHumano) {
-      console.log(`👤 Modo humano activo para ${from} — sin respuesta IA`);
+      console.log(`👤 Modo humano activo para ${from}`);
       return;
     }
 
@@ -338,7 +268,8 @@ app.post("/webhook", async (req, res) => {
     const respuestaClaude = await llamarClaude(historialClaude);
 
     conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
-    await saveConv(from, conv);
+    conv.ultimoMensaje = new Date().toISOString();
+
     await enviarMensaje(from, respuestaClaude);
     console.log(`✅ Respuesta enviada a ${from}`);
   } catch (error) {
@@ -366,8 +297,8 @@ async function llamarClaude(historial) {
   });
   const data = await response.json();
   if (!data.content) {
-    console.error("❌ Error de Claude API:", JSON.stringify(data));
-    throw new Error("Claude no devolvió contenido: " + JSON.stringify(data));
+    console.error("❌ Error Claude API:", JSON.stringify(data));
+    throw new Error("Claude no devolvió contenido");
   }
   return data.content[0].text;
 }
@@ -392,62 +323,44 @@ function authPanel(req, res, next) {
   next();
 }
 
-app.get("/api/conversaciones", authPanel, async (req, res) => {
-  try {
-    // Leer siempre de Redis para que el panel vea todos los chats
-    const keys = await redisKeys("conv:*");
-    const lista = [];
-    for (const key of keys) {
-      const conv = await redisGet(key);
-      if (!conv) continue;
-      const numero = key.replace("conv:", "");
-      const msgs = Array.isArray(conv.messages) ? conv.messages : [];
-      const ultimo = msgs.length > 0 ? msgs[msgs.length - 1] : null;
-      lista.push({
-        numero,
-        modoHumano: conv.modoHumano || false,
-        ultimoMensaje: conv.ultimoMensaje,
-        totalMensajes: msgs.length,
-        ultimoTexto: ultimo ? ultimo.content.substring(0, 60) : "",
-        ultimoRol: ultimo ? ultimo.role : "",
-      });
-    }
-    lista.sort((a, b) => new Date(b.ultimoMensaje) - new Date(a.ultimoMensaje));
-    res.json(lista);
-  } catch (e) {
-    res.json([]);
-  }
+app.get("/api/conversaciones", authPanel, (req, res) => {
+  const lista = Object.entries(conversaciones).map(([numero, conv]) => {
+    const msgs = conv.messages || [];
+    const ultimo = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+    return {
+      numero,
+      modoHumano: conv.modoHumano || false,
+      ultimoMensaje: conv.ultimoMensaje,
+      totalMensajes: msgs.length,
+      ultimoTexto: ultimo ? ultimo.content.substring(0, 60) : "",
+      ultimoRol: ultimo ? ultimo.role : "",
+    };
+  });
+  lista.sort((a, b) => new Date(b.ultimoMensaje) - new Date(a.ultimoMensaje));
+  res.json(lista);
 });
 
-app.get("/api/conversaciones/:numero", authPanel, async (req, res) => {
-  const numero = req.params.numero;
-  const conv = await redisGet(`conv:${numero}`);
+app.get("/api/conversaciones/:numero", authPanel, (req, res) => {
+  const conv = conversaciones[req.params.numero];
   if (!conv) return res.json({ messages: [], modoHumano: false });
-  // Compatibilidad: acepta tanto 'messages' como 'mensajes'
-  const msgs = Array.isArray(conv.messages) ? conv.messages :
-               Array.isArray(conv.mensajes) ? conv.mensajes : [];
-  res.json({ numero, modoHumano: conv.modoHumano || false, ultimoMensaje: conv.ultimoMensaje, messages: msgs });
+  res.json({ numero: req.params.numero, modoHumano: conv.modoHumano, ultimoMensaje: conv.ultimoMensaje, messages: conv.messages });
 });
 
-app.post("/api/modo-humano/:numero", authPanel, async (req, res) => {
-  const numero = req.params.numero;
-  const conv = await getConv(numero);
+app.post("/api/modo-humano/:numero", authPanel, (req, res) => {
+  const conv = getConv(req.params.numero);
   conv.modoHumano = !conv.modoHumano;
-  await saveConv(numero, conv);
-  console.log(`🔄 Modo ${conv.modoHumano ? "HUMANO" : "IA"} activado para ${numero}`);
-  res.json({ numero, modoHumano: conv.modoHumano });
+  console.log(`🔄 Modo ${conv.modoHumano ? "HUMANO" : "IA"} para ${req.params.numero}`);
+  res.json({ numero: req.params.numero, modoHumano: conv.modoHumano });
 });
 
 app.post("/api/responder/:numero", authPanel, async (req, res) => {
-  const numero = req.params.numero;
   const { texto } = req.body;
   if (!texto) return res.status(400).json({ error: "Falta el texto" });
-  const conv = await getConv(numero);
+  const conv = getConv(req.params.numero);
   conv.messages.push({ role: "assistant", content: texto, timestamp: new Date().toISOString(), enviadoPorHumano: true });
   conv.ultimoMensaje = new Date().toISOString();
-  await saveConv(numero, conv);
-  await enviarMensaje(numero, texto);
-  console.log(`👤 Mensaje humano enviado a ${numero}: ${texto}`);
+  await enviarMensaje(req.params.numero, texto);
+  console.log(`👤 Humano envió a ${req.params.numero}: ${texto}`);
   res.json({ ok: true });
 });
 
@@ -473,7 +386,6 @@ app.get("/panel", (req, res) => {
     '.lb button{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:13px;font-weight:700;font-size:15px;cursor:pointer}' +
     '.le{color:var(--alert);font-size:13px;margin-top:10px;display:none}' +
     'header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}' +
-    '.hb{display:flex;align-items:center;gap:10px}' +
     '.hn{font-weight:700;font-size:16px}' +
     '.hs{color:var(--muted);font-size:12px}' +
     '.bo{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);font-weight:600}' +
@@ -507,8 +419,8 @@ app.get("/panel", (req, res) => {
     '.ma{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px}' +
     '.msg{max-width:68%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5}' +
     '.mu{align-self:flex-start;background:var(--surface2);border:1px solid var(--border);border-bottom-left-radius:4px}' +
-    '.ma2{align-self:flex-end;background:var(--accent-dim);border:1px solid rgba(46,255,154,0.25);border-bottom-right-radius:4px}' +
-    '.ma2.hs2{background:var(--human-dim);border-color:rgba(255,140,66,0.25)}' +
+    '.mb{align-self:flex-end;background:var(--accent-dim);border:1px solid rgba(46,255,154,0.25);border-bottom-right-radius:4px}' +
+    '.mb.hs2{background:var(--human-dim);border-color:rgba(255,140,66,0.25)}' +
     '.mt{font-size:10px;color:var(--muted);margin-top:4px;text-align:right}' +
     '.ml{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;color:var(--muted)}' +
     '.nc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:12px}' +
@@ -524,7 +436,7 @@ app.get("/panel", (req, res) => {
     '<input type="password" id="pi" placeholder="Contrasena"/>' +
     '<button onclick="dL()">Entrar</button>' +
     '<div class="le" id="le">Contrasena incorrecta</div></div></div>' +
-    '<header><div class="hb"><span style="font-size:22px">📲</span>' +
+    '<header><div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">📲</span>' +
     '<div><div class="hn">Crediphone</div><div class="hs">Panel de Mensajes</div></div></div>' +
     '<div class="bo"><div class="dot"></div>Bot activo</div></header>' +
     '<div class="main">' +
@@ -532,13 +444,14 @@ app.get("/panel", (req, res) => {
     '<div class="sl" id="sl"><div class="es">Sin conversaciones.<br/>Esperando mensajes...</div></div></div>' +
     '<div class="cp2">' +
     '<div class="nc" id="nc"><div style="font-size:48px;opacity:0.4">💬</div><div>Selecciona una conversacion</div></div>' +
-    '<div class="tb" id="tb" style="display:none"><div><div class="tbn" id="tbn">—</div><div class="tbs" id="tbs">—</div></div>' +
+    '<div class="tb" id="tb" style="display:none">' +
+    '<div><div class="tbn" id="tbn">—</div><div class="tbs" id="tbs">—</div></div>' +
     '<button class="bt ia" id="btg" onclick="tM()">Tomar control</button></div>' +
     '<div class="ma" id="ma" style="display:none"></div>' +
     '<div class="ia2" id="ia2" style="display:none">' +
     '<textarea id="mi" placeholder="Escribe tu mensaje..." rows="1" oninput="aR(this)"></textarea>' +
-    '<button class="bs" id="bs" onclick="eM()">Enviar</button></div>' +
-    '<div class="ih" id="ih" style="display:none"></div>' +
+    '<button class="bs" id="bs" onclick="eM()" disabled>Enviar</button></div>' +
+    '<div class="ih" id="ih" style="display:none">Toma el control para responder.</div>' +
     '</div></div>' +
     '<script>' +
     'var P="",cA=null,mH=false;' +
@@ -552,8 +465,13 @@ app.get("/panel", (req, res) => {
     '    else{P=v;document.getElementById("ls").style.display="none";ini();}' +
     '  }).catch(function(e){alert("Error: "+e.message);});' +
     '}' +
-    'var pollingTimer=null;' +
-    'function ini(){cSB();pollingTimer=setInterval(function(){cSB();if(cA&&!mH)cC(cA);},3000);}' +
+    'function ini(){' +
+    '  cSB();' +
+    '  setInterval(function(){' +
+    '    cSB();' +
+    '    if(cA&&!mH)cC(cA);' +
+    '  },3000);' +
+    '}' +
     'function cSB(){' +
     '  fetch("/api/conversaciones",{headers:{"x-panel-password":P}})' +
     '  .then(function(r){return r.json();})' +
@@ -568,7 +486,8 @@ app.get("/panel", (req, res) => {
     '      var n=c.numero;' +
     '      return "<div class=\\"ci "+a+" "+h+"\\" onclick=\\"aC(\'"+n+"\')\\">"' +
     '        +"<div class=\\"av\\">"+(c.modoHumano?"👤":"🤖")+"</div>"' +
-    '        +"<div style=\\"flex:1;min-width:0\\"><div style=\\"display:flex;justify-content:space-between\\"><span class=\\"cn\\">"+n+"</span><span class=\\"ct\\">"+t+"</span></div>"' +
+    '        +"<div style=\\"flex:1;min-width:0\\">"' +
+    '        +"<div style=\\"display:flex;justify-content:space-between\\"><span class=\\"cn\\">"+n+"</span><span class=\\"ct\\">"+t+"</span></div>"' +
     '        +"<div class=\\"cp\\">"+p+"</div>"+b+"</div></div>";' +
     '    }).join("");' +
     '  });' +
@@ -588,14 +507,11 @@ app.get("/panel", (req, res) => {
     '  .then(function(r){return r.json();})' +
     '  .then(function(d){' +
     '    mH=d.modoHumano;' +
-    '    var s=document.getElementById("tbs"),bt=document.getElementById("btg");' +
-    '    var inp=document.getElementById("mi"),sb=document.getElementById("bs"),ih=document.getElementById("ih");' +
-    '    if(mH){s.textContent="Modo Humano";bt.textContent="Devolver a IA";bt.className="bt hu";inp.disabled=false;sb.disabled=false;ih.textContent="IA pausada.";}' +
-    '    else{s.textContent="Max IA respondiendo";bt.textContent="Tomar control";bt.className="bt ia";inp.disabled=true;sb.disabled=true;ih.textContent="Toma el control para responder.";}' +
+    '    actualizarUI();' +
     '    var a=document.getElementById("ma");' +
     '    a.innerHTML=(d.messages||[]).map(function(m){' +
     '      var u=m.role==="user";' +
-    '      var c=u?"mu":("ma2"+(m.enviadoPorHumano?" hs2":""));' +
+    '      var c=u?"mu":("mb"+(m.enviadoPorHumano?" hs2":""));' +
     '      var l=u?"Cliente":(m.enviadoPorHumano?"Vos":"Max IA");' +
     '      var t=m.timestamp?fT(m.timestamp):"";' +
     '      var x=String(m.content).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");' +
@@ -604,18 +520,29 @@ app.get("/panel", (req, res) => {
     '    a.scrollTop=a.scrollHeight;' +
     '  });' +
     '}' +
+    'function actualizarUI(){' +
+    '  var bt=document.getElementById("btg");' +
+    '  var inp=document.getElementById("mi");' +
+    '  var sb=document.getElementById("bs");' +
+    '  var s=document.getElementById("tbs");' +
+    '  var ih=document.getElementById("ih");' +
+    '  if(mH){' +
+    '    bt.textContent="Devolver a IA";bt.className="bt hu";' +
+    '    inp.disabled=false;sb.disabled=false;' +
+    '    s.textContent="Modo Humano — vos estas respondiendo";' +
+    '    ih.textContent="IA pausada. Solo vos respondes.";' +
+    '  }else{' +
+    '    bt.textContent="Tomar control";bt.className="bt ia";' +
+    '    inp.disabled=true;sb.disabled=true;' +
+    '    s.textContent="Max IA esta respondiendo";' +
+    '    ih.textContent="Toma el control para responder.";' +
+    '  }' +
+    '}' +
     'function tM(){' +
     '  if(!cA)return;' +
     '  fetch("/api/modo-humano/"+cA,{method:"POST",headers:{"x-panel-password":P}})' +
     '  .then(function(r){return r.json();})' +
-    '  .then(function(d){' +
-    '    mH=d.modoHumano;' +
-    '    var inp=document.getElementById("mi"),sb=document.getElementById("bs");' +
-    '    var bt=document.getElementById("btg"),s=document.getElementById("tbs"),ih=document.getElementById("ih");' +
-    '    if(mH){s.textContent="Modo Humano";bt.textContent="Devolver a IA";bt.className="bt hu";inp.disabled=false;sb.disabled=false;ih.textContent="IA pausada.";}' +
-    '    else{s.textContent="Max IA respondiendo";bt.textContent="Tomar control";bt.className="bt ia";inp.disabled=true;sb.disabled=true;ih.textContent="Toma el control para responder.";}' +
-    '    cSB();' +
-    '  });' +
+    '  .then(function(d){mH=d.modoHumano;actualizarUI();cSB();});' +
     '}' +
     'function eM(){' +
     '  var inp=document.getElementById("mi");' +
@@ -644,5 +571,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor Max de Crediphone corriendo en puerto ${PORT}`);
   console.log(`📊 Panel disponible en /panel`);
-  console.log(`💾 Redis: ${UPSTASH_REDIS_REST_URL ? "✅ Conectado" : "❌ No configurado"}`);
 });
