@@ -421,7 +421,7 @@ async function llamarClaude(historial) {
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-5",
+      model: "claude-sonnet-4-6",
       max_tokens: 1000,
       system: SYSTEM_PROMPT,
       messages: historial,
