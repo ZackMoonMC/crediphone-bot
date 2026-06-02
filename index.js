@@ -95,7 +95,7 @@ iPhone 12 Pro 128GB: Gs. 2.600.000
 iPhone 12 Pro 256GB: Gs. 2.800.000
 iPhone 12 Pro Max 128GB: Gs. 3.000.000
 iPhone 12 Pro Max 256GB: Gs. 3.200.000
-iPhone 13 normal 128GB: Gs. 2.750.000
+iPhone 13 normal 128GB: Gs. 2.190.000
 iPhone 13 normal 256GB: Gs. 3.000.000
 iPhone 13 sellado 128GB: Gs. 4.400.000
 iPhone 13 Pro 128GB: Gs. 3.400.000
