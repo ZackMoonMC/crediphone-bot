@@ -413,7 +413,7 @@ app.post("/webhook", async (req, res) => {
 });
 
 // ============================================================
-// FUNCIÓN: Llamar a Claude API
+// FUNCIÓN: Llamar a Claude API — HAIKU + CACHÉ ACTIVADO ✅
 // ============================================================
 async function llamarClaude(historial) {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -422,11 +422,18 @@ async function llamarClaude(historial) {
       "Content-Type": "application/json",
       "x-api-key": ANTHROPIC_API_KEY,
       "anthropic-version": "2023-06-01",
+      "anthropic-beta": "prompt-caching-2024-07-31",  // ✅ CACHÉ ACTIVADO
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-5",
+      model: "claude-haiku-4-5-20251001",              // ✅ HAIKU
       max_tokens: 1000,
-      system: SYSTEM_PROMPT,
+      system: [                                         // ✅ FORMATO CON CACHÉ
+        {
+          type: "text",
+          text: SYSTEM_PROMPT,
+          cache_control: { type: "ephemeral" },
+        },
+      ],
       messages: historial,
     }),
   });
