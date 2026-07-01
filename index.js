@@ -1,5 +1,5 @@
 const express = require("express");
-const fetch = require("node-fetch");
+// Node.js 22 incluye fetch nativo — ya no usamos node-fetch (causaba ERR_STREAM_PREMATURE_CLOSE)
 
 const app = express();
 app.use(express.json());
