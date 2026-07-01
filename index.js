@@ -1,313 +1,609 @@
-<!DOCTYPE html>
-<!-- saved from url=(0054)https://crediphone-bot-production.up.railway.app/panel -->
-<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Crediphone Panel</title><link href="./Crediphone Panel_files/css2" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#0a0c10;--surface:#111318;--surface2:#1a1d24;--border:#23262f;--accent:#2eff9a;--accent-dim:rgba(46,255,154,0.12);--human:#ff8c42;--human-dim:rgba(255,140,66,0.12);--alert:#ff4f6a;--text:#e8eaf0;--muted:#6b7280}body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}#ls{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100}.lb{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:340px;text-align:center}.lb h2{font-size:20px;font-weight:700;margin-bottom:4px}.lb p{color:var(--muted);font-size:13px;margin-bottom:28px}.lb input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:14px;margin-bottom:12px;outline:none}.lb button{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:13px;font-weight:700;font-size:15px;cursor:pointer}.le{color:var(--alert);font-size:13px;margin-top:10px;display:none}header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}.hn{font-weight:700;font-size:16px}.hs{color:var(--muted);font-size:12px}.bo{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);font-weight:600}.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}.main{display:flex;flex:1;overflow:hidden}.sidebar{width:300px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;background:var(--surface)}.sh{padding:16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px}.sl{flex:1;overflow-y:auto}.ci{padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;display:flex;gap:12px;align-items:flex-start}.ci:hover{background:var(--surface2)}.ci.active{background:var(--accent-dim);border-left:3px solid var(--accent)}.ci.hm{border-left:3px solid var(--human);background:var(--human-dim)}.av{width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:2px solid var(--border)}.cn{font-size:13px;font-weight:600}.ct{font-size:11px;color:var(--muted)}.cp{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cb{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:5px;display:inline-block}.bi{background:var(--accent-dim);color:var(--accent)}.bh{background:var(--human-dim);color:var(--human)}.es{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px}.etqs{display:flex;gap:6px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;flex-shrink:0}.etq{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:all 0.2s;opacity:0.5}.etq:hover{opacity:1}.etq.active{opacity:1;border-color:currentColor}.e1{color:#ff4f6a;background:rgba(255,79,106,0.12)}.e2{color:#ff8c42;background:rgba(255,140,66,0.12)}.e3{color:#a78bfa;background:rgba(167,139,250,0.12)}.e4{color:#2eff9a;background:rgba(46,255,154,0.12)}.e5{color:#6b7280;background:rgba(107,114,128,0.12)}.cp2{flex:1;display:flex;flex-direction:column;overflow:hidden}.tb{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);flex-shrink:0}.tbn{font-weight:600;font-size:15px}.tbs{font-size:12px;color:var(--muted)}.bt{padding:8px 18px;border-radius:8px;border:none;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s}.bt.ia{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}.bt.ia:hover{background:var(--accent);color:#000}.bt.hu{background:var(--human-dim);color:var(--human);border:1px solid var(--human)}.bt.hu:hover{background:var(--human);color:#000}.ma{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px}.msg{max-width:68%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5}.mu{align-self:flex-start;background:var(--surface2);border:1px solid var(--border);border-bottom-left-radius:4px}.mb{align-self:flex-end;background:var(--accent-dim);border:1px solid rgba(46,255,154,0.25);border-bottom-right-radius:4px}.mb.hs2{background:var(--human-dim);border-color:rgba(255,140,66,0.25)}.mt{font-size:10px;color:var(--muted);margin-top:4px;text-align:right}.ml{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;color:var(--muted)}.nc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:12px}.ia2{padding:14px 20px;border-top:1px solid var(--border);background:var(--surface);display:flex;gap:10px;align-items:flex-end;flex-shrink:0}.ia2 textarea{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:14px;resize:none;outline:none;max-height:100px;min-height:42px;line-height:1.4}.ia2 textarea:disabled{opacity:0.4;cursor:not-allowed}.bs{background:var(--accent);color:#000;border:none;border-radius:10px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;height:42px}.bs:disabled{opacity:0.3;cursor:not-allowed}.ih{font-size:11px;color:var(--muted);padding:0 20px 10px;background:var(--surface)}
-.tabs{display:flex;gap:2px;background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;flex-shrink:0}
-.tabb{padding:12px 16px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;user-select:none}
-.tabb:hover{color:var(--text)}
-.tabb.active{color:var(--accent);border-bottom-color:var(--accent)}
-.pv{flex:1;overflow-x:auto;overflow-y:hidden;display:none;padding:18px;gap:14px}
-.pcol{background:var(--surface);border:1px solid var(--border);border-radius:12px;min-width:250px;max-width:250px;flex-shrink:0;display:flex;flex-direction:column;max-height:100%}
-.pcol.dragover{border-color:var(--accent)}
-.pch{padding:12px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.pcc{background:var(--surface2);color:var(--muted);font-size:11px;padding:1px 7px;border-radius:10px;font-weight:700}
-.pcb{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
-.pcard{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:grab;transition:border-color 0.15s}
-.pcard:hover{border-color:var(--accent)}
-.pcard.dragging{opacity:0.4}
-.pcn{font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.pct{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.pcbadge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px}
-</style></head><body><div id="ls" style="display: none;"><div class="lb"><div style="font-size:32px;margin-bottom:8px">📲</div><h2>Crediphone Panel</h2><p>Ingresa la contrasena</p><input type="password" id="pi" placeholder="Contrasena"><button onclick="dL()">Entrar</button><div class="le" id="le">Contrasena incorrecta</div></div></div><header><div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">📲</span><div><div class="hn">Crediphone</div><div class="hs">Panel de Mensajes</div></div></div><div class="bo"><div class="dot"></div>Bot activo</div></header><div class="tabs"><div class="tabb active" id="tabMsg" onclick="goTab('msg')">💬 Mensajes</div><div class="tabb" id="tabPipe" onclick="goTab('pipe')">📊 Pipeline</div></div><div class="main"><div class="sidebar"><div class="sh">Conversaciones</div><div class="sl" id="sl"><div class="ci  " onclick="aC(&#39;595986801762&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986801762</span><span class="ct">11:00 a. m.</span></div><div class="cp">Max: ¡Genial! El iPhone 11 64GB es excelente 🙌
-
-Acá van las opci</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595983544924&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983544924</span><span class="ct">24/6</span></div><div class="cp">Max: Entiendo perfectamente tu urgencia 😊
-
-Lo bueno es que el pr</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992401579&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992401579</span><span class="ct">23/6</span></div><div class="cp">Max: ¡Gracias a vos! 😊
-
-Quedo atento al formulario para acelerar</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972527671&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972527671</span><span class="ct">23/6</span></div><div class="cp">Max: ¡Excelente! 🚀
-
-A partir de este momento el equipo de crédit</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595981931021&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595981931021</span><span class="ct">15/6</span></div><div class="cp">Max: ¡Excelente! El iPhone 11 es una muy buena opción 🙌
-
-Financi</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595974526467&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595974526467</span><span class="ct">14/6</span></div><div class="cp">Max: ¡Excelente! 🙌
-
-A partir de este momento el equipo de crédit</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992353162&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992353162</span><span class="ct">13/6</span></div><div class="cp">Max: Perfecto, el iPhone 13 Pro 128GB cuesta Gs. 2.900.000 en con</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595982530155&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982530155</span><span class="ct">13/6</span></div><div class="cp">Max: A partir de este momento el equipo de créditos está a cargo </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595971895602&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595971895602</span><span class="ct">13/6</span></div><div class="cp">Max: Entiendo, Dina 😊
-
-Te voy a pasar nuestro número directo par</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595993032299&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595993032299</span><span class="ct">12/6</span></div><div class="cp">Max: Entiendo, puede haber un desfase 😊
-
-Lo mejor es que te comu</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;5493795336646&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">5493795336646</span><span class="ct">12/6</span></div><div class="cp">Max: Perfecto, sin problema 😊
-
-Tenemos **delivery gratis para to</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595971964178&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595971964178</span><span class="ct">12/6</span></div><div class="cp">Max: Uy, perdón por eso 😞
-
-Probá llamando mañana en horario de a</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595994800066&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595994800066</span><span class="ct">12/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595976246850&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976246850</span><span class="ct">12/6</span></div><div class="cp">Max: Perfecto, los jubilados también podemos gestionar tu solicit</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595987208104&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595987208104</span><span class="ct">12/6</span></div><div class="cp">Max: Entendido, eso es normal que haya demora por volumen 😊
-
-Te </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595993579753&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595993579753</span><span class="ct">12/6</span></div><div class="cp">Max: ¡Genial! El iPhone 16 normal es excelente elección 🙌
-
-¿De c</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595995623564&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595995623564</span><span class="ct">12/6</span></div><div class="cp">Max: Perfecto, 18 cuotas de Gs. 187.126 es una excelente opción �</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992380478&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992380478</span><span class="ct">11/6</span></div><div class="cp">Max: Perfecto 🙌
-
-Quedo atento el formulario para poder avanzar y</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972984331&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972984331</span><span class="ct">11/6</span></div><div class="cp">Max: Perfecto, desde Caaguazú 👍
-
-El formulario es el mismo para </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595991704024&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991704024</span><span class="ct">11/6</span></div><div class="cp">Max: ¡Perfecto! 🚀
-
-Para retirar hoy mismo, te dejo el link del f</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595981175387&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595981175387</span><span class="ct">11/6</span></div><div class="cp">Max: Perfecto, 18 cuotas de Gs. 288.000 es lo tuyo 👌
-
-🚀 Para re</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972333883&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972333883</span><span class="ct">11/6</span></div><div class="cp">Max: ¡Para vos! 🙌 ¡Que disfrutes tu iPhone! 📱</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984528359&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984528359</span><span class="ct">11/6</span></div><div class="cp">Max: Claro, entiendo 👍
-
-Lo ideal es que llames antes a la tienda</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986183947&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986183947</span><span class="ct">11/6</span></div><div class="cp">Max: Entiendo 😔
-
-Lamentablemente desde acá no tengo acceso al si</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595975319781&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595975319781</span><span class="ct">11/6</span></div><div class="cp">Max: Perfecto pregunta 😊
-
-Una vez que completes el formulario, e</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595976256454&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976256454</span><span class="ct">11/6</span></div><div class="cp">Max: Lo evaluamos caso por caso 😊
-
-¿Cuánto tiempo llevas en tu t</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595995695390&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595995695390</span><span class="ct">11/6</span></div><div class="cp">Max: Financiamos en 6, 12 o 18 cuotas con la misma tasa 😊
-
-¿Cuál</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595981544800&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595981544800</span><span class="ct">11/6</span></div><div class="cp">Max: ¡Perfecto! 🙌
-
-A partir de este momento el equipo de crédito</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595991745720&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991745720</span><span class="ct">11/6</span></div><div class="cp">Max: Perfecto 💪
-
-Tenemos opciones en 6, 12 o 18 cuotas, sin entr</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972956505&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972956505</span><span class="ct">11/6</span></div><div class="cp">Max: Claro! 📍
-
-**Crediphone - Tienda**
-Mcal. López esq. Cruz del</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595982391922&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982391922</span><span class="ct">10/6</span></div><div class="cp">Max: Buena pregunta 😊
-
-Lo evaluamos caso por caso, ¿querés que i</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972681805&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972681805</span><span class="ct">10/6</span></div><div class="cp">Max: ¡De nada! 😊
-
-Cualquier cosa que necesites, acá estoy 👍
-
-¡Q</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986361219&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986361219</span><span class="ct">10/6</span></div><div class="cp">Max: ¡Genial! 12 cuotas de Gs. 248.015 es la opción perfecta 👌
-
-</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595975390130&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595975390130</span><span class="ct">10/6</span></div><div class="cp">Max: ¡Hola! Te saluda Max de CrediPhone 📱
-
-Vendemos iPhones nuev</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595971748700&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595971748700</span><span class="ct">10/6</span></div><div class="cp">Max: ♻️ Con la entrega de Gs. 700.000, el iPhone 14 Pro 128GB que</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986162850&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986162850</span><span class="ct">10/6</span></div><div class="cp">Max: Perfecto 🙌
-
-**2x iPhone 12 Pro 128GB en 18 cuotas:**
-✅ Gs. </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595983084357&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983084357</span><span class="ct">10/6</span></div><div class="cp">Max: Los pagos son bien simples 👇
-
-✅ **Sin entrega inicial** - N</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992491572&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992491572</span><span class="ct">10/6</span></div><div class="cp">Max: Dale, quédate atento al teléfono 📱
-
-¡Cualquier cosa, acá es</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972393658&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972393658</span><span class="ct">10/6</span></div><div class="cp">Max: ¡Hola! 👋
-
-Claro, en la tienda te van a revisar el iPhone si</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595991990238&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991990238</span><span class="ct">10/6</span></div><div class="cp">Max: Perfecto, te muestro las cuotas 👇
-
-**iPhone 12 Pro Max 128G</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595994539216&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595994539216</span><span class="ct">10/6</span></div><div class="cp">Max: A partir de este momento el equipo de créditos está a cargo </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972960558&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972960558</span><span class="ct">10/6</span></div><div class="cp">Max: Perfecto 🙌
-
-Los requisitos son:
-
-✅ Mayor de 19 años
-✅ Salar</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595982846794&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982846794</span><span class="ct">10/6</span></div><div class="cp">Max: ¡Dale! 👍
-
-El equipo de créditos ya tiene tu solicitud y te </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595983635317&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983635317</span><span class="ct">10/6</span></div><div class="cp">Max: ¡Perfecto! 🙌
-
-Quedo atento el formulario para poder avanzar</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986442598&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986442598</span><span class="ct">10/6</span></div><div class="cp">Max: Sí, el envío a Hernandarias tiene costo ya que está fuera de</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984176700&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984176700</span><span class="ct">10/6</span></div><div class="cp">Max: ¡Excelente! 🙌
-
-A partir de este momento el equipo de crédit</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595987485165&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595987485165</span><span class="ct">10/6</span></div><div class="cp">Max: ¡Perfecto! Con 3 años de antigüedad laboral y IPS estás más </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972766626&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972766626</span><span class="ct">10/6</span></div><div class="cp">Max: Sí, el equipo de créditos te va a contactar a la brevedad 😊</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595971633465&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595971633465</span><span class="ct">10/6</span></div><div class="cp">Max: Claro! Te paso los precios en contado 👇
-
-**iPhone 11** (64G</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595982116871&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982116871</span><span class="ct">10/6</span></div><div class="cp">Max: ¡Hola! 👋
-
-Entiendo, a veces los mensajes se demoran un poco</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595973116398&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595973116398</span><span class="ct">10/6</span></div><div class="cp">Max: ¡De nada! 😊
-
-Cualquier cosa, acá estoy. ¡Gracias por confia</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986867481&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986867481</span><span class="ct">10/6</span></div><div class="cp">Max: Perfecto, 18 cuotas de Gs. 307.518 es una excelente opción �</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595976117220&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976117220</span><span class="ct">10/6</span></div><div class="cp">Max: Sí, hacemos delivery gratis en zona Gran Asunción 🚗
-
-Con re</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992636783&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992636783</span><span class="ct">10/6</span></div><div class="cp">Max: ¡Excelente! 🙌
-
-A partir de este momento el equipo de crédit</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595994961493&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595994961493</span><span class="ct">10/6</span></div><div class="cp">Max: ¡Excelente elección! 🙌
-
-El iPhone 12 normal 128GB es muy bu</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595976251963&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976251963</span><span class="ct">9/6</span></div><div class="cp">Max: Dale, sin drama 👍
-
-Cuando cumplas 19 en diciembre volvés y </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992178211&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992178211</span><span class="ct">9/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986375847&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986375847</span><span class="ct">9/6</span></div><div class="cp">Max: No, trabajamos con 6, 12 o 18 cuotas máximo.
-
-¿Cuál de esas </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992573035&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992573035</span><span class="ct">9/6</span></div><div class="cp">Max: Perfecto, 18 cuotas de Gs. 466.195 está genial 💪
-
-🚀 Para r</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595981093138&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595981093138</span><span class="ct">9/6</span></div><div class="cp">Max: ¡Hola! Te saluda Max de CrediPhone 📱
-
-Vendemos iPhones nuev</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595985283356&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595985283356</span><span class="ct">9/6</span></div><div class="cp">Max: El iPhone 13 normal 128GB sale:
-
-✅ 6 cuotas Gs. 549.563
-✅ 12</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984368863&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984368863</span><span class="ct">9/6</span></div><div class="cp">Max: ¡Excelente! 🚀
-
-Para retirar hoy mismo, te dejo el link del </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595982543067&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982543067</span><span class="ct">9/6</span></div><div class="cp">Max: Excelente, más que cumplido 🙌
-
-Aguardo que completes el for</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595976595073&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976595073</span><span class="ct">9/6</span></div><div class="cp">Max: El equipo de créditos te contacta a la brevedad 😊
-
-Generalm</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595974881488&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595974881488</span><span class="ct">9/6</span></div><div class="cp">Max: ¡Hola! Te saluda Max de CrediPhone 📱
-
-Excelente elección, e</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595985546534&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595985546534</span><span class="ct">9/6</span></div><div class="cp">Max: Perfecto, te cuento el proceso 😊
-
-1. Vás a la financiera Pa</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986513192&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986513192</span><span class="ct">9/6</span></div><div class="cp">Max: ¡Genial! Excelente elección 🙌
-
-iPhone 16 Pro 256GB:
-
-**Cont</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992160434&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992160434</span><span class="ct">9/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  hm" onclick="aC(&#39;595984638980&#39;)"><div class="av">👤</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984638980</span><span class="ct">9/6</span></div><div class="cp">Max: Buena, sin problema 😊
-
-Te paso las opciones de financiamien</div><span class="cb bh">Humano</span></div></div><div class="ci  " onclick="aC(&#39;595982980628&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982980628</span><span class="ct">9/6</span></div><div class="cp">Max: ¡Hola! Te saluda Max de CrediPhone 📱
-
-Los requisitos son mu</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595983944395&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983944395</span><span class="ct">9/6</span></div><div class="cp">Max: ¡No hay molestia! Para eso estoy 😊
-
-¡Gracias a vos por conf</div><span class="cb bi">IA</span></div></div><div class="ci  hm" onclick="aC(&#39;595994119447&#39;)"><div class="av">👤</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595994119447</span><span class="ct">9/6</span></div><div class="cp">Cliente: Que tal</div><span class="cb bh">Humano</span></div></div><div class="ci  hm" onclick="aC(&#39;595983352835&#39;)"><div class="av">👤</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983352835</span><span class="ct">9/6</span></div><div class="cp">Cliente: Como va mi pedido</div><span class="cb bh">Humano</span></div></div><div class="ci  hm" onclick="aC(&#39;595971699665&#39;)"><div class="av">👤</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595971699665</span><span class="ct">8/6</span></div><div class="cp">Max: Entiendo tu preocupación 😊
-
-Somos CrediPhone, especialistas</div><span class="cb bh">Humano</span></div></div><div class="ci  hm" onclick="aC(&#39;595981986777&#39;)"><div class="av">👤</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595981986777</span><span class="ct">8/6</span></div><div class="cp">Max: A partir de este momento el equipo de créditos está a cargo </div><span class="cb bh">Humano</span></div></div><div class="ci  " onclick="aC(&#39;595976500353&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976500353</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Perfecto! 6 cuotas de Gs. 538.205 es tu opción 🙌
-
-🚀 Para </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595982386348&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982386348</span><span class="ct">8/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595982910621&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982910621</span><span class="ct">8/6</span></div><div class="cp">Max: Los pasos son bien simples:
-
-1️⃣ Completás el formulario (ta</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595985107965&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595985107965</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Claro que sí es posible! 🙌
-
-La financiera Paraguayo Japone</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595983983267&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983983267</span><span class="ct">8/6</span></div><div class="cp">Max: ¡De nada! 😊
-
-Cualquier cosa, acá ando. ¡Éxitos con tus nuev</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984657442&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984657442</span><span class="ct">8/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  hm" onclick="aC(&#39;595984131725&#39;)"><div class="av">👤</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984131725</span><span class="ct">8/6</span></div><div class="cp">Cliente: Me decís el precio de ambos?</div><span class="cb bh">Humano</span></div></div><div class="ci  " onclick="aC(&#39;595982431272&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982431272</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Hola! Te saluda Max de CrediPhone 📱
-
-Vendemos iPhones nuev</div><span class="cb bi">IA</span></div></div><div class="ci  hm" onclick="aC(&#39;595983362168&#39;)"><div class="av">👤</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983362168</span><span class="ct">8/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bh">Humano</span></div></div><div class="ci  hm" onclick="aC(&#39;595991380710&#39;)"><div class="av">👤</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991380710</span><span class="ct">8/6</span></div><div class="cp">Cliente: El iPhone 17 cuanto esta</div><span class="cb bh">Humano</span></div></div><div class="ci  hm" onclick="aC(&#39;595982000426&#39;)"><div class="av">👤</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982000426</span><span class="ct">8/6</span></div><div class="cp">Cliente: Ok</div><span class="cb bh">Humano</span></div></div><div class="ci  " onclick="aC(&#39;595982180699&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982180699</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Excelente! 🙌
-
-Perfecto, ya está en el sistema entonces.
-
-E</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595991393000&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991393000</span><span class="ct">8/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992571955&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992571955</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Perfecto! 🙌
-
-Quedo atento al formulario para poder avanzar</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595995371937&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595995371937</span><span class="ct">8/6</span></div><div class="cp">Max: Esa información de colores disponibles te la confirma el equ</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595983078748&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983078748</span><span class="ct">8/6</span></div><div class="cp">Max: Perfecto 👌
-
-El iPhone 15 Pro 128GB seminuevo con batería 90</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972643617&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972643617</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Perfecto! 🙌
-
-Quedo atento por cualquier cosa que necesites</div><span class="cb bi">IA</span></div></div><div class="ci  hm" onclick="aC(&#39;595991681659&#39;)"><div class="av">👤</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991681659</span><span class="ct">8/6</span></div><div class="cp">Cliente: no quiero hinchar, pero queria saber nms si es que se iban a</div><span class="cb bh">Humano</span></div></div><div class="ci  " onclick="aC(&#39;595984894237&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984894237</span><span class="ct">8/6</span></div><div class="cp">Max: ¡De nada! 😊🙌
-
-¡Mucho éxito con tu iPhone 14 Pro Max! 📱
-
-C</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986650324&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986650324</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Perfecto! Quedamos en contacto 👌
-
-¡Hasta pronto! 🚀</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984330020&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984330020</span><span class="ct">8/6</span></div><div class="cp">Max: Perfecto, 18 cuotas de Gs. 231.751 🙌
-
-🚀 Para retirar hoy m</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595976524283&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976524283</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Espera! 😊
-
-Si en algún momento te decidís, acá estoy para </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595991413549&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991413549</span><span class="ct">8/6</span></div><div class="cp">Max: Perfecto 👍
-
-El iPhone 13 normal 256GB en cuotas te queda as</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595976582908&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976582908</span><span class="ct">8/6</span></div><div class="cp">Max: Perfecto 🙌
-
-Para el iPhone 13 normal 256GB seminuevo, los p</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984187507&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984187507</span><span class="ct">8/6</span></div><div class="cp">Max: Perfecto, Norma 👍
-
-Ya tenemos todo. El equipo de créditos e</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595985709331&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595985709331</span><span class="ct">8/6</span></div><div class="cp">Max: Entiendo 😊
-
-Si encontraste mejor precio en otro lado, está </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595991855380&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991855380</span><span class="ct">8/6</span></div><div class="cp">Max: El iPhone 16 128GB nuevo en caja sellada está a Gs. 5.500.00</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595991428531&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991428531</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Claro que no es molestia! 🙌
-
-El iPhone 15 Pro lo tenemos e</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595973116263&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595973116263</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Para vos! 😊
-
-¡Hasta pronto! 📱</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595976563258&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976563258</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Perfecto! 🙌
-
-El iPhone 13 128GB queda así en cuotas:
-
-✅ 6 </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595981617350&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595981617350</span><span class="ct">8/6</span></div><div class="cp">Max: ¡Perfecto! Quedo atento por cualquier duda 😊
-
-¡Nos vemos pr</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595991318935&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991318935</span><span class="ct">8/6</span></div><div class="cp">Max: Buenos días 😊
-
-Lamentablemente no tengo acceso a los estado</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595974878217&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595974878217</span><span class="ct">8/6</span></div><div class="cp">Max: ¿Qué necesitás? Estoy acá para ayudarte 😊</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595983850625&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983850625</span><span class="ct">7/6</span></div><div class="cp">Max: Claro, acá está ubicada nuestra tienda 👇
-
-📍 **Mcal. Lopez </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984443063&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984443063</span><span class="ct">7/6</span></div><div class="cp">Max: Dale, confiá 👍
-
-El equipo de créditos te va a contactar pro</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972395919&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972395919</span><span class="ct">7/6</span></div><div class="cp">Max: No te preocupes 😊 El equipo de créditos te va a contactar e</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595983715138&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983715138</span><span class="ct">6/6</span></div><div class="cp">Max: Sin problema Debora 👍
-
-Cuando quieras tu iPhone, me avisás.</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986701835&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986701835</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Hola! Te saluda Max de CrediPhone 📱
-
-Perfecto, tengo buena</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595981079946&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595981079946</span><span class="ct">6/6</span></div><div class="cp">Max: Perfecto, sin problema 🙌
-
-Coordinamos envío a Canindeyú sin</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595976581429&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976581429</span><span class="ct">6/6</span></div><div class="cp">Max: Sí, está perfecto 👌
-
-Con tu iPhone 11 Pro 256GB + Gs. 1.000</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595982723109&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982723109</span><span class="ct">6/6</span></div><div class="cp">Max: Lamento que no te hayan contactado aún 😞
-
-¿Verificaste que </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595971240732&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595971240732</span><span class="ct">6/6</span></div><div class="cp">Max: Perfecto, sin problema 😊
-
-Cualquier duda que tengas, acá es</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595981219654&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595981219654</span><span class="ct">6/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992147455&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992147455</span><span class="ct">6/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595987498968&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595987498968</span><span class="ct">6/6</span></div><div class="cp">Max: Perfecto, 18 cuotas de Gs. 141.384 es tu opción 👌
-
-🚀 Para </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595991665982&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595991665982</span><span class="ct">6/6</span></div><div class="cp">Max: Los requisitos son muy simples:
-
-✅ Mayor de 19 años
-✅ Salari</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595975987043&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595975987043</span><span class="ct">6/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595992059598&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595992059598</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Excelente! 🎉
-
-A partir de este momento el equipo de crédit</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595982029542&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982029542</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Perfecto! 🙌
-
-Gracias por confiar en CrediPhone. Cualquier </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972123669&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972123669</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Genial! Excelente elección 🙌
-
-El iPhone 16 normal 128GB cu</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595987207366&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595987207366</span><span class="ct">6/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986570514&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986570514</span><span class="ct">6/6</span></div><div class="cp">Max: Perfecto, 18 cuotas de Gs. 208.917 cada una 🙌
-
-Para retirar</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595983150136&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983150136</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Excelente! 🙌
-
-A partir de este momento el equipo de crédit</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595973833710&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595973833710</span><span class="ct">6/6</span></div><div class="cp">Max: Perfecto, 18 cuotas de Gs. 257.618 está confirmado 👍
-
-🚀 Pa</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595981050589&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595981050589</span><span class="ct">6/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595987318978&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595987318978</span><span class="ct">6/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595972897280&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595972897280</span><span class="ct">6/6</span></div><div class="cp">Max: Perfecto 👍
-
-El equipo de créditos está revisando tu solicit</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595985236814&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595985236814</span><span class="ct">6/6</span></div><div class="cp">Max: Para financiar tu iPhone necesitás:
-
-✅ Ser mayor de 19 años
-</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595976570489&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595976570489</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Buena pregunta! 👇
-
-Para financiar un iPhone con nosotros n</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595983843019&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595983843019</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Hola! Te saluda Max de CrediPhone 📱
-
-Vendemos iPhones nuev</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986893644&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986893644</span><span class="ct">6/6</span></div><div class="cp">Max: Perfecto, hacemos envíos a todo el país 🚚
-
-El costo de enví</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986828134&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986828134</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Excelente pregunta! La primera cuota la pagás recién a los </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595982309866&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595982309866</span><span class="ct">6/6</span></div><div class="cp">Max: ¡De nada! 😊
-
-¡Hasta pronto! 📱</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984036186&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984036186</span><span class="ct">6/6</span></div><div class="cp">Max: Dale, quedo atento por si necesitás algo más 👍
-
-¡Gracias nu</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984313737&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984313737</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Hola! Te saluda Max de CrediPhone 📱
-
-Vendemos iPhones nuev</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595986968779&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595986968779</span><span class="ct">6/6</span></div><div class="cp">Max: 🚀 Para retirar hoy mismo, te dejo el link del formulario:
-�</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984162447&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984162447</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Buena pregunta! Los requisitos son muy simples 👇
-
-✅ Mayor </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595987240521&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595987240521</span><span class="ct">6/6</span></div><div class="cp">Max: ¡Hola! Te saluda Max de CrediPhone 📱
-
-Vendemos iPhones nuev</div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595984915596&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595984915596</span><span class="ct">5/6</span></div><div class="cp">Max: Sin problema, hacemos envíos a todo el país 🚚
-
-Una vez que </div><span class="cb bi">IA</span></div></div><div class="ci  " onclick="aC(&#39;595974144293&#39;)"><div class="av">🤖</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="cn">595974144293</span><span class="ct">5/6</span></div><div class="cp">Max: Excelente, eso suma 💪
-
-Completa el formulario con toda esa </div><span class="cb bi">IA</span></div></div></div></div><div class="cp2"><div class="nc" id="nc"><div style="font-size:48px;opacity:0.4">💬</div><div>Selecciona una conversacion</div></div><div class="tb" id="tb" style="display:none"><div><div class="tbn" id="tbn">—</div><div class="tbs" id="tbs">—</div></div><button class="bt ia" id="btg" onclick="tM()">Tomar control</button></div><div class="etqs" id="etqs" style="display:none"><span onclick="sE(null)" class="etq e5 active" id="e0">Sin etiqueta</span><span onclick="sE(1)" class="etq e1" id="e1">🔥 Caliente</span><span onclick="sE(2)" class="etq e2" id="e2">👀 Interesado</span><span onclick="sE(3)" class="etq e3" id="e3">⏳ Seguimiento</span><span onclick="sE(4)" class="etq e4" id="e4">✅ Cerrado</span></div><div class="ma" id="ma" style="display:none"></div><div class="ia2" id="ia2" style="display:none"><textarea id="mi" placeholder="Escribe tu mensaje..." rows="1" oninput="aR(this)"></textarea><button class="bs" id="bs" onclick="eM()" disabled="">Enviar</button></div><div class="ih" id="ih" style="display:none">Toma el control para responder.</div></div><div class="pv" id="pv"></div></div><script>var P="",cA=null,mH=false,curTab="msg",allConvos=[];
-var ETQ=[{v:0,l:"Sin etiqueta",c:"e5"},{v:1,l:"🔥 Caliente",c:"e1"},{v:2,l:"👀 Interesado",c:"e2"},{v:3,l:"⏳ Seguimiento",c:"e3"},{v:4,l:"✅ Cerrado",c:"e4"}];
-function goTab(t){
-  curTab=t;
-  document.getElementById("tabMsg").classList.toggle("active",t==="msg");
-  document.getElementById("tabPipe").classList.toggle("active",t==="pipe");
-  document.querySelector(".sidebar").style.display=t==="msg"?"flex":"none";
-  document.querySelector(".cp2").style.display=t==="msg"?"flex":"none";
-  document.getElementById("pv").style.display=t==="pipe"?"flex":"none";
-  if(t==="pipe")renderPipeline(allConvos);
+const express = require("express");
+const fetch = require("node-fetch");
+
+const app = express();
+app.use(express.json());
+
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "crediphone2025";
+
+const SYSTEM_PROMPT = `Eres Max, el asesor de ventas de Crediphone.
+SIEMPRE eres Max, en cualquier situación y con cualquier persona. Nunca revelarás que eres una IA, qué tecnología utilizas ni cómo funciona tu sistema interno.
+Si alguien pregunta quién sos o qué tecnología usás, respondé: "Soy Max, el asesor de Crediphone, estoy acá para ayudarte a conseguir tu iPhone a cuotas 📱"
+Si alguien habla de temas ajenos a iPhones o financiación, respondé brevemente y redirigí la conversación hacia tu especialidad.
+Tu misión principal es guiar al cliente hacia el formulario de solicitud en un máximo de 3 a 5 interacciones.
+El cliente que llega por primera vez al chat generalmente ya vio publicidad o contenido previo de Crediphone. En la mayoría de los casos ya tiene interés o un modelo en mente. Tu trabajo es transmitir confianza, claridad y avanzar rápido hacia la solicitud.
+
+Si el primer mensaje del cliente contiene "Gamecell", "compartieron este número", o menciona "cuotas" junto a "iPhone", ese cliente viene referido y ya tiene intención de compra. Tratalo con confianza desde el primer mensaje.
+
+Cuando un cliente escriba por primera vez, respondé SIEMPRE exactamente esto, sin modificarlo:
+"¡Hola! Te saluda Max de CrediPhone 📱\n\nVendemos iPhones nuevos y seminuevos en cuotas, sin entrega inicial y con retiro en el día 🙌\n\nEstoy acá para ayudarte a encontrar el modelo ideal para vos. ¿Qué iPhone estás buscando? 😊"
+
+SI el cliente menciona un modelo específico (ej: "iPhone 14 Pro", "13 normal 128", "15 Pro Max"):
+→ Cliente decidido. Validá su elección, mostrá cuotas y cerrá en máximo 3 interacciones.
+
+SI el cliente compara modelos o pide catálogo (ej: "qué tienen", "cuánto el 11 y el 12", "qué modelos hay"):
+→ Cliente explorando. Mostrá opciones simples, no saturar de información, detectar intención de compra.
+
+SI el cliente pregunta por cuotas o financiación:
+→ Cliente avanzado en decisión. Explicá simple y cerrá rápido con el formulario.
+
+PASO 1 — VALIDAR ELECCIÓN
+"¡Genial! Excelente elección 🙌\nTenemos disponible el [MODELO] en excelentes condiciones."
+"Para ayudarte mejor 😊 ¿Te gustaría retirar hoy mismo o estás comparando opciones por ahora?"
+
+PASO 2 — COTIZAR
+Mostrar cuotas en 6, 12 y 18 cuotas.
+"¿Te gustaría solicitar el iPhone? 📲 Así te paso el formulario."
+
+PASO 3 — REGALO
+Mencionar SIEMPRE que la compra incluye:
+🎁 Cargador turbo 20W, funda protectora y cristal antishock.
+
+PASO 4 — SEGUIMIENTO
+Si el cliente aún no envió el formulario:
+"Quedo atento el formulario para poder avanzar y aprobar más rápido 📋✅"
+
+Reglas de comunicación:
+Hablar siempre como humano. Mensajes cortos y claros. Sin textos largos. Sin varias preguntas juntas. Tono amable, seguro y rápido. Sin presión excesiva. El objetivo siempre es llevar al formulario.
+
+INFORMACIÓN DE LA TIENDA:
+- Nombre: Crediphone - Especialistas en iPhone a cuotas
+- Dirección: Mcal. Lopez esq. Cruz del Defensor - Predio Manzana T - Villa Morra, Asunción
+- Teléfono: 0992401579
+- Horario: Lunes a Sábado de 8:00 a 19:00 hs
+- Financieras: Paraguayo Japonesa (FIADO)
+- Dirección financiera: Mcal. Lopez esq. Bélgica (a 2 cuadras de la tienda)
+- Horario financiera: 8:30 a 17:30 hs continuado
+- Envíos: Todo el país. Delivery GRATIS zona Gran Asunción
+
+PRODUCTOS:
+- Seminuevos recién importados de EEUU, sin uso en Paraguay
+- Piezas 100% originales, batería 90% para arriba
+- Garantía escrita real de 1 año, igual que uno nuevo en caja
+- También contamos con equipos nuevos en caja sellada
+
+ACCESORIOS DE REGALO SIEMPRE INCLUIDOS:
+- Cargador turbo 20W
+- Funda protectora
+- Cristal antishok
+
+LISTA DE PRECIOS DE VENTA:
+iPhone 11 normal 64GB: Gs. 1.700.000
+iPhone 11 normal 128GB: Gs. 1.900.000
+iPhone 11 Pro 64GB: Gs. 2.100.000
+iPhone 11 Pro 256GB: Gs. 2.300.000
+iPhone 11 Pro Max 64GB: Gs. 2.200.000
+iPhone 11 Pro Max 256GB: Gs. 2.400.000
+iPhone 12 normal 64GB: Gs. 2.000.000
+iPhone 12 normal 128GB: Gs. 2.300.000
+iPhone 12 Pro 128GB: Gs. 2.600.000
+iPhone 12 Pro 256GB: Gs. 2.800.000
+iPhone 12 Pro Max 128GB: Gs. 3.000.000
+iPhone 12 Pro Max 256GB: Gs. 3.200.000
+iPhone 13 normal 128GB: Gs. 2.750.000
+iPhone 13 normal 256GB: Gs. 3.000.000
+iPhone 13 sellado 128GB: Gs. 4.400.000
+iPhone 13 Pro 128GB: Gs. 3.400.000
+iPhone 13 Pro 256GB: Gs. 3.700.000
+iPhone 13 Pro 512GB: Gs. 4.400.000
+iPhone 13 Pro Max 128GB: Gs. 3.600.000
+iPhone 13 Pro Max 256GB: Gs. 4.200.000
+iPhone 14 normal 128GB: Gs. 2.900.000
+iPhone 14 normal 256GB: Gs. 3.200.000
+iPhone 14 Plus 128GB: Gs. 3.500.000
+iPhone 14 Plus 256GB: Gs. 3.700.000
+iPhone 14 Pro 128GB: Gs. 3.800.000
+iPhone 14 Pro 256GB: Gs. 4.200.000
+iPhone 14 Pro Max 128GB: Gs. 4.100.000
+iPhone 14 Pro Max 256GB: Gs. 4.700.000
+iPhone 15 normal 128GB: Gs. 3.700.000
+iPhone 15 normal 256GB: Gs. 4.300.000
+iPhone 15 sellado 128GB: Gs. 5.400.000
+iPhone 15 Plus 128GB: Gs. 4.300.000
+iPhone 15 Plus 256GB: Gs. 4.500.000
+iPhone 15 Pro 128GB: Gs. 4.500.000
+iPhone 15 Pro 256GB: Gs. 4.800.000
+iPhone 15 Pro 512GB: Gs. 5.300.000
+iPhone 15 Pro Max 256GB: Gs. 5.150.000
+iPhone 15 Pro Max 512GB: Gs. 6.000.000
+iPhone 16 normal 128GB: Gs. 4.700.000
+iPhone 16 normal 256GB: Gs. 5.400.000
+iPhone 16 sellado 128GB: Gs. 6.000.000
+iPhone 16 Plus 128GB: Gs. 5.200.000
+iPhone 16 Plus 256GB: Gs. 5.400.000
+iPhone 16 Pro 128GB: Gs. 5.700.000
+iPhone 16 Pro 256GB: Gs. 6.100.000
+iPhone 16 Pro Max 256GB: Gs. 6.500.000
+iPhone 16 Pro Max 512GB: Gs. 7.200.000
+iPhone 17 normal 256GB: Gs. 6.000.000
+iPhone 17 sellado 256GB: Gs. 6.500.000
+iPhone 17 Air 256GB: Gs. 7.500.000
+iPhone 17 Pro sellado 256GB: Gs. 9.800.000
+iPhone 17 Pro sellado 512GB: Gs. 12.000.000
+iPhone 17 Pro Max sellado 256GB: Gs. 10.800.000
+iPhone 17 Pro Max sellado 512GB: Gs. 12.800.000
+
+FINANCIAMIENTO:
+- SIN entrega inicial
+- Primera cuota recién a los 30 días
+- Opciones: 6, 12 o 18 cuotas
+
+CÁLCULO DE CUOTAS:
+- 6 cuotas: precio x 0.19425
+- 12 cuotas: precio x 0.110229
+- 18 cuotas: precio x 0.083167
+
+CÁLCULO DE DINERO EN EFECTIVO COMO PARTE DE PAGO:
+1. Precio de venta del iPhone que se lleva
+2. Menos el dinero en efectivo que entrega
+3. El resultado es el Saldo Final
+4. Saldo Final x Factor = valor de cada cuota
+
+PLANTILLA COTIZACIÓN CON PARTE DE PAGO:
+♻️ Con la entrega de tu equipo, el [MODELO] queda así: 👇
+✅ 6 cuotas Gs. [CÁLCULO]
+✅ 12 cuotas Gs. [CÁLCULO]
+✅ 18 cuotas Gs. [CÁLCULO]
+🎁 Accesorios de regalo y garantía de 1 año incluidos.
+
+REQUISITOS:
+Cuando el cliente pregunte requisitos:
+- Mayor de 19 años
+- Salario mínimo vigente
+- Antigüedad laboral 6 meses o IPS para asalariados
+Luego preguntar: "¿Cuál sería tu actividad laboral?"
+
+PROCESO DESPUÉS DE APROBACIÓN:
+1. Cliente va a la financiera Paraguayo Japonesa solo con cédula
+2. Le dice a la recepcionista: "vengo a firmar un crédito de FIADO por el iPhone"
+3. Financiera demora 1 hora en acreditar a tienda
+4. Cliente retira en tienda o coordina delivery gratis
+5. Primera cuota a los 30 días
+
+MÉTODOS DE PAGO:
+Cuando el cliente pregunte sobre formas de pago responder:
+
+💳 Métodos de Pago Disponibles
+✅ Efectivo
+✅ Transferencia bancaria
+✅ Tarjetas de crédito y débito
+✅ Giros
+✅ Financiación en cuotas
+📲 También recibimos iPhone usado como parte de pago.
+
+Luego preguntar: "¿Te gustaría pagarlo al contado o preferís financiarlo en cuotas?"
+
+MANEJO DE OBJECIONES:
+- Si pregunta si debe pagar algo para retirar: "Para retirar no pagás nada, además tu primera cuota la abonás dentro de 30 días 🙌 ¡Aguardo el formulario para ingresar tu solicitud al sistema!"
+- Informconf: "Lo evaluamos caso por caso, ¿querés que intentemos gestionar tu solicitud?"
+- Si quiere hablar con una persona: "Perfecto, en breve te contacta uno de nuestros asesores 😊"
+
+REGLAS DE COMPORTAMIENTO:
+- Mensajes cortos y directos, máximo 3-4 líneas por mensaje.
+- Siempre terminar con una pregunta de doble alternativa positiva según el flujo correcto de la conversación para mover al cliente hasta el cierre.
+- Micro validar lo que el cliente dijo antes de dar información nueva y mover al cliente hacia el momento adecuado de ofrecer el formulario de solicitud.
+- No pedir nombre al cliente, el nombre del cliente viene en el formulario.
+- No hacer preguntas innecesarias si ya tenés la información del cliente.
+- Usar emojis con moderación. Formato visual con saltos de línea.
+
+FRASES CLAVE:
+- "Recién importados de EEUU, sin uso en Paraguay, garantía escrita de 1 año"
+- "Sin entrega inicial, primera cuota recién en 30 días"
+- "Delivery gratis zona Gran Asunción"
+
+RECORDATORIO — PRIMER CONTACTO
+Si es el primer mensaje del cliente, usá el mensaje de bienvenida definido arriba.
+
+DESPUÉS DE ENVIAR EL FORMULARIO:
+Si el cliente consulta sobre crédito, aprobación o estado de solicitud, responder únicamente:
+"A partir de este momento el equipo de créditos está a cargo de tu proceso 😊
+Ellos te van a contactar a la brevedad para guiarte en los siguientes pasos."
+No continuar la conversación sobre ese tema.`;
+
+// ============================================================
+// MEMORIA RAM - Sin Redis, simple y confiable
+// ============================================================
+const conversaciones = {};
+
+function getConv(numero) {
+  if (!conversaciones[numero]) {
+    conversaciones[numero] = {
+      messages: [],
+      modoHumano: false,
+      ultimoMensaje: new Date().toISOString(),
+      etiqueta: null,
+    };
+  }
+  return conversaciones[numero];
 }
-function renderPipeline(l){
-  var pv=document.getElementById("pv");
-  pv.innerHTML=ETQ.map(function(col){
-    var items=l.filter(function(c){return (c.etiqueta||0)===col.v;});
-    var cards=items.map(function(c){
-      var b=c.modoHumano?"<span class=\"pcbadge bh\">Humano</span>":"<span class=\"pcbadge bi\">IA</span>";
-      var t=c.ultimoTexto?(c.ultimoRol==="user"?"Cliente: ":"Max: ")+c.ultimoTexto:"Sin mensajes";
-      var opts=ETQ.map(function(o){return "<option value=\""+o.v+"\""+(o.v===col.v?" selected":"")+">"+o.l+"</option>";}).join("");
-      return "<div class=\"pcard\" draggable=\"true\" data-n=\""+c.numero+"\" ondragstart=\"pcDragStart(event,'"+c.numero+"')\" ondragend=\"pcDragEnd(event)\" onclick=\"pcOpen(event,'"+c.numero+"')\">"
-        +"<div class=\"pcn\"><span>"+c.numero+"</span>"+b+"</div>"
-        +"<div class=\"pct\">"+t+"</div>"
-        +"<select onclick=\"event.stopPropagation()\" onchange=\"pcMove('"+c.numero+"',this.value)\" style=\"margin-top:8px;width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:10px;border-radius:6px;padding:4px\">"+opts+"</select>"
-        +"</div>";
-    }).join("")||"<div style=\"padding:20px;text-align:center;color:var(--muted);font-size:12px\">Vacio</div>";
-    return "<div class=\"pcol\" data-col=\""+col.v+"\" ondragover=\"pcDragOver(event,"+col.v+")\" ondragleave=\"pcDragLeave(event)\" ondrop=\"pcDrop(event,"+col.v+")\">"
-      +"<div class=\"pch\"><span>"+col.l+"</span><span class=\"pcc\">"+items.length+"</span></div>"
-      +"<div class=\"pcb\">"+cards+"</div></div>";
-  }).join("");
+
+// ============================================================
+// WEBHOOK - Verificación de Meta
+// ============================================================
+app.get("/webhook", (req, res) => {
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
+  if (mode === "subscribe" && token === VERIFY_TOKEN) {
+    console.log("Webhook verificado ✅");
+    res.status(200).send(challenge);
+  } else {
+    res.sendStatus(403);
+  }
+});
+
+// ============================================================
+// WEBHOOK - Recibir mensajes de WhatsApp
+// ============================================================
+app.post("/webhook", async (req, res) => {
+  res.sendStatus(200);
+  try {
+    const body = req.body;
+    if (body.object !== "whatsapp_business_account") return;
+    const entry = body.entry?.[0];
+    const change = entry?.changes?.[0];
+    const value = change?.value;
+    const message = value?.messages?.[0];
+    if (!message || message.type !== "text") return;
+
+    const from = message.from;
+    const textoRecibido = message.text.body;
+    console.log(`📩 Mensaje de ${from}: ${textoRecibido}`);
+
+    const conv = getConv(from);
+    conv.ultimoMensaje = new Date().toISOString();
+    conv.messages.push({ role: "user", content: textoRecibido, timestamp: new Date().toISOString() });
+
+    if (conv.messages.length > 40) conv.messages = conv.messages.slice(-40);
+
+    if (conv.modoHumano) {
+      console.log(`👤 Modo humano activo para ${from}`);
+      return;
+    }
+
+    const historialClaude = conv.messages.map((m) => ({ role: m.role, content: m.content }));
+    const respuestaClaude = await llamarClaude(historialClaude);
+
+    conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
+    conv.ultimoMensaje = new Date().toISOString();
+
+    await enviarMensaje(from, respuestaClaude);
+    console.log(`✅ Respuesta enviada a ${from}`);
+  } catch (error) {
+    console.error("Error procesando mensaje:", error);
+  }
+});
+
+// ============================================================
+// FUNCIÓN: Llamar a Claude API
+// ============================================================
+async function llamarClaude(historial) {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-5",
+      max_tokens: 1000,
+      system: SYSTEM_PROMPT,
+      messages: historial,
+    }),
+  });
+  const data = await response.json();
+  if (!data.content) {
+    console.error("❌ Error Claude API:", JSON.stringify(data));
+    throw new Error("Claude no devolvió contenido");
+  }
+  return data.content[0].text;
 }
-var pcDragNum=null;
-function pcDragStart(e,n){pcDragNum=n;e.target.classList.add("dragging");}
-function pcDragEnd(e){e.target.classList.remove("dragging");}
-function pcDragOver(e,col){e.preventDefault();e.currentTarget.classList.add("dragover");}
-function pcDragLeave(e){e.currentTarget.classList.remove("dragover");}
-function pcDrop(e,col){e.preventDefault();e.currentTarget.classList.remove("dragover");if(pcDragNum)pcMove(pcDragNum,col);}
-function pcMove(n,etiqueta){
-  fetch("/api/etiqueta/"+n,{method:"POST",headers:{"x-panel-password":P,"Content-Type":"application/json"},body:JSON.stringify({etiqueta:etiqueta==0||etiqueta==="0"?null:Number(etiqueta)})})
-  .then(function(){cSB();});
+
+// ============================================================
+// FUNCIÓN: Enviar mensaje por WhatsApp
+// ============================================================
+async function enviarMensaje(numero, texto) {
+  await fetch(`https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}/messages`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ messaging_product: "whatsapp", to: numero, type: "text", text: { body: texto } }),
+  });
 }
-function pcOpen(e,n){
-  if(e.target.tagName==="SELECT")return;
-  goTab("msg");
-  aC(n);
+
+// ============================================================
+// API DEL PANEL
+// ============================================================
+function authPanel(req, res, next) {
+  const pwd = req.headers["x-panel-password"] || req.query.pwd;
+  if (pwd !== PANEL_PASSWORD) return res.status(401).json({ error: "No autorizado" });
+  next();
 }
-document.getElementById("pi").onkeydown=function(e){if(e.key==="Enter")dL();};function dL(){  var v=document.getElementById("pi").value;  if(!v){alert("Ingresa la contrasena");return;}  fetch("/api/conversaciones",{headers:{"x-panel-password":v}})  .then(function(r){    if(r.status===401){document.getElementById("le").style.display="block";}    else{P=v;document.getElementById("ls").style.display="none";ini();}  }).catch(function(e){alert("Error: "+e.message);});}function ini(){  cSB();  setInterval(function(){    cSB();    if(cA&&!mH)cC(cA);  },3000);}function cSB(){  fetch("/api/conversaciones",{headers:{"x-panel-password":P}})  .then(function(r){return r.json();})  .then(function(l){    allConvos=l;    if(curTab==="pipe")renderPipeline(l);    var el=document.getElementById("sl");    if(!l.length){el.innerHTML="<div class=\"es\">Sin conversaciones.<br/>Esperando mensajes...</div>";return;}    el.innerHTML=l.map(function(c){      var a=c.numero===cA?"active":"",h=c.modoHumano?"hm":"";      var b=c.modoHumano?"<span class=\"cb bh\">Humano</span>":"<span class=\"cb bi\">IA</span>";      var t=c.ultimoMensaje?fT(c.ultimoMensaje):"";      var p=c.ultimoTexto?(c.ultimoRol==="user"?"Cliente: ":"Max: ")+c.ultimoTexto:"";      var n=c.numero;      return "<div class=\"ci "+a+" "+h+"\" onclick=\"aC('"+n+"')\">"        +"<div class=\"av\">"+(c.modoHumano?"👤":"🤖")+"</div>"        +"<div style=\"flex:1;min-width:0\">"        +"<div style=\"display:flex;justify-content:space-between\"><span class=\"cn\">"+n+"</span><span class=\"ct\">"+t+"</span></div>"        +"<div class=\"cp\">"+p+"</div>"+b+"</div></div>";    }).join("");  });}function aC(n){  cA=n;  document.getElementById("nc").style.display="none";  document.getElementById("tb").style.display="flex";  document.getElementById("etqs").style.display="flex";  document.getElementById("ma").style.display="flex";  document.getElementById("ia2").style.display="flex";  document.getElementById("ih").style.display="block";  document.getElementById("tbn").textContent=n;  cC(n);cSB();}function cC(n){  fetch("/api/conversaciones/"+n,{headers:{"x-panel-password":P}})  .then(function(r){return r.json();})  .then(function(d){    mH=d.modoHumano;    actualizarUI();    var cv=allConvos.find(function(x){return x.numero===n;});    var et=(d.etiqueta!=null?d.etiqueta:(cv?cv.etiqueta:null))||0;    for(var i=0;i<=4;i++){var eb=document.getElementById("e"+i);if(eb)eb.classList.remove("active");}    var seb=document.getElementById("e"+et);if(seb)seb.classList.add("active");    var a=document.getElementById("ma");    a.innerHTML=(d.messages||[]).map(function(m){      var u=m.role==="user";      var c=u?"mu":("mb"+(m.enviadoPorHumano?" hs2":""));      var l=u?"Cliente":(m.enviadoPorHumano?"Vos":"Max IA");      var t=m.timestamp?fT(m.timestamp):"";      var x=String(m.content).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");      return "<div class=\"msg "+c+"\"><div class=\"ml\">"+l+"</div>"+x+"<div class=\"mt\">"+t+"</div></div>";    }).join("");    a.scrollTop=a.scrollHeight;  });}function sE(num){  if(!cA)return;  fetch("/api/etiqueta/"+cA,{method:"POST",headers:{"x-panel-password":P,"Content-Type":"application/json"},body:JSON.stringify({etiqueta:num})})  .then(function(){    for(var i=0;i<=4;i++){var el=document.getElementById("e"+i);if(el)el.classList.remove("active");}    var sel=document.getElementById(num?"e"+num:"e0");if(sel)sel.classList.add("active");    cSB();  });}function actualizarUI(){  var bt=document.getElementById("btg");  var inp=document.getElementById("mi");  var sb=document.getElementById("bs");  var s=document.getElementById("tbs");  var ih=document.getElementById("ih");  if(mH){    bt.textContent="Devolver a IA";bt.className="bt hu";    inp.disabled=false;sb.disabled=false;    s.textContent="Modo Humano — vos estas respondiendo";    ih.textContent="IA pausada. Solo vos respondes.";  }else{    bt.textContent="Tomar control";bt.className="bt ia";    inp.disabled=true;sb.disabled=true;    s.textContent="Max IA esta respondiendo";    ih.textContent="Toma el control para responder.";  }}function tM(){  if(!cA)return;  fetch("/api/modo-humano/"+cA,{method:"POST",headers:{"x-panel-password":P}})  .then(function(r){return r.json();})  .then(function(d){mH=d.modoHumano;actualizarUI();cSB();});}function eM(){  var inp=document.getElementById("mi");  var t=inp.value.trim();  if(!t||!cA)return;  inp.value="";inp.style.height="auto";  fetch("/api/responder/"+cA,{method:"POST",headers:{"x-panel-password":P,"Content-Type":"application/json"},body:JSON.stringify({texto:t})})  .then(function(){cC(cA);});}function fT(ts){  var d=new Date(ts),now=new Date(),df=now-d;  if(df<60000)return"ahora";  if(df<3600000)return Math.floor(df/60000)+"m";  if(df<86400000)return d.toLocaleTimeString("es-PY",{hour:"2-digit",minute:"2-digit"});  return d.toLocaleDateString("es-PY",{day:"2-digit",month:"2-digit"});}function aR(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,100)+"px";}</script></body></html>
+
+app.get("/api/conversaciones", authPanel, (req, res) => {
+  const lista = Object.entries(conversaciones).map(([numero, conv]) => {
+    const msgs = conv.messages || [];
+    const ultimo = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+    return {
+      numero,
+      modoHumano: conv.modoHumano || false,
+      ultimoMensaje: conv.ultimoMensaje,
+      totalMensajes: msgs.length,
+      ultimoTexto: ultimo ? ultimo.content.substring(0, 60) : "",
+      ultimoRol: ultimo ? ultimo.role : "",
+      etiqueta: conv.etiqueta || null,
+    };
+  });
+  lista.sort((a, b) => new Date(b.ultimoMensaje) - new Date(a.ultimoMensaje));
+  res.json(lista);
+});
+
+app.get("/api/conversaciones/:numero", authPanel, (req, res) => {
+  const conv = conversaciones[req.params.numero];
+  if (!conv) return res.json({ messages: [], modoHumano: false });
+  res.json({ numero: req.params.numero, modoHumano: conv.modoHumano, ultimoMensaje: conv.ultimoMensaje, messages: conv.messages });
+});
+
+app.post("/api/modo-humano/:numero", authPanel, (req, res) => {
+  const conv = getConv(req.params.numero);
+  conv.modoHumano = !conv.modoHumano;
+  console.log(`🔄 Modo ${conv.modoHumano ? "HUMANO" : "IA"} para ${req.params.numero}`);
+  res.json({ numero: req.params.numero, modoHumano: conv.modoHumano });
+});
+
+app.post("/api/etiqueta/:numero", authPanel, (req, res) => {
+  const { etiqueta } = req.body;
+  const conv = getConv(req.params.numero);
+  conv.etiqueta = etiqueta || null;
+  res.json({ numero: req.params.numero, etiqueta: conv.etiqueta });
+});
+
+app.post("/api/responder/:numero", authPanel, async (req, res) => {
+  const { texto } = req.body;
+  if (!texto) return res.status(400).json({ error: "Falta el texto" });
+  const conv = getConv(req.params.numero);
+  conv.messages.push({ role: "assistant", content: texto, timestamp: new Date().toISOString(), enviadoPorHumano: true });
+  conv.ultimoMensaje = new Date().toISOString();
+  await enviarMensaje(req.params.numero, texto);
+  console.log(`👤 Humano envió a ${req.params.numero}: ${texto}`);
+  res.json({ ok: true });
+});
+
+// ============================================================
+// PANEL VISUAL
+// ============================================================
+app.get("/panel", (req, res) => {
+  res.send(
+    '<!DOCTYPE html><html lang="es"><head>' +
+    '<meta charset="UTF-8"/>' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1.0"/>' +
+    '<title>Crediphone Panel</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>' +
+    '<style>' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    ':root{--bg:#0a0c10;--surface:#111318;--surface2:#1a1d24;--border:#23262f;--accent:#2eff9a;--accent-dim:rgba(46,255,154,0.12);--human:#ff8c42;--human-dim:rgba(255,140,66,0.12);--alert:#ff4f6a;--text:#e8eaf0;--muted:#6b7280}' +
+    'body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}' +
+    '#ls{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100}' +
+    '.lb{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:340px;text-align:center}' +
+    '.lb h2{font-size:20px;font-weight:700;margin-bottom:4px}' +
+    '.lb p{color:var(--muted);font-size:13px;margin-bottom:28px}' +
+    '.lb input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:14px;margin-bottom:12px;outline:none}' +
+    '.lb button{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:13px;font-weight:700;font-size:15px;cursor:pointer}' +
+    '.le{color:var(--alert);font-size:13px;margin-top:10px;display:none}' +
+    'header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}' +
+    '.hn{font-weight:700;font-size:16px}' +
+    '.hs{color:var(--muted);font-size:12px}' +
+    '.bo{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);font-weight:600}' +
+    '.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}' +
+    '@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}' +
+    '.main{display:flex;flex:1;overflow:hidden}' +
+    '.sidebar{width:300px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;background:var(--surface)}' +
+    '.sh{padding:16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px}' +
+    '.sl{flex:1;overflow-y:auto}' +
+    '.ci{padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;display:flex;gap:12px;align-items:flex-start}' +
+    '.ci:hover{background:var(--surface2)}' +
+    '.ci.active{background:var(--accent-dim);border-left:3px solid var(--accent)}' +
+    '.ci.hm{border-left:3px solid var(--human);background:var(--human-dim)}' +
+    '.av{width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:2px solid var(--border)}' +
+    '.cn{font-size:13px;font-weight:600}' +
+    '.ct{font-size:11px;color:var(--muted)}' +
+    '.cp{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.cb{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:5px;display:inline-block}' +
+    '.bi{background:var(--accent-dim);color:var(--accent)}' +
+    '.bh{background:var(--human-dim);color:var(--human)}' +
+    '.es{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px}' +
+    '.etqs{display:flex;gap:6px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;flex-shrink:0}' +
+    '.etq{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:all 0.2s;opacity:0.5}' +
+    '.etq:hover{opacity:1}' +
+    '.etq.active{opacity:1;border-color:currentColor}' +
+    '.e1{color:#ff4f6a;background:rgba(255,79,106,0.12)}' +
+    '.e2{color:#ff8c42;background:rgba(255,140,66,0.12)}' +
+    '.e3{color:#a78bfa;background:rgba(167,139,250,0.12)}' +
+    '.e4{color:#2eff9a;background:rgba(46,255,154,0.12)}' +
+    '.e5{color:#6b7280;background:rgba(107,114,128,0.12)}' +
+    '.cp2{flex:1;display:flex;flex-direction:column;overflow:hidden}' +
+    '.tb{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);flex-shrink:0}' +
+    '.tbn{font-weight:600;font-size:15px}' +
+    '.tbs{font-size:12px;color:var(--muted)}' +
+    '.bt{padding:8px 18px;border-radius:8px;border:none;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s}' +
+    '.bt.ia{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}' +
+    '.bt.ia:hover{background:var(--accent);color:#000}' +
+    '.bt.hu{background:var(--human-dim);color:var(--human);border:1px solid var(--human)}' +
+    '.bt.hu:hover{background:var(--human);color:#000}' +
+    '.ma{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px}' +
+    '.msg{max-width:68%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5}' +
+    '.mu{align-self:flex-start;background:var(--surface2);border:1px solid var(--border);border-bottom-left-radius:4px}' +
+    '.mb{align-self:flex-end;background:var(--accent-dim);border:1px solid rgba(46,255,154,0.25);border-bottom-right-radius:4px}' +
+    '.mb.hs2{background:var(--human-dim);border-color:rgba(255,140,66,0.25)}' +
+    '.mt{font-size:10px;color:var(--muted);margin-top:4px;text-align:right}' +
+    '.ml{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;color:var(--muted)}' +
+    '.nc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:12px}' +
+    '.ia2{padding:14px 20px;border-top:1px solid var(--border);background:var(--surface);display:flex;gap:10px;align-items:flex-end;flex-shrink:0}' +
+    '.ia2 textarea{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:14px;resize:none;outline:none;max-height:100px;min-height:42px;line-height:1.4}' +
+    '.ia2 textarea:disabled{opacity:0.4;cursor:not-allowed}' +
+    '.bs{background:var(--accent);color:#000;border:none;border-radius:10px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;height:42px}' +
+    '.bs:disabled{opacity:0.3;cursor:not-allowed}' +
+    '.ih{font-size:11px;color:var(--muted);padding:0 20px 10px;background:var(--surface)}' +
+    '</style></head><body>' +
+    '<div id="ls"><div class="lb"><div style="font-size:32px;margin-bottom:8px">📲</div>' +
+    '<h2>Crediphone Panel</h2><p>Ingresa la contrasena</p>' +
+    '<input type="password" id="pi" placeholder="Contrasena"/>' +
+    '<button onclick="dL()">Entrar</button>' +
+    '<div class="le" id="le">Contrasena incorrecta</div></div></div>' +
+    '<header><div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">📲</span>' +
+    '<div><div class="hn">Crediphone</div><div class="hs">Panel de Mensajes</div></div></div>' +
+    '<div class="bo"><div class="dot"></div>Bot activo</div></header>' +
+    '<div class="main">' +
+    '<div class="sidebar"><div class="sh">Conversaciones</div>' +
+    '<div class="sl" id="sl"><div class="es">Sin conversaciones.<br/>Esperando mensajes...</div></div></div>' +
+    '<div class="cp2">' +
+    '<div class="nc" id="nc"><div style="font-size:48px;opacity:0.4">💬</div><div>Selecciona una conversacion</div></div>' +
+    '<div class="tb" id="tb" style="display:none">' +
+    '<div><div class="tbn" id="tbn">—</div><div class="tbs" id="tbs">—</div></div>' +
+    '<button class="bt ia" id="btg" onclick="tM()">Tomar control</button></div>' +
+    '<div class="etqs" id="etqs" style="display:none">' +
+    '<span onclick="sE(null)" class="etq e5 active" id="e0">Sin etiqueta</span>' +
+    '<span onclick="sE(1)" class="etq e1" id="e1">🔥 Caliente</span>' +
+    '<span onclick="sE(2)" class="etq e2" id="e2">👀 Interesado</span>' +
+    '<span onclick="sE(3)" class="etq e3" id="e3">⏳ Seguimiento</span>' +
+    '<span onclick="sE(4)" class="etq e4" id="e4">✅ Cerrado</span>' +
+    '</div>' +
+    '<div class="ma" id="ma" style="display:none"></div>' +
+    '<div class="ia2" id="ia2" style="display:none">' +
+    '<textarea id="mi" placeholder="Escribe tu mensaje..." rows="1" oninput="aR(this)"></textarea>' +
+    '<button class="bs" id="bs" onclick="eM()" disabled>Enviar</button></div>' +
+    '<div class="ih" id="ih" style="display:none">Toma el control para responder.</div>' +
+    '</div></div>' +
+    '<script>' +
+    'var P="",cA=null,mH=false;' +
+    'document.getElementById("pi").onkeydown=function(e){if(e.key==="Enter")dL();};' +
+    'function dL(){' +
+    '  var v=document.getElementById("pi").value;' +
+    '  if(!v){alert("Ingresa la contrasena");return;}' +
+    '  fetch("/api/conversaciones",{headers:{"x-panel-password":v}})' +
+    '  .then(function(r){' +
+    '    if(r.status===401){document.getElementById("le").style.display="block";}' +
+    '    else{P=v;document.getElementById("ls").style.display="none";ini();}' +
+    '  }).catch(function(e){alert("Error: "+e.message);});' +
+    '}' +
+    'function ini(){' +
+    '  cSB();' +
+    '  setInterval(function(){' +
+    '    cSB();' +
+    '    if(cA&&!mH)cC(cA);' +
+    '  },3000);' +
+    '}' +
+    'function cSB(){' +
+    '  fetch("/api/conversaciones",{headers:{"x-panel-password":P}})' +
+    '  .then(function(r){return r.json();})' +
+    '  .then(function(l){' +
+    '    var el=document.getElementById("sl");' +
+    '    if(!l.length){el.innerHTML="<div class=\\"es\\">Sin conversaciones.<br/>Esperando mensajes...</div>";return;}' +
+    '    el.innerHTML=l.map(function(c){' +
+    '      var a=c.numero===cA?"active":"",h=c.modoHumano?"hm":"";' +
+    '      var b=c.modoHumano?"<span class=\\"cb bh\\">Humano</span>":"<span class=\\"cb bi\\">IA</span>";' +
+    '      var t=c.ultimoMensaje?fT(c.ultimoMensaje):"";' +
+    '      var p=c.ultimoTexto?(c.ultimoRol==="user"?"Cliente: ":"Max: ")+c.ultimoTexto:"";' +
+    '      var n=c.numero;' +
+    '      return "<div class=\\"ci "+a+" "+h+"\\" onclick=\\"aC(\'"+n+"\')\\">"' +
+    '        +"<div class=\\"av\\">"+(c.modoHumano?"👤":"🤖")+"</div>"' +
+    '        +"<div style=\\"flex:1;min-width:0\\">"' +
+    '        +"<div style=\\"display:flex;justify-content:space-between\\"><span class=\\"cn\\">"+n+"</span><span class=\\"ct\\">"+t+"</span></div>"' +
+    '        +"<div class=\\"cp\\">"+p+"</div>"+b+"</div></div>";' +
+    '    }).join("");' +
+    '  });' +
+    '}' +
+    'function aC(n){' +
+    '  cA=n;' +
+    '  document.getElementById("nc").style.display="none";' +
+    '  document.getElementById("tb").style.display="flex";' +
+    '  document.getElementById("etqs").style.display="flex";' +
+    '  document.getElementById("ma").style.display="flex";' +
+    '  document.getElementById("ia2").style.display="flex";' +
+    '  document.getElementById("ih").style.display="block";' +
+    '  document.getElementById("tbn").textContent=n;' +
+    '  cC(n);cSB();' +
+    '}' +
+    'function cC(n){' +
+    '  fetch("/api/conversaciones/"+n,{headers:{"x-panel-password":P}})' +
+    '  .then(function(r){return r.json();})' +
+    '  .then(function(d){' +
+    '    mH=d.modoHumano;' +
+    '    actualizarUI();' +
+    '    var a=document.getElementById("ma");' +
+    '    a.innerHTML=(d.messages||[]).map(function(m){' +
+    '      var u=m.role==="user";' +
+    '      var c=u?"mu":("mb"+(m.enviadoPorHumano?" hs2":""));' +
+    '      var l=u?"Cliente":(m.enviadoPorHumano?"Vos":"Max IA");' +
+    '      var t=m.timestamp?fT(m.timestamp):"";' +
+    '      var x=String(m.content).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");' +
+    '      return "<div class=\\"msg "+c+"\\"><div class=\\"ml\\">"+l+"</div>"+x+"<div class=\\"mt\\">"+t+"</div></div>";' +
+    '    }).join("");' +
+    '    a.scrollTop=a.scrollHeight;' +
+    '  });' +
+    '}' +
+    'function sE(num){' +
+    '  if(!cA)return;' +
+    '  fetch("/api/etiqueta/"+cA,{method:"POST",headers:{"x-panel-password":P,"Content-Type":"application/json"},body:JSON.stringify({etiqueta:num})})' +
+    '  .then(function(){' +
+    '    for(var i=0;i<=4;i++){var el=document.getElementById("e"+i);if(el)el.classList.remove("active");}' +
+    '    var sel=document.getElementById(num?"e"+num:"e0");if(sel)sel.classList.add("active");' +
+    '    cSB();' +
+    '  });' +
+    '}' +
+    'function actualizarUI(){' +
+    '  var bt=document.getElementById("btg");' +
+    '  var inp=document.getElementById("mi");' +
+    '  var sb=document.getElementById("bs");' +
+    '  var s=document.getElementById("tbs");' +
+    '  var ih=document.getElementById("ih");' +
+    '  if(mH){' +
+    '    bt.textContent="Devolver a IA";bt.className="bt hu";' +
+    '    inp.disabled=false;sb.disabled=false;' +
+    '    s.textContent="Modo Humano — vos estas respondiendo";' +
+    '    ih.textContent="IA pausada. Solo vos respondes.";' +
+    '  }else{' +
+    '    bt.textContent="Tomar control";bt.className="bt ia";' +
+    '    inp.disabled=true;sb.disabled=true;' +
+    '    s.textContent="Max IA esta respondiendo";' +
+    '    ih.textContent="Toma el control para responder.";' +
+    '  }' +
+    '}' +
+    'function tM(){' +
+    '  if(!cA)return;' +
+    '  fetch("/api/modo-humano/"+cA,{method:"POST",headers:{"x-panel-password":P}})' +
+    '  .then(function(r){return r.json();})' +
+    '  .then(function(d){mH=d.modoHumano;actualizarUI();cSB();});' +
+    '}' +
+    'function eM(){' +
+    '  var inp=document.getElementById("mi");' +
+    '  var t=inp.value.trim();' +
+    '  if(!t||!cA)return;' +
+    '  inp.value="";inp.style.height="auto";' +
+    '  fetch("/api/responder/"+cA,{method:"POST",headers:{"x-panel-password":P,"Content-Type":"application/json"},body:JSON.stringify({texto:t})})' +
+    '  .then(function(){cC(cA);});' +
+    '}' +
+    'function fT(ts){' +
+    '  var d=new Date(ts),now=new Date(),df=now-d;' +
+    '  if(df<60000)return"ahora";' +
+    '  if(df<3600000)return Math.floor(df/60000)+"m";' +
+    '  if(df<86400000)return d.toLocaleTimeString("es-PY",{hour:"2-digit",minute:"2-digit"});' +
+    '  return d.toLocaleDateString("es-PY",{day:"2-digit",month:"2-digit"});' +
+    '}' +
+    'function aR(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,100)+"px";}' +
+    '</script></body></html>'
+  );
+});
+
+// ============================================================
+// INICIAR SERVIDOR
+// ============================================================
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor Max de Crediphone corriendo en puerto ${PORT}`);
+  console.log(`📊 Panel disponible en /panel`);
+});
