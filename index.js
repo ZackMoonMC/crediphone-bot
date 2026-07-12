@@ -1,9 +1,15 @@
 const express = require("express");
+const { Redis } = require("@upstash/redis");
 // Node.js 22 incluye fetch nativo — ya no usamos node-fetch (causaba ERR_STREAM_PREMATURE_CLOSE)
 
 const app = express();
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
@@ -191,20 +197,21 @@ Ellos te van a contactar a la brevedad para guiarte en los siguientes pasos."
 No continuar la conversación sobre ese tema.`;
 
 // ============================================================
-// MEMORIA RAM - Sin Redis, simple y confiable
+// MEMORIA EN REDIS - Persistente entre reinicios
 // ============================================================
-const conversaciones = {};
+async function getConv(numero) {
+  const data = await redis.get(`conv:${numero}`);
+  if (data) return data;
+  return {
+    messages: [],
+    modoHumano: false,
+    ultimoMensaje: new Date().toISOString(),
+    etiqueta: null,
+  };
+}
 
-function getConv(numero) {
-  if (!conversaciones[numero]) {
-    conversaciones[numero] = {
-      messages: [],
-      modoHumano: false,
-      ultimoMensaje: new Date().toISOString(),
-      etiqueta: null,
-    };
-  }
-  return conversaciones[numero];
+async function saveConv(numero, conv) {
+  await redis.set(`conv:${numero}`, conv);
 }
 
 // ============================================================
@@ -240,13 +247,14 @@ app.post("/webhook", async (req, res) => {
     const textoRecibido = message.text.body;
     console.log(`📩 Mensaje de ${from}: ${textoRecibido}`);
 
-    const conv = getConv(from);
+    const conv = await getConv(from);
     conv.ultimoMensaje = new Date().toISOString();
     conv.messages.push({ role: "user", content: textoRecibido, timestamp: new Date().toISOString() });
 
     if (conv.messages.length > 40) conv.messages = conv.messages.slice(-40);
 
     if (conv.modoHumano) {
+      await saveConv(from, conv);
       console.log(`👤 Modo humano activo para ${from}`);
       return;
     }
@@ -256,6 +264,7 @@ app.post("/webhook", async (req, res) => {
 
     conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
+    await saveConv(from, conv);
 
     await enviarMensaje(from, respuestaClaude);
     console.log(`✅ Respuesta enviada a ${from}`);
@@ -317,11 +326,16 @@ function authPanel(req, res, next) {
   next();
 }
 
-app.get("/api/conversaciones", authPanel, (req, res) => {
-  const lista = Object.entries(conversaciones).map(([numero, conv]) => {
+app.get("/api/conversaciones", authPanel, async (req, res) => {
+  const claves = await redis.keys("conv:*");
+  const lista = [];
+  for (const clave of claves) {
+    const numero = clave.replace("conv:", "");
+    const conv = await redis.get(clave);
+    if (!conv) continue;
     const msgs = conv.messages || [];
     const ultimo = msgs.length > 0 ? msgs[msgs.length - 1] : null;
-    return {
+    lista.push({
       numero,
       modoHumano: conv.modoHumano || false,
       ultimoMensaje: conv.ultimoMensaje,
@@ -329,38 +343,40 @@ app.get("/api/conversaciones", authPanel, (req, res) => {
       ultimoTexto: ultimo ? ultimo.content.substring(0, 60) : "",
       ultimoRol: ultimo ? ultimo.role : "",
       etiqueta: conv.etiqueta || null,
-    };
-  });
+    });
+  }
   lista.sort((a, b) => new Date(b.ultimoMensaje) - new Date(a.ultimoMensaje));
   res.json(lista);
 });
 
-app.get("/api/conversaciones/:numero", authPanel, (req, res) => {
-  const conv = conversaciones[req.params.numero];
-  if (!conv) return res.json({ messages: [], modoHumano: false });
+app.get("/api/conversaciones/:numero", authPanel, async (req, res) => {
+  const conv = await getConv(req.params.numero);
   res.json({ numero: req.params.numero, modoHumano: conv.modoHumano, ultimoMensaje: conv.ultimoMensaje, messages: conv.messages });
 });
 
-app.post("/api/modo-humano/:numero", authPanel, (req, res) => {
-  const conv = getConv(req.params.numero);
+app.post("/api/modo-humano/:numero", authPanel, async (req, res) => {
+  const conv = await getConv(req.params.numero);
   conv.modoHumano = !conv.modoHumano;
+  await saveConv(req.params.numero, conv);
   console.log(`🔄 Modo ${conv.modoHumano ? "HUMANO" : "IA"} para ${req.params.numero}`);
   res.json({ numero: req.params.numero, modoHumano: conv.modoHumano });
 });
 
-app.post("/api/etiqueta/:numero", authPanel, (req, res) => {
+app.post("/api/etiqueta/:numero", authPanel, async (req, res) => {
   const { etiqueta } = req.body;
-  const conv = getConv(req.params.numero);
+  const conv = await getConv(req.params.numero);
   conv.etiqueta = etiqueta || null;
+  await saveConv(req.params.numero, conv);
   res.json({ numero: req.params.numero, etiqueta: conv.etiqueta });
 });
 
 app.post("/api/responder/:numero", authPanel, async (req, res) => {
   const { texto } = req.body;
   if (!texto) return res.status(400).json({ error: "Falta el texto" });
-  const conv = getConv(req.params.numero);
+  const conv = await getConv(req.params.numero);
   conv.messages.push({ role: "assistant", content: texto, timestamp: new Date().toISOString(), enviadoPorHumano: true });
   conv.ultimoMensaje = new Date().toISOString();
+  await saveConv(req.params.numero, conv);
   await enviarMensaje(req.params.numero, texto);
   console.log(`👤 Humano envió a ${req.params.numero}: ${texto}`);
   res.json({ ok: true });
