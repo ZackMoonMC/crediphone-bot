@@ -207,6 +207,9 @@ async function getConv(numero) {
     modoHumano: false,
     ultimoMensaje: new Date().toISOString(),
     etiqueta: null,
+    etapaSeguimiento: null,
+    seguimiento3hEnviado: false,
+    seguimiento23hEnviado: false,
   };
 }
 
@@ -249,6 +252,8 @@ app.post("/webhook", async (req, res) => {
 
     const conv = await getConv(from);
     conv.ultimoMensaje = new Date().toISOString();
+    conv.seguimiento3hEnviado = false;
+    conv.seguimiento23hEnviado = false;
     conv.messages.push({ role: "user", content: textoRecibido, timestamp: new Date().toISOString() });
 
     if (conv.messages.length > 40) conv.messages = conv.messages.slice(-40);
@@ -264,7 +269,13 @@ app.post("/webhook", async (req, res) => {
 
     conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
+    if (respuestaClaude.toLowerCase().includes("formulario")) {
+      conv.etapaSeguimiento = "formulario_enviado";
+    } else if (!conv.etapaSeguimiento) {
+      conv.etapaSeguimiento = "cotizando";
+    }
     await saveConv(from, conv);
+  
 
     await enviarMensaje(from, respuestaClaude);
     console.log(`✅ Respuesta enviada a ${from}`);
@@ -388,6 +399,61 @@ app.post("/api/responder/:numero", authPanel, async (req, res) => {
 app.get("/panel", (req, res) => {
   res.sendFile(__dirname + "/public/panel.html");
 });
+
+// ============================================================
+// CRON DE SEGUIMIENTO AUTOMÁTICO
+// ============================================================
+
+const MENSAJE_3H = "¡Hola de nuevo! Te comento que los equipos están impecables, y ya te incluimos cargador, case, cristal antishock y garantía de 1 año 🎁\n¿Seguimos con la cotización?";
+
+const MENSAJE_23H = "¡Hola de nuevo! ¿Necesitás ayuda para completar el formulario? 😊\nSi lo completás hoy, te sumamos unos auriculares inalámbricos de regalo 🎧\n¿Seguimos?";
+
+function estaEnHorarioPermitido() {
+  const ahoraUTC = new Date();
+  const horaParaguay = (ahoraUTC.getUTCHours() - 4 + 24) % 24;
+  return horaParaguay >= 6 && horaParaguay < 22;
+}
+
+async function revisarSeguimientos() {
+  if (!estaEnHorarioPermitido()) {
+    console.log("⏰ Fuera de horario permitido (06-22 Paraguay), cron no envía nada esta vez");
+    return;
+  }
+
+  try {
+    const claves = await redis.keys("conv:*");
+    for (const clave of claves) {
+      const numero = clave.replace("conv:", "");
+      const conv = await redis.get(clave);
+      if (!conv || conv.modoHumano) continue;
+
+      const horasSinResponder = (Date.now() - new Date(conv.ultimoMensaje).getTime()) / (1000 * 60 * 60);
+
+      if (horasSinResponder >= 3 && horasSinResponder < 23 && !conv.seguimiento3hEnviado) {
+        await enviarMensaje(numero, MENSAJE_3H);
+        conv.seguimiento3hEnviado = true;
+        conv.messages.push({ role: "assistant", content: MENSAJE_3H, timestamp: new Date().toISOString(), esSeguimientoAutomatico: true });
+        await saveConv(numero, conv);
+        console.log(`⏳ Seguimiento 3h enviado a ${numero}`);
+      } else if (
+        horasSinResponder >= 23 &&
+        horasSinResponder < 24 &&
+        conv.etapaSeguimiento === "formulario_enviado" &&
+        !conv.seguimiento23hEnviado
+      ) {
+        await enviarMensaje(numero, MENSAJE_23H);
+        conv.seguimiento23hEnviado = true;
+        conv.messages.push({ role: "assistant", content: MENSAJE_23H, timestamp: new Date().toISOString(), esSeguimientoAutomatico: true });
+        await saveConv(numero, conv);
+        console.log(`🎧 Seguimiento 23h (auriculares) enviado a ${numero}`);
+      }
+    }
+  } catch (error) {
+    console.error("Error en cron de seguimientos:", error);
+  }
+}
+
+setInterval(revisarSeguimientos, 15 * 60 * 1000); // corre cada 15 minutos
 
 // ============================================================
 // INICIAR SERVIDOR
