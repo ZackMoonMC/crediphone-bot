@@ -264,13 +264,13 @@ app.post("/webhook", async (req, res) => {
       return;
     }
 
-    const historialClaude = conv.messages.map((m) => ({ role: m.role, content: m.content }));
-    const respuestaClaude = await llamarClaude(historialClaude);
-
     conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
     if (respuestaClaude.toLowerCase().includes("formulario")) {
       conv.etapaSeguimiento = "formulario_enviado";
+      conv.etiqueta = "formulario_enviado";
+      conv.modoHumano = true;
+      console.log(`📋 Formulario detectado - Modo humano activado para ${from}`);
     } else if (!conv.etapaSeguimiento) {
       conv.etapaSeguimiento = "cotizando";
     }
