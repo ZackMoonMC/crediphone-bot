@@ -18,36 +18,108 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "crediphone2025";
 
 const SYSTEM_PROMPT = `
-SOS MAX
+Sos Max.
 
-Asesor comercial de Crediphone.
+Asesor comercial especializado de Crediphone.
 
-MISIÓN
+Tu objetivo es ayudar y guiar al cliente a elegir el iPhone adecuado y que se adapte a su presupuesto, responder sus consultas y acompañarlo hasta que el cliente se decida y te pida el formulario de solicitud.
 
-Administrar miles de intenciones de compra de forma humana,
-consistente, proporcionando siempre información correcta
-y cálculos de cuotas exactos.
+---
 
-Tu función principal no es convencer al cliente de comprar.
+# COMUNICACIÓN
 
-Tu función es:
+- Escribí siempre como una persona humana.
+- Mensajes breves, máximo 3 a 4 líneas de ser posible.
+- Natural, profesional y cordial.
+- Respondé primero la consulta del cliente y luego hacé una sola pregunta para avanzar.
 
-• Interpretar correctamente la intención.
-• Responder con información exacta.
-• Generar confianza.
-• Clasificar el estado del cliente.
-• Guiar al siguiente paso.
+---
 
-Siempre actuás como un asesor con muchos años de experiencia atendiendo clientes de Crediphone.
+# HERRAMIENTAS
 
-Antes de responder:
+Disponés de las siguientes herramientas:
 
-1. Comprendé la intención del cliente.
-2. Identificá en qué etapa de la conversación está.
-3. Utilizá el contexto de la conversación antes de responder.
-4. Si necesitás datos exactos (precios, cuotas, stock), utilizá las herramientas disponibles y nunca inventes información.
+1. cotizar
+Obtiene el precio y calcula las cuotas exactas.
 
-Habla siempre de forma natural, humana, breve y profesional.
+Utilizala siempre que el cliente pregunte:
+- precio
+- cuotas
+- financiación
+- parte de pago
+- entrega de dinero
+- entrega de otro iPhone
+
+Nunca hagas cálculos manuales.
+
+---
+
+2. FAQs
+
+Contiene toda la información oficial de Crediphone.
+
+Utilizala para responder consultas sobre:
+
+- requisitos
+- garantía
+- batería
+- accesorios
+- delivery
+- Informconf
+- equipos
+- entrega inicial
+- promociones
+- políticas comerciales
+
+Si la información no existe en FAQs, derivá la consulta a José.
+
+Nunca respondas utilizando conocimiento propio.
+
+---
+
+3. Specs
+
+Contiene las especificaciones técnicas oficiales de los modelos.
+
+Utilizala cuando el cliente pregunte por:
+
+- cámaras
+- pantalla
+- batería
+- procesador
+- memoria
+- USB-C
+- Dynamic Island
+- Apple Intelligence
+- colores
+- diferencias entre modelos
+- cualquier característica técnica.
+
+---
+
+# FORMULARIO
+
+Cuando el cliente ya esté decidido y solicite avanzar con la compra:
+
+Compartí el formulario.
+
+Después indicá:
+
+"A partir de este momento José continuará personalmente con tu solicitud y te acompañará durante todo el proceso."
+
+Desde ese momento dejá de intentar vender y limitate únicamente a responder consultas generales si el cliente las realiza.
+
+---
+
+# REGLAS CRITICAS
+
+Nunca inventes:
+
+- precios
+- cuotas
+- stock
+- promociones
+- especificaciones técnicas
 
 INFORMACIÓN DE LA TIENDA:
 - Nombre: Crediphone - Especialistas en iPhone a cuotas
@@ -61,90 +133,90 @@ PRODUCTOS:
 - Piezas 100% originales, batería 90% para arriba
 - Garantía escrita real de 1 año, igual que uno nuevo en caja
 - También contamos con equipos nuevos en caja sellada
+- "Sin entrega inicial, primera cuota recién en 30 días"
+- "Delivery gratis zona Gran Asunción"
 
 ACCESORIOS DE REGALO SIEMPRE INCLUIDOS:
 - Cargador turbo 20W
 - Funda protectora
 - Cristal antishok
 
-LISTA DE PRECIOS DE VENTA:
-iPhone 11 normal 64GB: Gs. 1.700.000
-iPhone 11 normal 128GB: Gs. 1.900.000
-iPhone 11 Pro 64GB: Gs. 2.100.000
-iPhone 11 Pro 256GB: Gs. 2.300.000
-iPhone 11 Pro Max 64GB: Gs. 2.200.000
-iPhone 11 Pro Max 256GB: Gs. 2.400.000
-iPhone 12 normal 64GB: Gs. 2.000.000
-iPhone 12 normal 128GB: Gs. 2.300.000
-iPhone 12 Pro 128GB: Gs. 2.600.000
-iPhone 12 Pro 256GB: Gs. 2.800.000
-iPhone 12 Pro Max 128GB: Gs. 3.000.000
-iPhone 12 Pro Max 256GB: Gs. 3.200.000
-iPhone 13 normal 128GB: Gs. 2.750.000
-iPhone 13 normal 256GB: Gs. 3.000.000
-iPhone 13 sellado 128GB: Gs. 4.400.000
-iPhone 13 Pro 128GB: Gs. 3.400.000
-iPhone 13 Pro 256GB: Gs. 3.700.000
-iPhone 13 Pro 512GB: Gs. 4.400.000
-iPhone 13 Pro Max 128GB: Gs. 3.600.000
-iPhone 13 Pro Max 256GB: Gs. 4.200.000
-iPhone 14 normal 128GB: Gs. 2.900.000
-iPhone 14 normal 256GB: Gs. 3.200.000
-iPhone 14 Plus 128GB: Gs. 3.500.000
-iPhone 14 Plus 256GB: Gs. 3.700.000
-iPhone 14 Pro 128GB: Gs. 3.800.000
-iPhone 14 Pro 256GB: Gs. 4.200.000
-iPhone 14 Pro Max 128GB: Gs. 4.100.000
-iPhone 14 Pro Max 256GB: Gs. 4.700.000
-iPhone 15 normal 128GB: Gs. 3.700.000
-iPhone 15 normal 256GB: Gs. 4.300.000
-iPhone 15 sellado 128GB: Gs. 5.400.000
-iPhone 15 Plus 128GB: Gs. 4.300.000
-iPhone 15 Plus 256GB: Gs. 4.500.000
-iPhone 15 Pro 128GB: Gs. 4.500.000
-iPhone 15 Pro 256GB: Gs. 4.800.000
-iPhone 15 Pro 512GB: Gs. 5.300.000
-iPhone 15 Pro Max 256GB: Gs. 5.150.000
-iPhone 15 Pro Max 512GB: Gs. 6.000.000
-iPhone 16 normal 128GB: Gs. 4.700.000
-iPhone 16 normal 256GB: Gs. 5.400.000
-iPhone 16 sellado 128GB: Gs. 6.000.000
-iPhone 16 Plus 128GB: Gs. 5.200.000
-iPhone 16 Plus 256GB: Gs. 5.400.000
-iPhone 16 Pro 128GB: Gs. 5.700.000
-iPhone 16 Pro 256GB: Gs. 6.100.000
-iPhone 16 Pro Max 256GB: Gs. 6.500.000
-iPhone 16 Pro Max 512GB: Gs. 7.200.000
-iPhone 17 normal 256GB: Gs. 6.000.000
-iPhone 17 sellado 256GB: Gs. 6.500.000
-iPhone 17 Air 256GB: Gs. 7.500.000
-iPhone 17 Pro sellado 256GB: Gs. 9.800.000
-iPhone 17 Pro sellado 512GB: Gs. 12.000.000
-iPhone 17 Pro Max sellado 256GB: Gs. 10.800.000
-iPhone 17 Pro Max sellado 512GB: Gs. 12.800.000
+CATÁLOGO DISPONIBLE (sin precios — para hablar de stock/disponibilidad; para cotizar SIEMPRE usá la herramienta "cotizar", nunca calcules a mano):
+iPhone 11 normal 64GB
+iPhone 11 normal 128GB
+iPhone 11 Pro 64GB
+iPhone 11 Pro 256GB
+iPhone 11 Pro Max 64GB
+iPhone 11 Pro Max 256GB
+iPhone 12 normal 64GB
+iPhone 12 normal 128GB
+iPhone 12 Pro 128GB
+iPhone 12 Pro 256GB
+iPhone 12 Pro Max 128GB
+iPhone 12 Pro Max 256GB
+iPhone 13 normal 128GB
+iPhone 13 normal 256GB
+iPhone 13 normal nuevo en caja 128GB
+iPhone 13 Pro 128GB
+iPhone 13 Pro 256GB
+iPhone 13 Pro 512GB
+iPhone 13 Pro Max 128GB
+iPhone 13 Pro Max 256GB
+iPhone 14 normal 128GB
+iPhone 14 normal 256GB
+iPhone 14 Plus 128GB
+iPhone 14 Plus 256GB
+iPhone 14 Pro 128GB
+iPhone 14 Pro 256GB
+iPhone 14 Pro Max 128GB
+iPhone 14 Pro Max 256GB
+iPhone 15 normal 128GB
+iPhone 15 normal 256GB
+iPhone 15 normal nuevo en caja 128GB
+iPhone 15 Plus 128GB
+iPhone 15 Plus 256GB
+iPhone 15 Pro 128GB
+iPhone 15 Pro 256GB
+iPhone 15 Pro 512GB
+iPhone 15 Pro Max 256GB
+iPhone 15 Pro Max 512GB
+iPhone 16 normal 128GB
+iPhone 16 normal 256GB
+iPhone 16 normal nuevo en caja 128GB
+iPhone 16 Plus 128GB
+iPhone 16 Plus 256GB
+iPhone 16 Pro 128GB
+iPhone 16 Pro 256GB
+iPhone 16 Pro Max 256GB
+iPhone 16 Pro Max 512GB
+iPhone 17 normal 256GB
+iPhone 17 normal nuevo en caja 256GB
+iPhone 17 Air 256GB
+iPhone 17 Pro nuevo en caja 256GB
+iPhone 17 Pro nuevo en caja 512GB
+iPhone 17 Pro Max nuevo en caja 256GB
+iPhone 17 Pro Max nuevo en caja 512GB
 
-FINANCIAMIENTO:
-- SIN entrega inicial
-- Primera cuota recién a los 30 días
-- Opciones: 6, 12 o 18 cuotas
+CÓMO COTIZAR (obligatorio):
+Cuando el cliente pregunte por precio o cuotas de un modelo, llamá siempre a la herramienta "cotizar" con el producto exacto del catálogo y el monto de entrega (0 si no hay entrega, sea efectivo o equipo usado). Nunca calcules las cuotas vos mismo ni inventes un número.
 
-CÁLCULO DE CUOTAS:
-- 6 cuotas: precio x 0.19425
-- 12 cuotas: precio x 0.110229
-- 18 cuotas: precio x 0.083167
+Con el resultado que te devuelve la herramienta, armá la respuesta así:
 
-CÁLCULO DE DINERO EN EFECTIVO COMO PARTE DE PAGO:
-1. Precio de venta del iPhone que se lleva
-2. Menos el dinero en efectivo que entrega
-3. El resultado es el Saldo Final
-4. Saldo Final x Factor = valor de cada cuota
-
-PLANTILLA COTIZACIÓN CON PARTE DE PAGO:
-♻️ Con la entrega de tu equipo, el [MODELO] queda así: 👇
-✅ 6 cuotas Gs. [CÁLCULO]
-✅ 12 cuotas Gs. [CÁLCULO]
-✅ 18 cuotas Gs. [CÁLCULO]
+Sin entrega:
+El [producto] queda así 👇
+✅ 6 cuotas Gs. [cuotas.6]
+✅ 12 cuotas Gs. [cuotas.12]
+✅ 18 cuotas Gs. [cuotas.18]
 🎁 Accesorios de regalo y garantía de 1 año incluidos.
+
+Con entrega (efectivo o equipo usado — nunca menciones cuál de los dos fue, ni el monto):
+Con la entrega, el [producto] queda así 👇
+✅ 6 cuotas Gs. [cuotas.6]
+✅ 12 cuotas Gs. [cuotas.12]
+✅ 18 cuotas Gs. [cuotas.18]
+🎁 Accesorios de regalo y garantía de 1 año incluidos.
+
+En ambos casos, cerrá siempre con una pregunta directa invitando a avanzar con la solicitud.
 
 REQUISITOS:
 Cuando el cliente pregunte requisitos:
@@ -157,44 +229,8 @@ MANEJO DE OBJECIONES:
 - Si pregunta si debe pagar algo para retirar: "Para retirar no pagás nada, además tu primera cuota la abonás dentro de 30 días 🙌 ¡Aguardo el formulario para ingresar tu solicitud al sistema!"
 - Informconf: "Lo evaluamos caso por caso, ¿querés que intentemos gestionar tu solicitud?"
 - Si quiere hablar con una persona: "Perfecto, en breve te contacta uno de nuestros asesores 😊"
+`;
 
-REGLAS DE COMPORTAMIENTO:
-
-- Respondé con mensajes breves, claros y fáciles de leer, preferentemente de hasta 3 o 4 líneas.
-
-- Antes de brindar información nueva, demostrá que comprendiste la intención, consulta o preocupación principal del cliente.
-
-- Respondé primero la consulta del cliente y luego guiá naturalmente la conversación hacia el siguiente paso adecuado.
-
-- Cuando sea útil para avanzar la conversación, finalizá con una pregunta simple que facilite el siguiente paso del cliente.
-
-- No solicites información que ya conozcas ni datos que serán obtenidos posteriormente en el formulario de solicitud.
-
-- Adaptá el tono según la etapa de la conversación, manteniendo siempre una comunicación cercana, segura, profesional y natural.
-
-- Utilizá emojis con moderación y únicamente cuando aporten cercanía o mejoren la comprensión del mensaje.
-
-- Organizá las respuestas con saltos de línea para facilitar la lectura dentro de WhatsApp.
-
-- Nunca inventes información. Si la respuesta depende de precios, cuotas, stock, promociones o requisitos, utilizá siempre información exacta y verificada.
-
-- Cada respuesta debe transmitir que comprendiste el contexto de la conversación antes de ofrecer una solución.
-
-- Aprovechá el historial de la conversación para evitar repetir preguntas, mantener coherencia y responder de forma consistente con el momento en que se encuentra el cliente.
-
-FRASES CLAVE:
-- "Recién importados de EEUU, sin uso en Paraguay, garantía escrita de 1 año"
-- "Sin entrega inicial, primera cuota recién en 30 días"
-- "Delivery gratis zona Gran Asunción"
-
-RECORDATORIO — PRIMER CONTACTO
-Si es el primer mensaje del cliente, usá el mensaje de bienvenida definido arriba.
-
-DESPUÉS DE ENVIAR EL FORMULARIO:
-Si el cliente consulta sobre crédito, aprobación o estado de solicitud, responder únicamente:
-"A partir de este momento el equipo de créditos está a cargo de tu proceso 😊
-Ellos te van a contactar a la brevedad para guiarte en los siguientes pasos."
-No continuar la conversación sobre ese tema.`;
 
 // ============================================================
 // MEMORIA EN REDIS - Persistente entre reinicios
@@ -292,29 +328,168 @@ app.post("/webhook", async (req, res) => {
 });
 
 // ============================================================
+// CATÁLOGO DE PRECIOS (fuente única de verdad para cotizaciones)
+// ============================================================
+const PRECIOS = {
+  "iPhone 11 normal 64GB": 1700000,
+  "iPhone 11 normal 128GB": 1900000,
+  "iPhone 11 Pro 64GB": 2100000,
+  "iPhone 11 Pro 256GB": 2300000,
+  "iPhone 11 Pro Max 64GB": 2200000,
+  "iPhone 11 Pro Max 256GB": 2400000,
+  "iPhone 12 normal 64GB": 2000000,
+  "iPhone 12 normal 128GB": 2300000,
+  "iPhone 12 Pro 128GB": 2600000,
+  "iPhone 12 Pro 256GB": 2800000,
+  "iPhone 12 Pro Max 128GB": 3000000,
+  "iPhone 12 Pro Max 256GB": 3200000,
+  "iPhone 13 normal 128GB": 2750000,
+  "iPhone 13 normal 256GB": 3000000,
+  "iPhone 13 normal nuevo en caja 128GB": 4400000,
+  "iPhone 13 Pro 128GB": 3400000,
+  "iPhone 13 Pro 256GB": 3700000,
+  "iPhone 13 Pro 512GB": 4400000,
+  "iPhone 13 Pro Max 128GB": 3600000,
+  "iPhone 13 Pro Max 256GB": 4200000,
+  "iPhone 14 normal 128GB": 2900000,
+  "iPhone 14 normal 256GB": 3200000,
+  "iPhone 14 Plus 128GB": 3500000,
+  "iPhone 14 Plus 256GB": 3700000,
+  "iPhone 14 Pro 128GB": 3800000,
+  "iPhone 14 Pro 256GB": 4200000,
+  "iPhone 14 Pro Max 128GB": 4100000,
+  "iPhone 14 Pro Max 256GB": 4700000,
+  "iPhone 15 normal 128GB": 3700000,
+  "iPhone 15 normal 256GB": 4300000,
+  "iPhone 15 normal nuevo en caja 128GB": 5400000,
+  "iPhone 15 Plus 128GB": 4300000,
+  "iPhone 15 Plus 256GB": 4500000,
+  "iPhone 15 Pro 128GB": 4500000,
+  "iPhone 15 Pro 256GB": 4800000,
+  "iPhone 15 Pro 512GB": 5300000,
+  "iPhone 15 Pro Max 256GB": 5150000,
+  "iPhone 15 Pro Max 512GB": 6000000,
+  "iPhone 16 normal 128GB": 4700000,
+  "iPhone 16 normal 256GB": 5400000,
+  "iPhone 16 normal nuevo en caja 128GB": 6000000,
+  "iPhone 16 Plus 128GB": 5200000,
+  "iPhone 16 Plus 256GB": 5400000,
+  "iPhone 16 Pro 128GB": 5700000,
+  "iPhone 16 Pro 256GB": 6100000,
+  "iPhone 16 Pro Max 256GB": 6500000,
+  "iPhone 16 Pro Max 512GB": 7200000,
+  "iPhone 17 normal 256GB": 6000000,
+  "iPhone 17 normal nuevo en caja 256GB": 6500000,
+  "iPhone 17 Air 256GB": 7500000,
+  "iPhone 17 Pro nuevo en caja 256GB": 9800000,
+  "iPhone 17 Pro nuevo en caja 512GB": 12000000,
+  "iPhone 17 Pro Max nuevo en caja 256GB": 10800000,
+  "iPhone 17 Pro Max nuevo en caja 512GB": 12800000,
+};
+
+// ============================================================
+// TOOL: cotizar (function calling para Claude)
+// ============================================================
+const COTIZAR_TOOL = {
+  name: "cotizar",
+  description:
+    "Calcula el saldo financiable y las cuotas (6/12/18 meses) para un producto específico del catálogo de Crediphone. Usar SIEMPRE que el cliente pregunte por precio o cuotas de un modelo — nunca calcular a mano ni inventar un número.",
+  input_schema: {
+    type: "object",
+    properties: {
+      producto: {
+        type: "string",
+        enum: Object.keys(PRECIOS),
+        description:
+          "Producto exacto del catálogo (modelo + línea + capacidad, y 'nuevo en caja' si aplica). Si el cliente dice 'nuevo', 'nuevo en caja', 'sellado' o 'precintado', elegí la variante que dice 'nuevo en caja'. Si no aclara nada, es la variante seminuevo (sin esa frase).",
+      },
+      monto_entrega: {
+        type: "number",
+        description:
+          "Monto en guaraníes que el cliente entrega como parte de pago — efectivo o valor de tasación de su equipo usado, es lo mismo matemáticamente. Usar 0 si no hay ninguna entrega.",
+      },
+    },
+    required: ["producto", "monto_entrega"],
+  },
+};
+
+function redondearArribaMil(numero) {
+  return Math.ceil(numero / 1000) * 1000;
+}
+
+function ejecutarCotizar({ producto, monto_entrega }) {
+  const precioBase = PRECIOS[producto];
+  if (precioBase === undefined) {
+    return { error: `Producto no encontrado en el catálogo: ${producto}` };
+  }
+  const entrega = Number(monto_entrega) || 0;
+  const saldo = Math.max(precioBase - entrega, 0);
+  return {
+    producto,
+    precio_base: precioBase,
+    monto_entrega: entrega,
+    saldo,
+    cuotas: {
+      "6": redondearArribaMil(saldo * 0.19425),
+      "12": redondearArribaMil(saldo * 0.110229),
+      "18": redondearArribaMil(saldo * 0.083167),
+    },
+  };
+}
+
+// ============================================================
 // FUNCIÓN: Llamar a Claude API
 // ============================================================
 async function llamarClaude(historial) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1000,
-      system: SYSTEM_PROMPT,
-      messages: historial,
-    }),
-  });
-  const data = await response.json();
-  if (!data.content) {
-    console.error("❌ Error Claude API:", JSON.stringify(data));
-    throw new Error("Claude no devolvió contenido");
+  let mensajes = [...historial];
+
+  for (let intento = 0; intento < 3; intento++) {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: mensajes,
+        tools: [COTIZAR_TOOL],
+      }),
+    });
+    const data = await response.json();
+    if (!data.content) {
+      console.error("❌ Error Claude API:", JSON.stringify(data));
+      throw new Error("Claude no devolvió contenido");
+    }
+
+    if (data.stop_reason === "tool_use") {
+      const toolUse = data.content.find((b) => b.type === "tool_use");
+      console.log(`🧮 Claude pidió cotizar:`, JSON.stringify(toolUse.input));
+      const resultado = ejecutarCotizar(toolUse.input);
+      console.log(`🧮 Resultado cotización:`, JSON.stringify(resultado));
+
+      mensajes.push({ role: "assistant", content: data.content });
+      mensajes.push({
+        role: "user",
+        content: [
+          {
+            type: "tool_result",
+            tool_use_id: toolUse.id,
+            content: JSON.stringify(resultado),
+          },
+        ],
+      });
+      continue;
+    }
+
+    const textBlock = data.content.find((b) => b.type === "text");
+    return textBlock ? textBlock.text : "";
   }
-  return data.content[0].text;
+
+  throw new Error("Demasiadas idas y vueltas de tool use sin respuesta final");
 }
 
 // ============================================================
