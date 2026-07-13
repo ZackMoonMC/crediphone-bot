@@ -263,7 +263,14 @@ app.post("/webhook", async (req, res) => {
       console.log(`👤 Modo humano activo para ${from}`);
       return;
     }
+    // Generar respuesta con Claude
+    const historialClaude = conv.messages.map(msg => ({
+    role: msg.role,
+    content: msg.content
+}));
 
+    const respuestaClaude = await llamarClaude(historialClaude);
+    
     conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
     if (respuestaClaude.toLowerCase().includes("formulario")) {
