@@ -267,8 +267,8 @@ app.post("/webhook", async (req, res) => {
     conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
     if (respuestaClaude.toLowerCase().includes("formulario")) {
-      conv.etapaSeguimiento = "formulario_enviado";
-      conv.etiqueta = "formulario_enviado";
+      conv.etapaSeguimiento = "formulario_enviado"; // uso interno del cron de seguimiento, no tocar
+      conv.etiqueta = 1; // Formulario -> mueve la tarjeta en el Pipeline y dispara la alerta visual
       conv.modoHumano = true;
       console.log(`📋 Formulario detectado - Modo humano activado para ${from}`);
     } else if (!conv.etapaSeguimiento) {
