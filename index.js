@@ -14,7 +14,8 @@ const redis = new Redis({
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "crediphone2025";
 
 // ============================================================
@@ -280,17 +281,17 @@ app.post("/webhook", async (req, res) => {
       console.log(`👤 Modo humano activo para ${from}`);
       return;
     }
-    // Generar respuesta con Claude
-    const historialClaude = conv.messages.map(msg => ({
-    role: msg.role,
-    content: msg.content
-}));
+    // Generar respuesta con Gemini
+    const historialGemini = conv.messages.map(msg => ({
+      role: msg.role === "assistant" ? "model" : "user",
+      parts: [{ text: msg.content }],
+    }));
 
-    const respuestaClaude = await llamarClaude(historialClaude, from);
+    const respuestaIA = await llamarGemini(historialGemini, from);
     
-    conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
+    conv.messages.push({ role: "assistant", content: respuestaIA, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
-    if (respuestaClaude.toLowerCase().includes("formulario")) {
+    if (respuestaIA.toLowerCase().includes("formulario")) {
       conv.etapaSeguimiento = "formulario_enviado"; // uso interno del cron de seguimiento, no tocar
       conv.etiqueta = 1; // Formulario -> mueve la tarjeta en el Pipeline y dispara la alerta visual
       conv.modoHumano = true;
@@ -301,7 +302,7 @@ app.post("/webhook", async (req, res) => {
     await saveConv(from, conv);
   
 
-    await enviarMensaje(from, respuestaClaude);
+    await enviarMensaje(from, respuestaIA);
     console.log(`✅ Respuesta enviada a ${from}`);
   } catch (error) {
     console.error("Error procesando mensaje:", error);
@@ -375,11 +376,11 @@ const MOSTRAR_MODELO_TOOL = {
   name: "mostrar_modelo",
   description:
     "Muestra la foto del modelo junto con los precios contado de todas sus capacidades disponibles. Usar la primera vez que el cliente menciona un modelo de iPhone, antes de cotizar cuotas.",
-  input_schema: {
-    type: "object",
+  parameters: {
+    type: "OBJECT",
     properties: {
       modeloBase: {
-        type: "string",
+        type: "STRING",
         description:
           "Nombre base del modelo tal como aparece en PRECIOS_CONTADO, sin la capacidad. Ej: 'iPhone 13 Pro', 'iPhone 15 normal', 'iPhone 17 Pro Max'.",
       },
@@ -403,17 +404,17 @@ const COTIZAR_TOOL = {
   name: "cotizar",
   description:
     "Calcula el saldo financiable y las cuotas (6/12/18 meses) para un producto específico del catálogo de Crediphone. Usar SIEMPRE que el cliente pregunte por precio o cuotas de un modelo — nunca calcular a mano ni inventar un número.",
-  input_schema: {
-    type: "object",
+  parameters: {
+    type: "OBJECT",
     properties: {
       producto: {
-        type: "string",
+        type: "STRING",
         enum: Object.keys(PRECIOS),
         description:
           "Producto exacto del catálogo (modelo + línea + capacidad, y 'nuevo en caja' si aplica). Si el cliente dice 'nuevo', 'nuevo en caja', 'sellado' o 'precintado', elegí la variante que dice 'nuevo en caja'. Si no aclara nada, es la variante seminuevo (sin esa frase).",
       },
       monto_entrega: {
-        type: "number",
+        type: "NUMBER",
         description:
           "Monto en guaraníes que el cliente entrega como parte de pago — efectivo o valor de tasación de su equipo usado, es lo mismo matemáticamente. Usar 0 si no hay ninguna entrega.",
       },
@@ -447,70 +448,71 @@ function ejecutarCotizar({ producto, monto_entrega }) {
 }
 
 // ============================================================
-// FUNCIÓN: Llamar a Claude API
+// FUNCIÓN: Llamar a Gemini API
 // ============================================================
-async function llamarClaude(historial, numero) {
+async function llamarGemini(historial, numero) {
   let mensajes = [...historial];
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
   for (let intento = 0; intento < 3; intento++) {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages: mensajes,
-        tools: [COTIZAR_TOOL, MOSTRAR_MODELO_TOOL],
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: mensajes,
+        tools: [{ functionDeclarations: [COTIZAR_TOOL, MOSTRAR_MODELO_TOOL] }],
       }),
     });
     const data = await response.json();
-    if (!data.content) {
-      console.error("❌ Error Claude API:", JSON.stringify(data));
-      throw new Error("Claude no devolvió contenido");
+    const candidato = data.candidates?.[0];
+    if (!candidato) {
+      console.error("❌ Error Gemini API:", JSON.stringify(data));
+      throw new Error("Gemini no devolvió contenido");
     }
-    if (data.stop_reason === "tool_use") {
-      const toolUse = data.content.find((b) => b.type === "tool_use");
 
-      if (toolUse.name === "cotizar") {
-        console.log(`🧮 Claude pidió cotizar:`, JSON.stringify(toolUse.input));
-        const resultado = ejecutarCotizar(toolUse.input);
+    const parts = candidato.content?.parts || [];
+    const functionCallPart = parts.find((p) => p.functionCall);
+
+    if (functionCallPart) {
+      const { name, args } = functionCallPart.functionCall;
+
+      if (name === "cotizar") {
+        console.log(`🧮 Gemini pidió cotizar:`, JSON.stringify(args));
+        const resultado = ejecutarCotizar(args);
         console.log(`🧮 Resultado cotización:`, JSON.stringify(resultado));
-        mensajes.push({ role: "assistant", content: data.content });
+        mensajes.push({ role: "model", parts });
         mensajes.push({
-          role: "user",
-          content: [{ type: "tool_result", tool_use_id: toolUse.id, content: JSON.stringify(resultado) }],
+          role: "function",
+          parts: [{ functionResponse: { name: "cotizar", response: resultado } }],
         });
         continue;
       }
 
-      if (toolUse.name === "mostrar_modelo") {
-        console.log(`📱 Claude pidió mostrar modelo:`, JSON.stringify(toolUse.input));
-        const resultado = ejecutarMostrarModelo(toolUse.input, numero);
+      if (name === "mostrar_modelo") {
+        console.log(`📱 Gemini pidió mostrar modelo:`, JSON.stringify(args));
+        const resultado = ejecutarMostrarModelo(args, numero);
         if (resultado.urlImagen) {
           await enviarImagen(numero, resultado.urlImagen, resultado.caption);
         }
-        mensajes.push({ role: "assistant", content: data.content });
+        mensajes.push({ role: "model", parts });
         mensajes.push({
-          role: "user",
-          content: [
-            {
-              type: "tool_result",
-              tool_use_id: toolUse.id,
-              content: resultado.urlImagen
-                ? "Imagen y precios ya enviados al cliente. No repitas los precios en texto."
-                : JSON.stringify(resultado),
+          role: "function",
+          parts: [{
+            functionResponse: {
+              name: "mostrar_modelo",
+              response: resultado.urlImagen
+                ? { mensaje: "Imagen y precios ya enviados al cliente. No repitas los precios en texto." }
+                : resultado,
             },
-          ],
+          }],
         });
         continue;
       }
     }
-    const textBlock = data.content.find((b) => b.type === "text");
-    return textBlock ? textBlock.text : "";
+
+    const textPart = parts.find((p) => p.text);
+    return textPart ? textPart.text : "";
   }
   throw new Error("Demasiadas idas y vueltas de tool use sin respuesta final");
 }
