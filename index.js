@@ -15,14 +15,19 @@ const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "crediphone2025";
 
 // ============================================================
 // CAPTION GENÉRICA (misma para todos los modelos)
 // Reemplazá este texto por el que quieras usar definitivamente.
 // ============================================================
-const CAPTION_GENERICA =
-  "Abonando en efectivo o transferencia.\n\n¿Te gustaría conocer más detalles o avanzar con la solicitud? 😊";
+// Completá vos esta parte (precio contado, condiciones, etc.)
+const CAPTION_GENERICA = "Abonando en efectivo o transferencia.";
+
+// Línea fija: SIEMPRE va al final de la caption, la pone el código,
+// no depende de que Claude se acuerde de preguntarla.
+const DISPARADOR_CUOTAS = "¿Te gustaría conocer las cuotas de este modelo?";
 
 // ============================================================
 // CATÁLOGO DE PRECIOS (para que Claude calcule cuotas en texto)
@@ -265,6 +270,7 @@ app.get("/webhook", (req, res) => {
 // ============================================================
 app.post("/webhook", async (req, res) => {
   res.sendStatus(200);
+  let from;
   try {
     const body = req.body;
     if (body.object !== "whatsapp_business_account") return;
@@ -274,7 +280,7 @@ app.post("/webhook", async (req, res) => {
     const message = value?.messages?.[0];
     if (!message || message.type !== "text") return;
 
-    const from = message.from;
+    from = message.from;
     const textoRecibido = message.text.body;
     console.log(`📩 Mensaje de ${from}: ${textoRecibido}`);
 
@@ -297,7 +303,7 @@ app.post("/webhook", async (req, res) => {
     content: msg.content
 }));
 
-    const respuestaClaude = await llamarClaude(historialClaude, from);
+    const respuestaClaude = await generarRespuesta(historialClaude, from);
     
     conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
@@ -316,6 +322,21 @@ app.post("/webhook", async (req, res) => {
     console.log(`✅ Respuesta enviada a ${from}`);
   } catch (error) {
     console.error("Error procesando mensaje:", error);
+    if (!from) return; // no llegamos a identificar al cliente, no hay a quién avisarle
+    // Si Claude falla (ej. sin crédito, API caída), avisamos al cliente
+    // y pasamos la conversación a modo humano para que no quede colgado.
+    try {
+      const conv = await getConv(from);
+      conv.modoHumano = true;
+      conv.etiqueta = conv.etiqueta || 2; // marcá el número que uses en el panel para "requiere atención"
+      await saveConv(from, conv);
+      await enviarMensaje(
+        from,
+        "¡Gracias por tu mensaje! 🙌 En este momento uno de nuestros asesores va a continuar la conversación con vos."
+      );
+    } catch (errorSecundario) {
+      console.error("Error en el fallback de error:", errorSecundario);
+    }
   }
 });
 
@@ -390,7 +411,7 @@ async function llamarClaude(historial, numero) {
               type: "tool_result",
               tool_use_id: toolUse.id,
               content: resultado.urlImagen
-                ? "Imagen ya enviada al cliente. No la vuelvas a mostrar en esta misma respuesta."
+                ? "Imagen ya enviada al cliente. La caption ya incluye la pregunta '¿Te gustaría conocer las cuotas de este modelo?', así que NO la repitas ni la reformules en tu respuesta de texto. No vuelvas a mostrar la imagen en esta misma respuesta. Tu respuesta de texto tiene que ser corta (podés usar un emoji o una frase breve tipo 'Contame cualquier duda 😊'), nunca vacía, y sin repetir la pregunta de cuotas."
                 : JSON.stringify(resultado),
             },
           ],
@@ -402,6 +423,94 @@ async function llamarClaude(historial, numero) {
     return textBlock ? textBlock.text : "";
   }
   throw new Error("Demasiadas idas y vueltas de tool use sin respuesta final");
+}
+
+// ============================================================
+// FUNCIÓN: Llamar a Groq (fallback si Anthropic falla, ej. sin crédito)
+// Groq usa formato compatible con OpenAI: tools con "function",
+// tool_calls en la respuesta del assistant, y role "tool" para el resultado.
+// ============================================================
+const MOSTRAR_MODELO_TOOL_GROQ = {
+  type: "function",
+  function: {
+    name: MOSTRAR_MODELO_TOOL.name,
+    description: MOSTRAR_MODELO_TOOL.description,
+    parameters: MOSTRAR_MODELO_TOOL.input_schema,
+  },
+};
+
+async function llamarGroq(historial, numero) {
+  // Groq espera el system prompt como un mensaje más, con role "system"
+  let mensajes = [{ role: "system", content: SYSTEM_PROMPT }, ...historial];
+
+  for (let intento = 0; intento < 3; intento++) {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        max_tokens: 1000,
+        messages: mensajes,
+        tools: [MOSTRAR_MODELO_TOOL_GROQ],
+      }),
+    });
+    const data = await response.json();
+    if (!data.choices || !data.choices[0]) {
+      console.error("❌ Error Groq API:", JSON.stringify(data));
+      throw new Error("Groq no devolvió contenido");
+    }
+
+    const choice = data.choices[0];
+    const mensaje = choice.message;
+
+    if (mensaje.tool_calls && mensaje.tool_calls.length > 0) {
+      const toolCall = mensaje.tool_calls[0];
+
+      if (toolCall.function.name === "mostrar_modelo") {
+        const input = JSON.parse(toolCall.function.arguments);
+        console.log(`📱 [Groq] pidió mostrar modelo:`, JSON.stringify(input));
+        const resultado = ejecutarMostrarModelo(input, numero);
+        if (resultado.urlImagen) {
+          await enviarImagen(numero, resultado.urlImagen, resultado.caption);
+        }
+        mensajes.push(mensaje);
+        mensajes.push({
+          role: "tool",
+          tool_call_id: toolCall.id,
+          content: resultado.urlImagen
+            ? "Imagen ya enviada al cliente. La caption ya incluye la pregunta '¿Te gustaría conocer las cuotas de este modelo?', así que NO la repitas ni la reformules en tu respuesta de texto. No vuelvas a mostrar la imagen en esta misma respuesta. Tu respuesta de texto tiene que ser corta (podés usar un emoji o una frase breve tipo 'Contame cualquier duda 😊'), nunca vacía, y sin repetir la pregunta de cuotas."
+            : JSON.stringify(resultado),
+        });
+        continue;
+      }
+    }
+
+    return mensaje.content || "";
+  }
+  throw new Error("Demasiadas idas y vueltas de tool use sin respuesta final (Groq)");
+}
+
+// ============================================================
+// FUNCIÓN: Generar respuesta con fallback Claude → Groq
+// ============================================================
+async function generarRespuesta(historial, numero) {
+  if (ANTHROPIC_API_KEY) {
+    try {
+      return await llamarClaude(historial, numero);
+    } catch (error) {
+      console.error("⚠️ Falló Claude, cayendo a Groq:", error.message);
+    }
+  } else {
+    console.log("⚠️ No hay ANTHROPIC_API_KEY configurada, usando Groq directo");
+  }
+
+  if (!GROQ_API_KEY) {
+    throw new Error("Claude falló y no hay GROQ_API_KEY configurada para el fallback");
+  }
+  return await llamarGroq(historial, numero);
 }
 
 // ============================================================
@@ -463,7 +572,7 @@ function armarMensajeModelo(modeloBase) {
   if (!archivo) return null;
 
   const urlImagen = `https://crediphone-iasales.onrender.com/images/${archivo}.jpg`;
-  const caption = `${modeloBase} 📱\n\n${CAPTION_GENERICA}`;
+  const caption = `${modeloBase} 📱\n\n${CAPTION_GENERICA}\n\n${DISPARADOR_CUOTAS}`;
 
   return { urlImagen, caption };
 }
@@ -533,9 +642,9 @@ app.post("/api/responder/:numero", authPanel, async (req, res) => {
   res.json({ ok: true });
 });
 
-// ===========================================================
+// ============================================================
 // PANEL VISUAL
-// ===========================================================
+// ============================================================
 app.get("/panel", (req, res) => {
   res.sendFile(__dirname + "/public/panel.html");
 });
