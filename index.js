@@ -17,6 +17,66 @@ const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "crediphone2025";
 
+// ============================================================
+// PRECIOS CONTADO (para mostrar junto a la foto del modelo)
+// ============================================================
+const PRECIOS_CONTADO = {
+  "iPhone 11 normal 64GB": 1300000,
+  "iPhone 11 normal 128GB": 1500000,
+  "iPhone 11 Pro 64GB": 1700000,
+  "iPhone 11 Pro 256GB": 1900000,
+  "iPhone 11 Pro Max 64GB": 1800000,
+  "iPhone 11 Pro Max 256GB": 2000000,
+  "iPhone 12 normal 64GB": 1600000,
+  "iPhone 12 normal 128GB": 1900000,
+  "iPhone 12 Pro 128GB": 2200000,
+  "iPhone 12 Pro 256GB": 2400000,
+  "iPhone 12 Pro Max 128GB": 2600000,
+  "iPhone 12 Pro Max 256GB": 2800000,
+  "iPhone 13 normal 128GB": 2350000,
+  "iPhone 13 normal 256GB": 2600000,
+  "iPhone 13 normal nuevo en caja 128GB": 4000000,
+  "iPhone 13 Pro 128GB": 3000000,
+  "iPhone 13 Pro 256GB": 3300000,
+  "iPhone 13 Pro 512GB": 4000000,
+  "iPhone 13 Pro Max 128GB": 3200000,
+  "iPhone 13 Pro Max 256GB": 3800000,
+  "iPhone 14 normal 128GB": 2500000,
+  "iPhone 14 normal 256GB": 2800000,
+  "iPhone 14 Plus 128GB": 3100000,
+  "iPhone 14 Plus 256GB": 3300000,
+  "iPhone 14 Pro 128GB": 3400000,
+  "iPhone 14 Pro 256GB": 3800000,
+  "iPhone 14 Pro Max 128GB": 3700000,
+  "iPhone 14 Pro Max 256GB": 4300000,
+  "iPhone 15 normal 128GB": 3300000,
+  "iPhone 15 normal 256GB": 3900000,
+  "iPhone 15 normal nuevo en caja 128GB": 5000000,
+  "iPhone 15 Plus 128GB": 3900000,
+  "iPhone 15 Plus 256GB": 4100000,
+  "iPhone 15 Pro 128GB": 4100000,
+  "iPhone 15 Pro 256GB": 4400000,
+  "iPhone 15 Pro 512GB": 4900000,
+  "iPhone 15 Pro Max 256GB": 4750000,
+  "iPhone 15 Pro Max 512GB": 5600000,
+  "iPhone 16 normal 128GB": 4300000,
+  "iPhone 16 normal 256GB": 5000000,
+  "iPhone 16 normal nuevo en caja 128GB": 5600000,
+  "iPhone 16 Plus 128GB": 4800000,
+  "iPhone 16 Plus 256GB": 5000000,
+  "iPhone 16 Pro 128GB": 5300000,
+  "iPhone 16 Pro 256GB": 5700000,
+  "iPhone 16 Pro Max 256GB": 6100000,
+  "iPhone 16 Pro Max 512GB": 6800000,
+  "iPhone 17 normal 256GB": 5600000,
+  "iPhone 17 normal nuevo en caja 256GB": 6100000,
+  "iPhone 17 Air 256GB": 7100000,
+  "iPhone 17 Pro nuevo en caja 256GB": 9400000,
+  "iPhone 17 Pro nuevo en caja 512GB": 11600000,
+  "iPhone 17 Pro Max nuevo en caja 256GB": 10400000,
+  "iPhone 17 Pro Max nuevo en caja 512GB": 12400000,
+};
+
 const SYSTEM_PROMPT = `
 Sos Max.
 
@@ -39,7 +99,13 @@ Tu objetivo es ayudar y guiar al cliente a elegir el iPhone adecuado y que se ad
 
 Disponés de las siguientes herramientas:
 
-1. cotizar
+1. mostrar_modelo
+Cuando el cliente mencione un modelo por primera vez, usá esta herramienta 
+para enviarle la foto con los precios contado de todas las capacidades 
+disponibles. No repitas los precios en texto después de usarla — la imagen 
+ya los muestra. Después, preguntale si quiere ver las cuotas.
+
+2. cotizar
 Obtiene el precio y calcula las cuotas exactas.
 
 Utilizala siempre que el cliente pregunte:
@@ -112,6 +178,14 @@ Desde ese momento dejá de intentar vender y limitate únicamente a responder co
 ---
 
 # REGLAS CRITICAS
+
+Si es el PRIMER mensaje de la conversación (no hay historial previo), 
+respondé ÚNICAMENTE con este mensaje de bienvenida, tal cual, carácter 
+por carácter, sin modificarlo ni agregar nada más:
+
+"👋 ¡Hola! Bienvenido a CrediPhone 🤳🏻
+Tenemos disponibles iPhones nuevos y seminuevos 📱, desde el iPhone 11 hasta el 17 Pro Max, *a cómodas cuotas, sin entrega inicial y con garantía*. ✅
+*¿Qué modelo estás buscando?* 😊"
 
 Nunca inventes:
 
@@ -305,7 +379,7 @@ app.post("/webhook", async (req, res) => {
     content: msg.content
 }));
 
-    const respuestaClaude = await llamarClaude(historialClaude);
+    const respuestaClaude = await llamarClaude(historialClaude, from);
     
     conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
@@ -388,6 +462,34 @@ const PRECIOS = {
 };
 
 // ============================================================
+// TOOL: mostrar_modelo (function calling para Claude)
+// ============================================================
+const MOSTRAR_MODELO_TOOL = {
+  name: "mostrar_modelo",
+  description:
+    "Muestra la foto del modelo junto con los precios contado de todas sus capacidades disponibles. Usar la primera vez que el cliente menciona un modelo de iPhone, antes de cotizar cuotas.",
+  input_schema: {
+    type: "object",
+    properties: {
+      modeloBase: {
+        type: "string",
+        description:
+          "Nombre base del modelo tal como aparece en PRECIOS_CONTADO, sin la capacidad. Ej: 'iPhone 13 Pro', 'iPhone 15 normal', 'iPhone 17 Pro Max'.",
+      },
+    },
+    required: ["modeloBase"],
+  },
+};
+
+function ejecutarMostrarModelo({ modeloBase }, numero) {
+  const resultado = armarMensajeModelo(modeloBase);
+  if (!resultado || !resultado.urlImagen) {
+    return { error: `Modelo no encontrado: ${modeloBase}` };
+  }
+  return resultado;
+}
+
+// ============================================================
 // TOOL: cotizar (function calling para Claude)
 // ============================================================
 const COTIZAR_TOOL = {
@@ -440,9 +542,8 @@ function ejecutarCotizar({ producto, monto_entrega }) {
 // ============================================================
 // FUNCIÓN: Llamar a Claude API
 // ============================================================
-async function llamarClaude(historial) {
+async function llamarClaude(historial, numero) {
   let mensajes = [...historial];
-
   for (let intento = 0; intento < 3; intento++) {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -456,7 +557,7 @@ async function llamarClaude(historial) {
         max_tokens: 1000,
         system: SYSTEM_PROMPT,
         messages: mensajes,
-        tools: [COTIZAR_TOOL],
+        tools: [COTIZAR_TOOL, MOSTRAR_MODELO_TOOL],
       }),
     });
     const data = await response.json();
@@ -464,31 +565,46 @@ async function llamarClaude(historial) {
       console.error("❌ Error Claude API:", JSON.stringify(data));
       throw new Error("Claude no devolvió contenido");
     }
-
     if (data.stop_reason === "tool_use") {
       const toolUse = data.content.find((b) => b.type === "tool_use");
-      console.log(`🧮 Claude pidió cotizar:`, JSON.stringify(toolUse.input));
-      const resultado = ejecutarCotizar(toolUse.input);
-      console.log(`🧮 Resultado cotización:`, JSON.stringify(resultado));
 
-      mensajes.push({ role: "assistant", content: data.content });
-      mensajes.push({
-        role: "user",
-        content: [
-          {
-            type: "tool_result",
-            tool_use_id: toolUse.id,
-            content: JSON.stringify(resultado),
-          },
-        ],
-      });
-      continue;
+      if (toolUse.name === "cotizar") {
+        console.log(`🧮 Claude pidió cotizar:`, JSON.stringify(toolUse.input));
+        const resultado = ejecutarCotizar(toolUse.input);
+        console.log(`🧮 Resultado cotización:`, JSON.stringify(resultado));
+        mensajes.push({ role: "assistant", content: data.content });
+        mensajes.push({
+          role: "user",
+          content: [{ type: "tool_result", tool_use_id: toolUse.id, content: JSON.stringify(resultado) }],
+        });
+        continue;
+      }
+
+      if (toolUse.name === "mostrar_modelo") {
+        console.log(`📱 Claude pidió mostrar modelo:`, JSON.stringify(toolUse.input));
+        const resultado = ejecutarMostrarModelo(toolUse.input, numero);
+        if (resultado.urlImagen) {
+          await enviarImagen(numero, resultado.urlImagen, resultado.caption);
+        }
+        mensajes.push({ role: "assistant", content: data.content });
+        mensajes.push({
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: toolUse.id,
+              content: resultado.urlImagen
+                ? "Imagen y precios ya enviados al cliente. No repitas los precios en texto."
+                : JSON.stringify(resultado),
+            },
+          ],
+        });
+        continue;
+      }
     }
-
     const textBlock = data.content.find((b) => b.type === "text");
     return textBlock ? textBlock.text : "";
   }
-
   throw new Error("Demasiadas idas y vueltas de tool use sin respuesta final");
 }
 
@@ -528,6 +644,39 @@ async function enviarImagen(numero, urlImagen, caption) {
   }
   console.log(`📤 Imagen enviada a ${numero}`);
   return data;
+}
+
+// ============================================================
+// MOSTRAR MODELO: arma imagen + caption con precio contado
+// ============================================================
+function nombreArchivoImagen(modeloBase) {
+  const mapa = {
+    "iPhone 11 normal": "iphone11_normal", "iPhone 11 Pro": "iphone11_pro", "iPhone 11 Pro Max": "iphone11_promax",
+    "iPhone 12 normal": "iphone12_normal", "iPhone 12 Pro": "iphone12_pro", "iPhone 12 Pro Max": "iphone12_promax",
+    "iPhone 13 normal": "iphone13_normal", "iPhone 13 Pro": "iphone13_pro", "iPhone 13 Pro Max": "iphone13_promax",
+    "iPhone 14 normal": "iphone14_normal", "iPhone 14 Plus": "iphone14_normal", "iPhone 14 Pro": "iphone14_pro", "iPhone 14 Pro Max": "iphone14_promax",
+    "iPhone 15 normal": "iphone15_normal", "iPhone 15 Plus": "iphone15_plus", "iPhone 15 Pro": "iphone15_pro", "iPhone 15 Pro Max": "iphone15_promax",
+    "iPhone 16 normal": "iphone16_normal", "iPhone 16 Plus": "iphone16_plus", "iPhone 16 Pro": "iphone16_pro", "iPhone 16 Pro Max": "iphone16_promax",
+    "iPhone 17 normal": "iphone17_normal", "iPhone 17 Air": "iphone17_air", "iPhone 17 Pro": "iphone17_pro", "iPhone 17 Pro Max": "iphone17_promax",
+  };
+  return mapa[modeloBase] || null;
+}
+
+function armarMensajeModelo(modeloBase) {
+  const coincidencias = Object.entries(PRECIOS_CONTADO).filter(([nombre]) => nombre.startsWith(modeloBase));
+  if (coincidencias.length === 0) return null;
+
+  let caption = `${modeloBase} 📱\n\n`;
+  coincidencias.forEach(([nombre, precio]) => {
+    const detalle = nombre.replace(modeloBase, "").trim();
+    caption += `${detalle}: Gs. ${precio.toLocaleString("es-PY")}\n`;
+  });
+  caption += `\nAbonando en efectivo o transferencia.\n\n¿Te gustaría ver las cuotas?`;
+
+  const archivo = nombreArchivoImagen(modeloBase);
+  const urlImagen = archivo ? `https://crediphone-iasales.onrender.com/images/${archivo}.jpg` : null;
+
+  return { urlImagen, caption };
 }
 
 // ============================================================
