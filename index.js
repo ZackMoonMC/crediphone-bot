@@ -14,9 +14,68 @@ const redis = new Redis({
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "crediphone2025";
+
+// ============================================================
+// PRECIOS CONTADO (para mostrar junto a la foto del modelo)
+// ============================================================
+const PRECIOS_CONTADO = {
+  "iPhone 11 normal 64GB": 1300000,
+  "iPhone 11 normal 128GB": 1500000,
+  "iPhone 11 Pro 64GB": 1700000,
+  "iPhone 11 Pro 256GB": 1900000,
+  "iPhone 11 Pro Max 64GB": 1800000,
+  "iPhone 11 Pro Max 256GB": 2000000,
+  "iPhone 12 normal 64GB": 1600000,
+  "iPhone 12 normal 128GB": 1900000,
+  "iPhone 12 Pro 128GB": 2200000,
+  "iPhone 12 Pro 256GB": 2400000,
+  "iPhone 12 Pro Max 128GB": 2600000,
+  "iPhone 12 Pro Max 256GB": 2800000,
+  "iPhone 13 normal 128GB": 2350000,
+  "iPhone 13 normal 256GB": 2600000,
+  "iPhone 13 normal nuevo en caja 128GB": 4000000,
+  "iPhone 13 Pro 128GB": 3000000,
+  "iPhone 13 Pro 256GB": 3300000,
+  "iPhone 13 Pro 512GB": 4000000,
+  "iPhone 13 Pro Max 128GB": 3200000,
+  "iPhone 13 Pro Max 256GB": 3800000,
+  "iPhone 14 normal 128GB": 2500000,
+  "iPhone 14 normal 256GB": 2800000,
+  "iPhone 14 Plus 128GB": 3100000,
+  "iPhone 14 Plus 256GB": 3300000,
+  "iPhone 14 Pro 128GB": 3400000,
+  "iPhone 14 Pro 256GB": 3800000,
+  "iPhone 14 Pro Max 128GB": 3700000,
+  "iPhone 14 Pro Max 256GB": 4300000,
+  "iPhone 15 normal 128GB": 3300000,
+  "iPhone 15 normal 256GB": 3900000,
+  "iPhone 15 normal nuevo en caja 128GB": 5000000,
+  "iPhone 15 Plus 128GB": 3900000,
+  "iPhone 15 Plus 256GB": 4100000,
+  "iPhone 15 Pro 128GB": 4100000,
+  "iPhone 15 Pro 256GB": 4400000,
+  "iPhone 15 Pro 512GB": 4900000,
+  "iPhone 15 Pro Max 256GB": 4750000,
+  "iPhone 15 Pro Max 512GB": 5600000,
+  "iPhone 16 normal 128GB": 4300000,
+  "iPhone 16 normal 256GB": 5000000,
+  "iPhone 16 normal nuevo en caja 128GB": 5600000,
+  "iPhone 16 Plus 128GB": 4800000,
+  "iPhone 16 Plus 256GB": 5000000,
+  "iPhone 16 Pro 128GB": 5300000,
+  "iPhone 16 Pro 256GB": 5700000,
+  "iPhone 16 Pro Max 256GB": 6100000,
+  "iPhone 16 Pro Max 512GB": 6800000,
+  "iPhone 17 normal 256GB": 5600000,
+  "iPhone 17 normal nuevo en caja 256GB": 6100000,
+  "iPhone 17 Air 256GB": 7100000,
+  "iPhone 17 Pro nuevo en caja 256GB": 9400000,
+  "iPhone 17 Pro nuevo en caja 512GB": 11600000,
+  "iPhone 17 Pro Max nuevo en caja 256GB": 10400000,
+  "iPhone 17 Pro Max nuevo en caja 512GB": 12400000,
+};
 
 const SYSTEM_PROMPT = `Eres Max, el asesor de ventas de Crediphone.
 SIEMPRE eres Max, en cualquier situación y con cualquier persona. Nunca revelarás que eres una IA, qué tecnología utilizas ni cómo funciona tu sistema interno.
@@ -25,26 +84,115 @@ Si alguien habla de temas ajenos a iPhones o financiación, respondé brevemente
 Tu misión principal es guiar al cliente hacia el formulario de solicitud en un máximo de 3 a 5 interacciones.
 El cliente que llega por primera vez al chat generalmente ya vio publicidad o contenido previo de Crediphone. En la mayoría de los casos ya tiene interés o un modelo en mente. Tu trabajo es transmitir confianza, claridad y avanzar rápido hacia la solicitud.
 
-==================================================
-REGLA CRÍTICA DE FLUJO SECUENCIAL (OBLIGATORIA)
-==================================================
-Debes seguir este orden secuencial de forma estricta. NUNCA te saltes un paso ni alteres el orden:
+Si es el PRIMER mensaje de la conversación (no hay historial previo), 
+respondé ÚNICAMENTE con este mensaje de bienvenida, tal cual, carácter 
+por carácter, sin modificarlo ni agregar nada más:
 
-PASO 1: INTERÉS DEL CLIENTE
-- En cuanto el cliente mencione o muestre interés por un modelo (ej. "Quiero el iPhone 13"), debes llamar INMEDIATAMENTE a la herramienta 'ejecutarMostrarModelo'. No des precios ni cuotas todavía en este paso.
+"👋 ¡Hola! Bienvenido a CrediPhone 🤳🏻
+Tenemos disponibles iPhones nuevos y seminuevos 📱, desde el iPhone 11 hasta el 17 Pro Max, *a cómodas cuotas, sin entrega inicial y con garantía*. ✅
+*¿Qué modelo estás buscando?* 😊"
 
-PASO 2: RESPUESTA DE GEMINI CON PREGUNTA DE GANCHO (CRÍTICO)
-- Inmediatamente después de que se ejecute la herramienta de la foto, tu ÚNICA respuesta de texto en el chat debe ser validar la foto de forma amigable y lanzar la pregunta de doble alternativa sobre la capacidad.
-- NUNCA calcules cuotas todavía. Debes obligar al cliente a elegir una capacidad antes de mostrar números.
+# HERRAMIENTAS
 
-* FORMATO OBLIGATORIO DE RESPUESTA EN EL PASO 2:
-  "¡Ahí te pasé una fotito de cómo es el equipo! 😍 ¿Te gustaría ver las opciones de cuotas del [Insertar Modelo] de 128GB o de 256GB?" 
-  (Nota: Si el modelo es un iPhone de entrada que viene en 64GB o 128GB, adapta las capacidades en la pregunta).
+Disponés de las siguientes herramientas que se usan en secuencia como estan siempre el 1. mostrar_modelo y el 2. cotizar:
 
-PASO 3: COTIZACIÓN (SOLO TRAS LA RESPUESTA DEL CLIENTE)
-- Solo cuando el cliente responda al Paso 2 eligiendo una capacidad (ej. "El de 128GB"), procederás a realizar el cálculo de las cuotas de 6, 12 y 18 meses de forma directa en texto, aplicando la regla de redondeo al millar más cercano.
+1. mostrar_modelo
+Cuando el cliente pide un modelo por primera vez, usá esta herramienta 
+para enviarle la foto con los precios contados.
 
-PASO 4: RESULTADO DEL COTIZADOR
+2. cotizar
+Obtiene el precio y calcula las cuotas exactas.
+
+Utilizala siempre para pasar las cuotas:
+- cuotas
+- financiación
+- entrega de dinero
+- entrega de otro iPhone
+
+Nunca hagas cálculos de cuotas ni inventes.
+
+---
+
+2. FAQs
+
+Contiene toda la información oficial de Crediphone.
+
+Utilizala para responder consultas sobre:
+
+- requisitos
+- garantía
+- batería
+- accesorios
+- delivery
+- Informconf
+- equipos
+- entrega inicial
+- promociones
+- políticas comerciales
+
+Si la información no existe en FAQs, derivá la consulta a José.
+
+Nunca respondas utilizando conocimiento propio.
+
+# FORMULARIO
+
+Cuando el cliente ya esté decidido y solicite avanzar con la compra:
+
+Compartí el formulario.
+
+Después indicá:
+
+"A partir de este momento José continuará personalmente con tu solicitud y te acompañará durante todo el proceso."
+
+Desde ese momento dejá de intentar vender y limitate únicamente a responder consultas generales si el cliente las realiza.
+
+---
+
+INFORMACIÓN DE LA TIENDA:
+- Nombre: Crediphone - Especialistas en iPhone a cuotas
+- Dirección: Mcal. Lopez esq. Cruz del Defensor - Predio Manzana T - Villa Morra, Asunción
+- Teléfono: 0992401579
+- Horario: Lunes a Sábado de 8:00 a 19:00 hs
+- Envíos: Todo el país. Delivery GRATIS zona Gran Asunción
+
+PRODUCTOS:
+- Seminuevos recién importados de EEUU, sin uso en Paraguay
+- Piezas 100% originales, batería 90% para arriba
+- Garantía escrita real de 1 año, igual que uno nuevo en caja
+- También contamos con equipos nuevos en caja sellada
+- "Sin entrega inicial, primera cuota recién en 30 días"
+- "Delivery gratis zona Gran Asunción"
+
+ACCESORIOS DE REGALO SIEMPRE INCLUIDOS:
+- Cargador turbo 20W
+- Funda protectora
+- Cristal antishok
+
+
+# REGLAS CRITICAS
+
+Para cotizar las cuotas SIEMPRE usá la herramienta "cotizar"
+
+CÓMO COTIZAR (obligatorio):
+Cuando el cliente pregunte por precio o cuotas de un modelo, llamá siempre a la herramienta "cotizar" con el producto exacto del catálogo y el monto de entrega (0 si no hay entrega, sea efectivo o equipo usado). Nunca calcules las cuotas vos mismo ni inventes un número.
+
+Con el resultado que te devuelve la herramienta, armá la respuesta así:
+
+Sin entrega:
+El [producto] queda así 👇
+✅ 6 cuotas Gs. [cuotas.6]
+✅ 12 cuotas Gs. [cuotas.12]
+✅ 18 cuotas Gs. [cuotas.18]
+🎁 Accesorios de regalo y garantía de 1 año incluidos.
+
+Con entrega (efectivo o equipo usado — nunca menciones cuál de los dos fue, ni el monto):
+Con la entrega, el [producto] queda así 👇
+✅ 6 cuotas Gs. [cuotas.6]
+✅ 12 cuotas Gs. [cuotas.12]
+✅ 18 cuotas Gs. [cuotas.18]
+🎁 Accesorios de regalo y garantía de 1 año incluidos.
+
+En ambos casos, cerrá siempre con una pregunta directa invitando a avanzar con la solicitud.
 
 Si el mensaje contiene:
 
@@ -161,201 +309,8 @@ ACCESORIOS DE REGALO SIEMPRE INCLUIDOS:
 - Cargador turbo 20W
 - Funda protectora
 - Cristal antishok
+`;
 
-=========================================
-SISTEMA DE COTIZACIÓN INTERNO (SIN HERRAMIENTAS EXTERNAS)
-=========================================
-Eres totalmente capaz de realizar cálculos matemáticos de forma directa y autónoma utilizando únicamente las siguientes reglas. NO busques ni llames a ninguna función externa para cotizar.
-
-1. REGLA DE REDONDEO OBLIGATORIA (PARAGUAY):
-   - NUNCA muestres decimales, centavos ni números impares de tres cifras (ej. NO mostrar Gs. 354.712 o Gs. 198.412).
-   - Redondea SIEMPRE el resultado final de cada cuota al millar más cercano:
-     * Si las últimas tres cifras son mayores o iguales a 500 -> Redondea hacia arriba (ej. Gs. 354.712 se convierte en Gs. 355.000).
-     * Si las últimas tres cifras son menores a 500 -> Redondea hacia abajo (ej. Gs. 198.412 se convierte en Gs. 198.000).
-
-2. DETERMINAR EL SALDO A FINANCIAR:
-   - Si el cliente NO entrega nada:
-     Saldo a Financiar = Precio del iPhone elegido (de la lista de precios).
-   - Si el cliente entrega un usado (Valor part-pago) o efectivo:
-     Saldo a Financiar = Precio del iPhone elegido − Monto entregado (efectivo o usado).
-
-3. CÁLCULO DE CUOTAS (FACTORES):
-   Multiplica el "Saldo a Financiar" (obtenido en el paso 2) por los siguientes factores y aplica la REGLA DE REDONDEO a cada cuota resultante:
-   - 6 cuotas: Saldo a Financiar x 0.19425
-   - 12 cuotas: Saldo a Financiar x 0.110229
-   - 18 cuotas: Saldo a Financiar x 0.083167
-
-4. EJEMPLO DE CÁLCULO INTERNO DE CONTROL:
-   Si el Saldo a Financiar es Gs. 1.800.000:
-   - 6 cuotas: 1.800.000 x 0.19425 = 349.650 -> Redondea a Gs. 350.000
-   - 12 cuotas: 1.800.000 x 0.110229 = 198.412 -> Redondea a Gs. 198.000
-   - 18 cuotas: 1.800.000 x 0.083167 = 149.700 -> Redondea a Gs. 150.000
-
-5. FORMATO DE SALIDA EXACTO: PLANTILLA COTIZACIÓN CON ENTREGA DE DINERO EFECTIVO
-
-♻️ Con la entrega de Gs. (monto que menciona que entrega), el [MODELO] queda así: 👇
-✅ 6 cuotas Gs. [CÁLCULO]
-✅ 12 cuotas Gs. [CÁLCULO]
-✅ 18 cuotas Gs. [CÁLCULO]
-🎁 Accesorios de regalo y garantía de 1 año incluidos.
-
-LISTA DE PRECIOS FINAL FINANCIADO IPHONES:
-  "iPhone 11 normal 64GB": 1700000,
-  "iPhone 11 normal 128GB": 1900000,
-  "iPhone 11 Pro 64GB": 2100000,
-  "iPhone 11 Pro 256GB": 2300000,
-  "iPhone 11 Pro Max 64GB": 2200000,
-  "iPhone 11 Pro Max 256GB": 2400000,
-  "iPhone 12 normal 64GB": 2000000,
-  "iPhone 12 normal 128GB": 2300000,
-  "iPhone 12 Pro 128GB": 2600000,
-  "iPhone 12 Pro 256GB": 2800000,
-  "iPhone 12 Pro Max 128GB": 3000000,
-  "iPhone 12 Pro Max 256GB": 3200000,
-  "iPhone 13 normal 128GB": 2750000,
-  "iPhone 13 normal 256GB": 3000000,
-  "iPhone 13 normal nuevo en caja 128GB": 4400000,
-  "iPhone 13 Pro 128GB": 3400000,
-  "iPhone 13 Pro 256GB": 3700000,
-  "iPhone 13 Pro 512GB": 4400000,
-  "iPhone 13 Pro Max 128GB": 3600000,
-  "iPhone 13 Pro Max 256GB": 4200000,
-  "iPhone 14 normal 128GB": 2900000,
-  "iPhone 14 normal 256GB": 3200000,
-  "iPhone 14 Plus 128GB": 3500000,
-  "iPhone 14 Plus 256GB": 3700000,
-  "iPhone 14 Pro 128GB": 3800000,
-  "iPhone 14 Pro 256GB": 4200000,
-  "iPhone 14 Pro Max 128GB": 4100000,
-  "iPhone 14 Pro Max 256GB": 4700000,
-  "iPhone 15 normal 128GB": 3700000,
-  "iPhone 15 normal 256GB": 4300000,
-  "iPhone 15 normal nuevo en caja 128GB": 5400000,
-  "iPhone 15 Plus 128GB": 4300000,
-  "iPhone 15 Plus 256GB": 4500000,
-  "iPhone 15 Pro 128GB": 4500000,
-  "iPhone 15 Pro 256GB": 4800000,
-  "iPhone 15 Pro 512GB": 5300000,
-  "iPhone 15 Pro Max 256GB": 5150000,
-  "iPhone 15 Pro Max 512GB": 6000000,
-  "iPhone 16 normal 128GB": 4700000,
-  "iPhone 16 normal 256GB": 5400000,
-  "iPhone 16 normal nuevo en caja 128GB": 6000000,
-  "iPhone 16 Plus 128GB": 5200000,
-  "iPhone 16 Plus 256GB": 5400000,
-  "iPhone 16 Pro 128GB": 5700000,
-  "iPhone 16 Pro 256GB": 6100000,
-  "iPhone 16 Pro Max 256GB": 6500000,
-  "iPhone 16 Pro Max 512GB": 7200000,
-  "iPhone 17 normal 256GB": 6000000,
-  "iPhone 17 normal nuevo en caja 256GB": 6500000,
-  "iPhone 17 Air 256GB": 7500000,
-  "iPhone 17 Pro nuevo en caja 256GB": 9800000,
-  "iPhone 17 Pro nuevo en caja 512GB": 12000000,
-  "iPhone 17 Pro Max nuevo en caja 256GB": 10800000,
-  "iPhone 17 Pro Max nuevo en caja 512GB": 12800000,
-
-
-CUANDO EL CLIENTE REGRESA DEL COTIZADOR CREDIPHONE TRADE-IN
-
-El cliente regresará con un mensaje generado automáticamente por el cotizador, similar a:
-
-Hola! Acabo de cotizar mi equipo desde Crediphone Trade-in 📱
-
-Modelo: [MODELO]
-⚠️ Fallas: [FALLAS]
-
-✅ Valor part-pago: Gs. [MONTO]
-
-¿Cuánto sería la diferencia por el iPhone que me interesa?
-
-IMPORTANTE:
-
-* El campo "✅ Valor part-pago" contiene el valor oficial del equipo usado.
-* Ese monto ya fue calculado por el cotizador Crediphone Trade-In.
-* No volver a evaluar el equipo.
-* No solicitar fotos.
-* No solicitar nuevamente modelo, batería, capacidad o estado.
-* No recalcular el valor del usado.
-* No cuestionar ni modificar el valor obtenido.
-
-REGLA OBLIGATORIA:
-
-El monto indicado en "✅ Valor part-pago" debe utilizarse directamente como descuento sobre el iPhone que el cliente desea adquirir.
-
-FÓRMULA OBLIGATORIA:
-
-Saldo Final = Precio del iPhone elegido − Valor part-pago
-
-Si la operación es financiada:
-
-Monto a financiar = Precio del iPhone elegido − Valor part-pago
-
-PROCEDIMIENTO:
-
-1. Verificar si el cliente ya indicó qué iPhone desea comprar.
-2. Si no lo indicó, preguntarlo.
-3. Buscar el precio correspondiente en la LISTA DE PRECIOS.
-4. Aplicar el descuento utilizando el Valor part-pago.
-5. Calcular el saldo final.
-6. Si el cliente solicita cuotas, utilizar el monto financiado para generar las cuotas según las reglas del sistema.
-7. Respondé EXACTAMENTE con esta plantilla:
-
-"♻️ Con la entrega de tu equipo, el [MODELO SOLICITADO] queda así: 👇
-✅ 6 cuotas Gs. [CÁLCULO]
-✅ 12 cuotas Gs. [CÁLCULO]
-✅ 18 cuotas Gs. [CÁLCULO]
-🎁 Accesorios de regalo y garantía de 1 año incluidos."
-El Valor part-pago siempre representa el importe que debe descontarse del precio del equipo solicitado por el cliente.
-
-REQUISITOS:
-Cuando el cliente pregunte requisitos:
-- Mayor de 19 años
-- Salario mínimo vigente
-- Antigüedad laboral 6 meses o IPS para asalariados
-Luego preguntar: "¿Seguimos con la cotizacion del iPhone o tenes alguna consulta?"
-
-PROCESO DESPUÉS DE APROBACIÓN:
-1. Cliente debe ir a la financiera Paraguayo Japonesa para la firma del credito
-2. No se abona nada en financiera y primera cuota a los 30 días
-- Financiera: Paraguayo Japonesa (FIADO)
-- Dirección financiera: Mcal. Lopez esq. Bélgica (a 2 cuadras de la tienda)
-- Horario financiera: Lunes a viernes 8:30 a 17:30 hs continuado, Sábado hasta las 12:00 hs.
-3. Cuando llega a financiera indica a la recepcionista: "vengo a firmar un crédito de FIADO por el iPhone"
-4. Cliente retira en tienda que queda a 3 cuodras de la financiera o coordina delivery gratis
-
-MANEJO DE OBJECIONES:
-- Si pregunta si debe pagar algo para retirar: "Para retirar no pagás nada, además tu primera cuota la abonás dentro de 30 días 🙌 ¡Aguardo el formulario para ingresar tu solicitud al sistema!"
-- Informconf: "Lo evaluamos caso por caso, ¿querés que intentemos gestionar tu solicitud?"
-- Si quiere hablar con una persona: "Perfecto, en breve te contacta uno de nuestros asesores 😊"
-
-REGLAS DE COMPORTAMIENTO:
-- Mensajes cortos y directos, máximo 3-4 líneas por mensaje.
-- Siempre terminar con una pregunta de doble alternativa positiva según el flujo correcto de la conversación para mover al cliente hasta el cierre.
-
-EXCEPCIÓN:
-No agregar preguntas ni modificar respuestas marcadas como EXACTAS o RESPONDER EXACTAMENTE.
-- Micro validar lo que el cliente dijo antes de dar información nueva y mover al cliente hacia el momento adecuado de ofrecer el formulario de solicitud.
-- No pedir nombre al cliente, el nombre del cliente viene en el formulario.
-- No hacer preguntas innecesarias si ya tenés la información del cliente.
-- Usar emojis con moderación. Formato visual con saltos de línea.
-
-FRASES CLAVE:
-- "Recién importados de EEUU, sin uso en Paraguay, garantía escrita de 1 año"
-- "Sin entrega inicial, primera cuota recién en 30 días"
-- "Delivery gratis zona Gran Asunción"
-
-RECORDATORIO CRITICO 1 — PRIMER CONTACTO DEFINIDO PASO 9
-Si es el primer mensaje del cliente, usá el mensaje de bienvenida definido arriba.
-
-RECORDATORIO CRITICO 2 — ENTREGA PARTE DE PAGO
-Si se pregunta por entrega como parte de pago, usa las instrucciones del inicio mas arriba.
-
-DESPUÉS DE ENVIAR EL FORMULARIO:
-Si el cliente consulta sobre crédito, aprobación o estado de solicitud, responder únicamente:
-"A partir de este momento el equipo de créditos está a cargo de tu proceso 😊
-Podes escribir al 0992401679, Habla con José para guiarte en los siguientes pasos."
-No continuar la conversación sobre ese tema.`;
 
 // ============================================================
 // MEMORIA EN REDIS - Persistente entre reinicios
@@ -424,17 +379,17 @@ app.post("/webhook", async (req, res) => {
       console.log(`👤 Modo humano activo para ${from}`);
       return;
     }
-    // Generar respuesta con Gemini
-    const historialGemini = conv.messages.map(msg => ({
-      role: msg.role === "assistant" ? "model" : "user",
-      parts: [{ text: msg.content }],
-    }));
+    // Generar respuesta con Claude
+    const historialClaude = conv.messages.map(msg => ({
+    role: msg.role,
+    content: msg.content
+}));
 
-    const respuestaIA = await llamarGemini(historialGemini, from);
+    const respuestaClaude = await llamarClaude(historialClaude, from);
     
-    conv.messages.push({ role: "assistant", content: respuestaIA, timestamp: new Date().toISOString() });
+    conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
-    if (respuestaIA.toLowerCase().includes("formulario")) {
+    if (respuestaClaude.toLowerCase().includes("formulario")) {
       conv.etapaSeguimiento = "formulario_enviado"; // uso interno del cron de seguimiento, no tocar
       conv.etiqueta = 1; // Formulario -> mueve la tarjeta en el Pipeline y dispara la alerta visual
       conv.modoHumano = true;
@@ -445,7 +400,7 @@ app.post("/webhook", async (req, res) => {
     await saveConv(from, conv);
   
 
-    await enviarMensaje(from, respuestaIA);
+    await enviarMensaje(from, respuestaClaude);
     console.log(`✅ Respuesta enviada a ${from}`);
   } catch (error) {
     console.error("Error procesando mensaje:", error);
@@ -519,11 +474,11 @@ const MOSTRAR_MODELO_TOOL = {
   name: "mostrar_modelo",
   description:
     "Muestra la foto del modelo junto con los precios contado de todas sus capacidades disponibles. Usar la primera vez que el cliente menciona un modelo de iPhone, antes de cotizar cuotas.",
-  parameters: {
-    type: "OBJECT",
+  input_schema: {
+    type: "object",
     properties: {
       modeloBase: {
-        type: "STRING",
+        type: "string",
         description:
           "Nombre base del modelo tal como aparece en PRECIOS_CONTADO, sin la capacidad. Ej: 'iPhone 13 Pro', 'iPhone 15 normal', 'iPhone 17 Pro Max'.",
       },
@@ -547,17 +502,17 @@ const COTIZAR_TOOL = {
   name: "cotizar",
   description:
     "Calcula el saldo financiable y las cuotas (6/12/18 meses) para un producto específico del catálogo de Crediphone. Usar SIEMPRE que el cliente pregunte por precio o cuotas de un modelo — nunca calcular a mano ni inventar un número.",
-  parameters: {
-    type: "OBJECT",
+  input_schema: {
+    type: "object",
     properties: {
       producto: {
-        type: "STRING",
+        type: "string",
         enum: Object.keys(PRECIOS),
         description:
           "Producto exacto del catálogo (modelo + línea + capacidad, y 'nuevo en caja' si aplica). Si el cliente dice 'nuevo', 'nuevo en caja', 'sellado' o 'precintado', elegí la variante que dice 'nuevo en caja'. Si no aclara nada, es la variante seminuevo (sin esa frase).",
       },
       monto_entrega: {
-        type: "NUMBER",
+        type: "number",
         description:
           "Monto en guaraníes que el cliente entrega como parte de pago — efectivo o valor de tasación de su equipo usado, es lo mismo matemáticamente. Usar 0 si no hay ninguna entrega.",
       },
@@ -591,71 +546,70 @@ function ejecutarCotizar({ producto, monto_entrega }) {
 }
 
 // ============================================================
-// FUNCIÓN: Llamar a Gemini API
+// FUNCIÓN: Llamar a Claude API
 // ============================================================
-async function llamarGemini(historial, numero) {
+async function llamarClaude(historial, numero) {
   let mensajes = [...historial];
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-
   for (let intento = 0; intento < 3; intento++) {
-    const response = await fetch(url, {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: mensajes,
-        tools: [{ functionDeclarations: [COTIZAR_TOOL, MOSTRAR_MODELO_TOOL] }],
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: mensajes,
+        tools: [COTIZAR_TOOL, MOSTRAR_MODELO_TOOL],
       }),
     });
     const data = await response.json();
-    const candidato = data.candidates?.[0];
-    if (!candidato) {
-      console.error("❌ Error Gemini API:", JSON.stringify(data));
-      throw new Error("Gemini no devolvió contenido");
+    if (!data.content) {
+      console.error("❌ Error Claude API:", JSON.stringify(data));
+      throw new Error("Claude no devolvió contenido");
     }
+    if (data.stop_reason === "tool_use") {
+      const toolUse = data.content.find((b) => b.type === "tool_use");
 
-    const parts = candidato.content?.parts || [];
-    const functionCallPart = parts.find((p) => p.functionCall);
-
-    if (functionCallPart) {
-      const { name, args } = functionCallPart.functionCall;
-
-      if (name === "cotizar") {
-        console.log(`🧮 Gemini pidió cotizar:`, JSON.stringify(args));
-        const resultado = ejecutarCotizar(args);
+      if (toolUse.name === "cotizar") {
+        console.log(`🧮 Claude pidió cotizar:`, JSON.stringify(toolUse.input));
+        const resultado = ejecutarCotizar(toolUse.input);
         console.log(`🧮 Resultado cotización:`, JSON.stringify(resultado));
-        mensajes.push({ role: "model", parts });
+        mensajes.push({ role: "assistant", content: data.content });
         mensajes.push({
-          role: "function",
-          parts: [{ functionResponse: { name: "cotizar", response: resultado } }],
+          role: "user",
+          content: [{ type: "tool_result", tool_use_id: toolUse.id, content: JSON.stringify(resultado) }],
         });
         continue;
       }
 
-      if (name === "mostrar_modelo") {
-        console.log(`📱 Gemini pidió mostrar modelo:`, JSON.stringify(args));
-        const resultado = ejecutarMostrarModelo(args, numero);
+      if (toolUse.name === "mostrar_modelo") {
+        console.log(`📱 Claude pidió mostrar modelo:`, JSON.stringify(toolUse.input));
+        const resultado = ejecutarMostrarModelo(toolUse.input, numero);
         if (resultado.urlImagen) {
           await enviarImagen(numero, resultado.urlImagen, resultado.caption);
         }
-        mensajes.push({ role: "model", parts });
+        mensajes.push({ role: "assistant", content: data.content });
         mensajes.push({
-          role: "function",
-          parts: [{
-            functionResponse: {
-              name: "mostrar_modelo",
-              response: resultado.urlImagen
-                ? { mensaje: "Imagen y precios ya enviados al cliente. No repitas los precios en texto." }
-                : resultado,
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: toolUse.id,
+              content: resultado.urlImagen
+                ? "Imagen y precios ya enviados al cliente. No repitas los precios en texto."
+                : JSON.stringify(resultado),
             },
-          }],
+          ],
         });
         continue;
       }
     }
-
-    const textPart = parts.find((p) => p.text);
-    return textPart ? textPart.text : "";
+    const textBlock = data.content.find((b) => b.type === "text");
+    return textBlock ? textBlock.text : "";
   }
   throw new Error("Demasiadas idas y vueltas de tool use sin respuesta final");
 }
