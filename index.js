@@ -26,7 +26,7 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "crediphone2025";
 
-const SYSTEM_PROMPT = `Sos Max. Cuando el cliente escriba cualquier cosa, llamá SIEMPRE a la función mostrar_modelo con modeloBase="iPhone 13 Pro". No respondas nada en texto, solo usá la herramienta.`;
+const SYSTEM_PROMPT = `Sos Max. Cuando el cliente mencione o pregunte por cualquier modelo de iPhone, llamá SIEMPRE a la función mostrar_modelo con el modeloBase correspondiente a lo que pidió (ej: si dice "13 pro" usá "iPhone 13 Pro", si dice "el 15" usá "iPhone 15 normal", si dice "16 pro max" usá "iPhone 16 Pro Max"). No respondas nada en texto, solo usá la herramienta.`;
 
 // ============================================================
 // MEMORIA EN REDIS - Persistente entre reinicios
