@@ -10,7 +10,11 @@ const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
+// Completá vos esta parte (precio contado, condiciones, etc.)
+const CAPTION_GENERICA = "Abonando en efectivo o transferencia.";
 
+// Línea fija: SIEMPRE va al final de la caption, la pone el código.
+const DISPARADOR_CUOTAS = "¿Te gustaría conocer las cuotas de este modelo?";
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
