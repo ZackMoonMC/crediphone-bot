@@ -84,6 +84,52 @@ app.post("/webhook", async (req, res) => {
     console.log(`📩 Mensaje de ${from}: ${textoRecibido}`);
 
     const conv = await getConv(from);
+
+const esPrimerMensaje = conv.messages.length === 0;
+
+conv.ultimoMensaje = new Date().toISOString();
+conv.seguimiento3hEnviado = false;
+conv.seguimiento23hEnviado = false;
+
+conv.messages.push({
+  role: "user",
+  content: textoRecibido,
+  timestamp: new Date().toISOString()
+});
+
+if (conv.messages.length > 40) {
+  conv.messages = conv.messages.slice(-40);
+}
+
+if (esPrimerMensaje) {
+
+  const bienvenida = `👋 ¡Hola! Bienvenido a CrediPhone 🤳🏻
+
+Tenemos disponibles iPhones nuevos y seminuevos con garantía.
+
+📲 ¿Qué modelo estás buscando?`;
+
+  await enviarMensaje(from, bienvenida);
+
+  conv.messages.push({
+    role: "assistant",
+    content: bienvenida,
+    timestamp: new Date().toISOString()
+  });
+
+  await saveConv(from, conv);
+
+  console.log("👋 Bienvenida enviada.");
+
+  return;
+}
+
+if (conv.modoHumano) {
+  await saveConv(from, conv);
+  console.log(`👤 Modo humano activo para ${from}`);
+  return;
+}
+    const conv = await getConv(from);
     conv.ultimoMensaje = new Date().toISOString();
     conv.seguimiento3hEnviado = false;
     conv.seguimiento23hEnviado = false;
