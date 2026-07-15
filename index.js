@@ -78,65 +78,31 @@ app.post("/webhook", async (req, res) => {
     const value = change?.value;
     const message = value?.messages?.[0];
     if (!message || message.type !== "text") return;
-
+ 
     from = message.from;
     const textoRecibido = message.text.body;
     console.log(`📩 Mensaje de ${from}: ${textoRecibido}`);
-
+ 
     const conv = await getConv(from);
-
-const esPrimerMensaje = conv.messages.length === 0;
-
-conv.ultimoMensaje = new Date().toISOString();
-conv.seguimiento3hEnviado = false;
-conv.seguimiento23hEnviado = false;
-
-conv.messages.push({
-  role: "user",
-  content: textoRecibido,
-  timestamp: new Date().toISOString()
-});
-
-if (conv.messages.length > 40) {
-  conv.messages = conv.messages.slice(-40);
-}
-
-if (esPrimerMensaje) {
-
-  const bienvenida = `👋 ¡Hola! Bienvenido a CrediPhone 🤳🏻
-
-Tenemos disponibles iPhones nuevos y seminuevos con garantía.
-
-📲 ¿Qué modelo estás buscando?`;
-
-  await enviarMensaje(from, bienvenida);
-
-  conv.messages.push({
-    role: "assistant",
-    content: bienvenida,
-    timestamp: new Date().toISOString()
-  });
-
-  await saveConv(from, conv);
-
-  console.log("👋 Bienvenida enviada.");
-
-  return;
-}
-
-if (conv.modoHumano) {
-  await saveConv(from, conv);
-  console.log(`👤 Modo humano activo para ${from}`);
-  return;
-}
-    const conv = await getConv(from);
+    const esPrimerMensaje = conv.messages.length === 0;
     conv.ultimoMensaje = new Date().toISOString();
     conv.seguimiento3hEnviado = false;
     conv.seguimiento23hEnviado = false;
     conv.messages.push({ role: "user", content: textoRecibido, timestamp: new Date().toISOString() });
-
+ 
     if (conv.messages.length > 40) conv.messages = conv.messages.slice(-40);
-
+ 
+    if (esPrimerMensaje) {
+      const bienvenida = `👋 ¡Hola! Bienvenido a CrediPhone 🤳🏻
+Tenemos disponibles iPhones nuevos y seminuevos 📱, desde el iPhone 11 hasta el 17 Pro Max, *a cómodas cuotas, sin entrega inicial y con garantía*. ✅
+*¿Qué modelo estás buscando?* 😊`;
+      await enviarMensaje(from, bienvenida);
+      conv.messages.push({ role: "assistant", content: bienvenida, timestamp: new Date().toISOString() });
+      await saveConv(from, conv);
+      console.log(`👋 Bienvenida enviada a ${from}`);
+      return;
+    }
+ 
     if (conv.modoHumano) {
       await saveConv(from, conv);
       console.log(`👤 Modo humano activo para ${from}`);
@@ -147,41 +113,26 @@ if (conv.modoHumano) {
     role: msg.role,
     content: msg.content
 }));
-
+ 
     const respuestaClaude = await generarRespuesta(historialClaude, from);
     
     conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
-    if (respuestaClaude.toLowerCase().includes("formulario")) {
+    if (respuestaClaude.includes(LINK_FORMULARIO)) {
       conv.etapaSeguimiento = "formulario_enviado"; // uso interno del cron de seguimiento, no tocar
       conv.etiqueta = 1; // Formulario -> mueve la tarjeta en el Pipeline y dispara la alerta visual
       conv.modoHumano = true;
-      console.log(`📋 Formulario detectado - Modo humano activado para ${from}`);
+      console.log(`📋 Formulario detectado (link exacto) - Modo humano activado para ${from}`);
     } else if (!conv.etapaSeguimiento) {
       conv.etapaSeguimiento = "cotizando";
     }
     await saveConv(from, conv);
   
-
+ 
     await enviarMensaje(from, respuestaClaude);
     console.log(`✅ Respuesta enviada a ${from}`);
   } catch (error) {
     console.error("Error procesando mensaje:", error);
-    if (!from) return; // no llegamos a identificar al cliente, no hay a quién avisarle
-    // Si Claude falla (ej. sin crédito, API caída), avisamos al cliente
-    // y pasamos la conversación a modo humano para que no quede colgado.
-    try {
-      const conv = await getConv(from);
-      conv.modoHumano = true;
-      conv.etiqueta = conv.etiqueta || 2; // marcá el número que uses en el panel para "requiere atención"
-      await saveConv(from, conv);
-      await enviarMensaje(
-        from,
-        "¡Gracias por tu mensaje! 🙌 En este momento uno de nuestros asesores va a continuar la conversación con vos."
-      );
-    } catch (errorSecundario) {
-      console.error("Error en el fallback de error:", errorSecundario);
-    }
   }
 });
 
