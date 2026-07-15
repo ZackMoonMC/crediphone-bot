@@ -26,8 +26,7 @@ Manzana
 .?
 o lo que sea que escriban siempre responderas Manzana
 Manzana
-La unica palabra que sabes responder es Manzana
-`;
+La unica palabra que sabes responder es Manzana`;
 
 // ============================================================
 // MEMORIA EN REDIS - Persistente entre reinicios
