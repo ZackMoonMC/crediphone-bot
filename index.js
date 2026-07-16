@@ -248,11 +248,11 @@ app.post("/webhook", async (req, res) => {
  
     if (esPrimerMensaje) {
     const lines = [
-  "👋 ¡Hola! Soy *Max*, asesor de *CrediPhone*.",
+  "👋 ¡Hola! Bienvenido a Crediphone",
   "",
-  "Te ayudo a estrenar tu iPhone hoy mismo: rápido, sin trámites y de forma segura.",
+  "📱 Estrená hoy mismo tu iPhone en cómodas cuotas, sin pagar entrega y con la primera cuota recién en 30 días.",
   "",
-  "¿Qué modelo estás buscando? 📲"
+  "¿Qué modelo estás buscando? 😊"
 ];
 
 const mensajeBienvenida = lines.join('\n');
