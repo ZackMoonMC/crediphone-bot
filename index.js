@@ -11,10 +11,9 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-// Completá vos esta parte (precio contado, condiciones, etc.)
-const CAPTION_GENERICA = "Abonando en efectivo o transferencia.";
-// Línea fija: SIEMPRE va al final de la caption, la pone el código.
-const DISPARADOR_CUOTAS = "¿Te gustaría conocer las cuotas de este modelo?";
+// Caption fijo que acompaña la foto del modelo — genérico para todos.
+const CAPTION_MODELO = (modeloBase) =>
+  `🔥 ${modeloBase}\nImportado de EEUU, 100% original de fábrica 📱✅\nDisponible en todos los colores para entrega inmediata\nGarantía escrita de 1 año + delivery GRATIS`;
 // Link exacto del formulario — se usa para detectar cuándo el bot
 // realmente lo compartió, sin falsos positivos por la palabra "formulario".
 const LINK_FORMULARIO = "https://crediphone-leads.onrender.com/formulario.html";
@@ -23,162 +22,122 @@ const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "crediphone2025";
 
-const SYSTEM_PROMPT = `IDENTIDAD Y ROL
+const SYSTEM_PROMPT = `# IDENTIDAD Y ROL
 
-Sos Max, asesor comercial virtual de Crediphone.
+Eres Max, asesor comercial de Crediphone.
 
-Este documento es tu única fuente autorizada para decidir cómo vender, cómo responder sobre Crediphone y cómo conducir una conversación comercial.
+Tu misión es ayudar al cliente a encontrar el iPhone ideal y guiarlo hasta completar su solicitud de forma simple, rápida y segura.
 
-Cada vez que recibís un mensaje debés utilizar este documento como guía principal.
+Hablás con confianza, cercanía y calidez. Transmitís seguridad sin generar presión.
 
-Los ejemplos de conversación representan la forma ideal en que responde un asesor experto de Crediphone.
+Nunca mencionás que sos una inteligencia artificial.
 
-Cuando el mensaje del cliente sea similar a uno de los ejemplos, respondé siguiendo el mismo objetivo y la misma estrategia, adaptando naturalmente las palabras al contexto.
+Si el cliente pregunta quién sos, respondé exactamente:
 
-Nunca inventes información sobre Crediphone.
+"Soy Max, asesor de Crediphone. 📱 Estoy acá para ayudarte a encontrar el iPhone ideal para vos. ¿Qué modelo estás buscando?"
 
-Si la respuesta no aparece en este documento pero existe una herramienta o base de conocimiento disponible, utilizala.
+---
 
-Tu objetivo en toda conversación es acompañar al cliente hasta esta pregunta final:
+# REGLA PRINCIPAL
 
-😊 ¿Te gustaría solicitar el iPhone? Así te ayudo con los requisitos.
+Si el cliente habla sobre temas ajenos a iPhones o financiación, respondé brevemente y redirigí la conversación hacia tu especialidad.
 
-Si no existe información suficiente, decilo claramente sin inventar y deriva directamente con este mensaje: 0992401579, ese es el numero de José Thompson Gerente de Creditos.
+Tu objetivo principal es guiar al cliente hasta completar el formulario de solicitud en un máximo de 3 a 5 interacciones.
 
----------
-COMPORTAMIENTO Y REGLAS BASICAS
+La mayoría de las personas que llegan por primera vez al chat ya tienen interés en comprar un iPhone o ya saben qué modelo buscan. Tu trabajo es acompañarlos con claridad, generar confianza y avanzar naturalmente hacia la solicitud.
 
-• Profesional
-• Cercano
-• Amable
+---
 
-•  Tus respuestas son cortas maximos 2 a 3 reglones (lineas de texto).
+# REGLAS DE COMUNICACIÓN
 
-•  Utilizás pocos emojis y solamente cuando aportan cercanía.
+- Validá primero lo que dice el cliente.
+- Escribí mensajes cortos y fáciles de leer.
+- Mantené un tono humano, cercano y profesional.
+- Hacé una sola pregunta por mensaje.
+- Guiá la conversación naturalmente hacia el siguiente paso.
+-------
+## HERRAMIENTA: mostrar_modelo
 
-• Respondé exactamente lo que pregunta el cliente.
+Este chat cuenta con un mensaje de bienvenida fijo.
 
-• Si el cliente menciona un modelo de iPhone, identificalo correctamente antes de responder.
+Cuando el cliente mencione, consulte o solicite ver un modelo de iPhone, primero identificá correctamente el modelo solicitado y utilizá inmediatamente la herramienta mostrar_modelo.
 
-• Si el mensaje coincide con alguno de los flujos ideales, seguí esa misma estrategia.
+### CONTRATO OBLIGATORIO
 
-• Si existe una herramienta para responder, utilizala.
+El único parámetro de la herramienta es:
 
----------
-PROCESO DE VENTA Y FLUJOS DE REFERENCIA 
+- modeloBase
 
-Cada vez que un cliente consulte por un iPhone seguí este proceso.
+modeloBase debe enviarse SIEMPRE utilizando exactamente uno de los siguientes valores.
 
-PASO 1
+### Modelos seminuevos
 
-Identificá correctamente el modelo solicitado.
+• iPhone 11 normal
+• iPhone 11 Pro
+• iPhone 11 Pro Max
 
-Si el nombre está incompleto inferilo correctamente.
+• iPhone 12 normal
+• iPhone 12 Pro
+• iPhone 12 Pro Max
 
-Ejemplos
+• iPhone 13 normal
+• iPhone 13 Pro
+• iPhone 13 Pro Max
 
-"15"
+• iPhone 14 normal
+• iPhone 14 Plus
+• iPhone 14 Pro
+• iPhone 14 Pro Max
 
-↓
+• iPhone 15 normal
+• iPhone 15 Plus
+• iPhone 15 Pro
+• iPhone 15 Pro Max
 
-iPhone 15 normal
+• iPhone 16 normal
+• iPhone 16 Plus
+• iPhone 16 Pro
+• iPhone 16 Pro Max
 
-"13 pro"
+• iPhone 17 normal
+• iPhone 17 Air
+• iPhone 17 Pro
+• iPhone 17 Pro Max
 
-↓
+### Modelos nuevos en caja
 
-iPhone 13 Pro
+• iPhone 15 normal nuevo en caja
+• iPhone 16 normal nuevo en caja
+• iPhone 17 normal nuevo en caja
+• iPhone 17 Air nuevo en caja
+• iPhone 17 Pro nuevo en caja
+• iPhone 17 Pro Max nuevo en caja
 
-"13 por" iPhone 13 pro, también cosas como "el rosadito" iPhone color rosa, "el más grande" iPhone Pro Max, "cuánto sale el catorce" iPhone 14 normal
+### Reglas
 
-PASO 2
+- Inferí correctamente el modelo solicitado por el cliente.
+- Si el cliente menciona únicamente "iPhone 13", "iPhone 14", "iPhone 15", etc., interpretá que se refiere al modelo estándar (normal), salvo que indique otra variante.
+- Si menciona Pro, Pro Max, Plus o Air, utilizá exactamente esa variante.
+- Si solicita un equipo nuevo, utilizá la variante "nuevo en caja" correspondiente.
+- No incluir capacidad (64, 128, 256, 512 o 1TB).
+- No incluir color.
+- No incluir precio.
+- No inventar parámetros adicionales.
+- Enviá siempre uno de los valores exactamente como aparecen en esta lista.
 
-Una vez identificado el modelo utilizá la herramienta mostrar_modelo().
+El sistema envía automáticamente la fotografía y el caption correspondiente.
 
-PASO 3
+Después de utilizar la herramienta, no describas nuevamente el equipo ni repitas el caption.
 
-Con la información devuelta respondé al cliente.
+Respondé únicamente con un mensaje breve preguntando si desea conocer las cuotas.
 
-PASO 4
+Ejemplos:
 
-Compartí foto y cuota del modelo.
-Si el cliente presenta una objeción, respondela usando la sección FAQs.
-Luego, intentá avanzar hacia la solicitud utilizando alguno de los siguientes micro cierres.
-
-😊 ¿Te gustaría solicitar el iPhone?
-Así te ayudo con los requisitos.
-
-😊 Si querés podemos iniciar la solicitud ahora mismo.
-
-😊 Si te interesa ese modelo te explico los requisitos.
-
-😊 ¿Avanzamos con la solicitud?
-
----------
-CASOS DE REFERENCIA DE VENTAS REALES
-
-Los siguientes casos representan la forma ideal de atender a un cliente.
-Cuando el mensaje del cliente sea similar a alguno de estos casos, respondé siguiendo el mismo objetivo y el mismo estilo, adaptando únicamente los datos específicos del cliente.
-
-FLUJO 01
-Cliente nuevo
-
-Objetivo:
-Descubrir qué modelo busca.
-
-...
-
-FLUJO 02
-Cliente interesado
-
-Objetivo:
-Llevar al formulario.
-
-...
-
-FLUJO 03
-Cliente comparando
-
-Objetivo:
-Ayudar a decidir.
-
-...
-
-
------
-FAQs FRECUENTES - OBJECIONES - EJEMPLOS RESPUESTAS 
-
-GRUPO: Confianza en el producto
-Objeciones que caen acá: batería, si es original, si es reacondicionado, si es usado, garantía
-
-Respuesta base:
-[tu respuesta general que cubre la inquietud raíz]
-
-Ejemplo:
-Cliente: "¿la batería viene bien?" / "¿es original?" / "¿es reacondicionado?"
-Max: [misma respuesta adaptada naturalmente]
-
------
-CONFIRMACIÓN DE STOCK Y CONDICIÓN DEL EQUIPO
-
-Contamos con todos los modelos, colores y capacidades disponibles.
-Los colores están siempre disponibles en todos los modelos.
-
-Aclaración importante sobre condición:
-Actualmente tenemos 5 modelos nuevos en caja: [MODELO_1, MODELO_2, MODELO_3, MODELO_4, MODELO_5]
-El resto de los modelos están disponibles en condición semi-nuevo (excelente estado).
-
-Como los equipos se venden por cuotas, la disponibilidad de una unidad específica puede variar en el transcurso de la conversación. Nunca lo presentes como "sin stock": el modelo SIEMPRE está disponible, lo que puede variar es si esa unidad puntual sigue en caja nueva o pasa a semi-nuevo.
-
-Respuesta base:
-"Sí, tenemos el iPhone [MODELO] disponible en todos los colores. 😊 Este modelo lo tenemos en condición [nuevo en caja / semi-nuevo], excelente estado. ¿Te muestro la cuota?"
-
-Ejemplo:
-Cliente: "tenés el iPhone 13 en azul?"
-Max: "Sí, tenemos el iPhone 13 disponible en todos los colores, incluido el azul. 😊 Este modelo lo tenemos en semi-nuevo, excelente estado. ¿Te muestro la cuot
+• ¿Te gustaría conocer cuánto te quedaría en cuotas? 😊
+• ¿Querés que te calcule cuánto pagarías por mes?
 
 `;
 
@@ -325,7 +284,75 @@ function ejecutarMostrarModelo({ modeloBase }, numero) {
 }
 
 // ============================================================
-// FUNCIÓN: Llamar a Claude API
+// FUNCIÓN: Llamar a GPT (OpenAI) — IA principal
+// Formato de tools: "function" / tool_calls en la respuesta del
+// assistant / role "tool" para el resultado.
+// ============================================================
+const MOSTRAR_MODELO_TOOL_GPT = {
+  type: "function",
+  function: {
+    name: MOSTRAR_MODELO_TOOL.name,
+    description: MOSTRAR_MODELO_TOOL.description,
+    parameters: MOSTRAR_MODELO_TOOL.input_schema,
+  },
+};
+
+async function llamarGPT(historial, numero) {
+  // GPT espera el system prompt como un mensaje más, con role "system"
+  let mensajes = [{ role: "system", content: SYSTEM_PROMPT }, ...historial];
+
+  for (let intento = 0; intento < 3; intento++) {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        max_tokens: 1000,
+        messages: mensajes,
+        tools: [MOSTRAR_MODELO_TOOL_GPT],
+      }),
+    });
+    const data = await response.json();
+    if (!data.choices || !data.choices[0]) {
+      console.error("❌ Error GPT API:", JSON.stringify(data));
+      throw new Error("GPT no devolvió contenido");
+    }
+
+    const choice = data.choices[0];
+    const mensaje = choice.message;
+
+    if (mensaje.tool_calls && mensaje.tool_calls.length > 0) {
+      const toolCall = mensaje.tool_calls[0];
+
+      if (toolCall.function.name === "mostrar_modelo") {
+        const input = JSON.parse(toolCall.function.arguments);
+        console.log(`📱 [GPT] pidió mostrar modelo:`, JSON.stringify(input));
+        const resultado = ejecutarMostrarModelo(input, numero);
+        if (resultado.urlImagen) {
+          await enviarImagen(numero, resultado.urlImagen, resultado.caption);
+        }
+        mensajes.push(mensaje);
+        mensajes.push({
+          role: "tool",
+          tool_call_id: toolCall.id,
+          content: resultado.urlImagen
+            ? "Imagen ya enviada al cliente. No vuelvas a mostrar la imagen en esta misma respuesta. Tu respuesta de texto tiene que cerrar preguntando si quiere conocer las cuotas de este modelo, corta y con un emoji si aporta, nunca vacía."
+            : JSON.stringify(resultado),
+        });
+        continue;
+      }
+    }
+
+    return mensaje.content || "";
+  }
+  throw new Error("Demasiadas idas y vueltas de tool use sin respuesta final (GPT)");
+}
+
+// ============================================================
+// FUNCIÓN: Llamar a Claude API (fallback si GPT falla)
 // ============================================================
 async function llamarClaude(historial, numero) {
   let mensajes = [...historial];
@@ -367,7 +394,7 @@ async function llamarClaude(historial, numero) {
               type: "tool_result",
               tool_use_id: toolUse.id,
               content: resultado.urlImagen
-                ? "Imagen ya enviada al cliente. La caption ya incluye la pregunta '¿Te gustaría conocer las cuotas de este modelo?', así que NO la repitas ni la reformules en tu respuesta de texto. No vuelvas a mostrar la imagen en esta misma respuesta. Tu respuesta de texto tiene que ser corta (podés usar un emoji o una frase breve tipo 'Contame cualquier duda 😊'), nunca vacía, y sin repetir la pregunta de cuotas."
+                ? "Imagen ya enviada al cliente. No vuelvas a mostrar la imagen en esta misma respuesta. Tu respuesta de texto tiene que cerrar preguntando si quiere conocer las cuotas de este modelo, corta y con un emoji si aporta, nunca vacía."
                 : JSON.stringify(resultado),
             },
           ],
@@ -382,91 +409,23 @@ async function llamarClaude(historial, numero) {
 }
 
 // ============================================================
-// FUNCIÓN: Llamar a Groq (fallback si Anthropic falla, ej. sin crédito)
-// Groq usa formato compatible con OpenAI: tools con "function",
-// tool_calls en la respuesta del assistant, y role "tool" para el resultado.
-// ============================================================
-const MOSTRAR_MODELO_TOOL_GROQ = {
-  type: "function",
-  function: {
-    name: MOSTRAR_MODELO_TOOL.name,
-    description: MOSTRAR_MODELO_TOOL.description,
-    parameters: MOSTRAR_MODELO_TOOL.input_schema,
-  },
-};
-
-async function llamarGroq(historial, numero) {
-  // Groq espera el system prompt como un mensaje más, con role "system"
-  let mensajes = [{ role: "system", content: SYSTEM_PROMPT }, ...historial];
-
-  for (let intento = 0; intento < 3; intento++) {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        max_tokens: 1000,
-        messages: mensajes,
-        tools: [MOSTRAR_MODELO_TOOL_GROQ],
-      }),
-    });
-    const data = await response.json();
-    if (!data.choices || !data.choices[0]) {
-      console.error("❌ Error Groq API:", JSON.stringify(data));
-      throw new Error("Groq no devolvió contenido");
-    }
-
-    const choice = data.choices[0];
-    const mensaje = choice.message;
-
-    if (mensaje.tool_calls && mensaje.tool_calls.length > 0) {
-      const toolCall = mensaje.tool_calls[0];
-
-      if (toolCall.function.name === "mostrar_modelo") {
-        const input = JSON.parse(toolCall.function.arguments);
-        console.log(`📱 [Groq] pidió mostrar modelo:`, JSON.stringify(input));
-        const resultado = ejecutarMostrarModelo(input, numero);
-        if (resultado.urlImagen) {
-          await enviarImagen(numero, resultado.urlImagen, resultado.caption);
-        }
-        mensajes.push(mensaje);
-        mensajes.push({
-          role: "tool",
-          tool_call_id: toolCall.id,
-          content: resultado.urlImagen
-            ? "Imagen ya enviada al cliente. La caption ya incluye la pregunta '¿Te gustaría conocer las cuotas de este modelo?', así que NO la repitas ni la reformules en tu respuesta de texto. No vuelvas a mostrar la imagen en esta misma respuesta. Tu respuesta de texto tiene que ser corta (podés usar un emoji o una frase breve tipo 'Contame cualquier duda 😊'), nunca vacía, y sin repetir la pregunta de cuotas."
-            : JSON.stringify(resultado),
-        });
-        continue;
-      }
-    }
-
-    return mensaje.content || "";
-  }
-  throw new Error("Demasiadas idas y vueltas de tool use sin respuesta final (Groq)");
-}
-
-// ============================================================
-// FUNCIÓN: Generar respuesta con fallback Claude → Groq
+// FUNCIÓN: Generar respuesta con fallback GPT → Claude
 // ============================================================
 async function generarRespuesta(historial, numero) {
-  if (ANTHROPIC_API_KEY) {
+  if (OPENAI_API_KEY) {
     try {
-      return await llamarClaude(historial, numero);
+      return await llamarGPT(historial, numero);
     } catch (error) {
-      console.error("⚠️ Falló Claude, cayendo a Groq:", error.message);
+      console.error("⚠️ Falló GPT, cayendo a Claude:", error.message);
     }
   } else {
-    console.log("⚠️ No hay ANTHROPIC_API_KEY configurada, usando Groq directo");
+    console.log("⚠️ No hay OPENAI_API_KEY configurada, usando Claude directo");
   }
 
-  if (!GROQ_API_KEY) {
-    throw new Error("Claude falló y no hay GROQ_API_KEY configurada para el fallback");
+  if (!ANTHROPIC_API_KEY) {
+    throw new Error("GPT falló y no hay ANTHROPIC_API_KEY configurada para el fallback");
   }
-  return await llamarGroq(historial, numero);
+  return await llamarClaude(historial, numero);
 }
 
 // ============================================================
@@ -512,13 +471,51 @@ async function enviarImagen(numero, urlImagen, caption) {
 // ============================================================
 function nombreArchivoImagen(modeloBase) {
   const mapa = {
-    "iPhone 11 normal": "iphone11_normal", "iPhone 11 Pro": "iphone11_pro", "iPhone 11 Pro Max": "iphone11_promax",
-    "iPhone 12 normal": "iphone12_normal", "iPhone 12 Pro": "iphone12_pro", "iPhone 12 Pro Max": "iphone12_promax",
-    "iPhone 13 normal": "iphone13_normal", "iPhone 13 Pro": "iphone13_pro", "iPhone 13 Pro Max": "iphone13_promax",
-    "iPhone 14 normal": "iphone14_normal", "iPhone 14 Plus": "iphone14_normal", "iPhone 14 Pro": "iphone14_pro", "iPhone 14 Pro Max": "iphone14_promax",
-    "iPhone 15 normal": "iphone15_normal", "iPhone 15 Plus": "iphone15_plus", "iPhone 15 Pro": "iphone15_pro", "iPhone 15 Pro Max": "iphone15_promax",
-    "iPhone 16 normal": "iphone16_normal", "iPhone 16 Plus": "iphone16_plus", "iPhone 16 Pro": "iphone16_pro", "iPhone 16 Pro Max": "iphone16_promax",
-    "iPhone 17 normal": "iphone17_normal", "iPhone 17 Air": "iphone17_air", "iPhone 17 Pro": "iphone17_pro", "iPhone 17 Pro Max": "iphone17_promax",
+    // =========================
+    // Seminuevos
+    // =========================
+    "iPhone 11 normal": "iphone11_normal",
+    "iPhone 11 Pro": "iphone11_pro",
+    "iPhone 11 Pro Max": "iphone11_promax",
+
+    "iPhone 12 normal": "iphone12_normal",
+    "iPhone 12 Pro": "iphone12_pro",
+    "iPhone 12 Pro Max": "iphone12_promax",
+
+    "iPhone 13 normal": "iphone13_normal",
+    "iPhone 13 Pro": "iphone13_pro",
+    "iPhone 13 Pro Max": "iphone13_promax",
+
+    "iPhone 14 normal": "iphone14_normal",
+    "iPhone 14 Plus": "iphone14_normal",
+    "iPhone 14 Pro": "iphone14_pro",
+    "iPhone 14 Pro Max": "iphone14_promax",
+
+    "iPhone 15 normal": "iphone15_normal",
+    "iPhone 15 Plus": "iphone15_plus",
+    "iPhone 15 Pro": "iphone15_pro",
+    "iPhone 15 Pro Max": "iphone15_promax",
+
+    "iPhone 16 normal": "iphone16_normal",
+    "iPhone 16 Plus": "iphone16_plus",
+    "iPhone 16 Pro": "iphone16_pro",
+    "iPhone 16 Pro Max": "iphone16_promax",
+
+    "iPhone 17 normal": "iphone17_normal",
+    "iPhone 17 Air": "iphone17_air",
+    "iPhone 17 Pro": "iphone17_pro",
+    "iPhone 17 Pro Max": "iphone17_promax",
+
+    // =========================
+    // Nuevos en caja
+    // =========================
+    "iPhone 15 normal nuevo en caja": "iphone15_normal",
+    "iPhone 16 normal nuevo en caja": "iphone16_normal",
+
+    "iPhone 17 normal nuevo en caja": "iphone17_normal",
+    "iPhone 17 Air nuevo en caja": "iphone17_air",
+    "iPhone 17 Pro nuevo en caja": "iphone17_pro",
+    "iPhone 17 Pro Max nuevo en caja": "iphone17_promax",
   };
   return mapa[modeloBase] || null;
 }
@@ -528,7 +525,7 @@ function armarMensajeModelo(modeloBase) {
   if (!archivo) return null;
 
   const urlImagen = `https://crediphone-iasales.onrender.com/images/${archivo}.jpg`;
-  const caption = `${modeloBase} 📱\n\n${CAPTION_GENERICA}\n\n${DISPARADOR_CUOTAS}`;
+  const caption = CAPTION_MODELO(modeloBase);
 
   return { urlImagen, caption };
 }
