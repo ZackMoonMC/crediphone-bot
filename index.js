@@ -441,13 +441,20 @@ app.post("/webhook", async (req, res) => {
     const value = change?.value;
     const message = value?.messages?.[0];
     if (!message) return;
- 
+
     // MÓDULO 1 — detección de audio (aislado, no toca el flujo de texto)
     if (message.type === "audio") {
       console.log(`🎤 Audio recibido de ${message.from} — media_id: ${message.audio?.id}`);
-      return; // por ahora no se procesa, solo se detecta y loguea
+      // MÓDULO 2 — prueba de descarga (temporal, solo para testear este módulo)
+      try {
+        const { buffer, mimeType } = await descargarAudio(message.audio?.id);
+        console.log(`⬇️ Audio descargado OK — ${buffer.length} bytes, tipo: ${mimeType}`);
+      } catch (err) {
+        console.error(`❌ Falló la descarga de audio:`, err.message);
+      }
+      return; // por ahora no se procesa más, solo se detecta y descarga de prueba
     }
- 
+
     if (message.type !== "text") return;
  
     from = message.from;
@@ -777,6 +784,33 @@ async function generarRespuesta(historial, numero) {
 // ============================================================
 // FUNCIÓN: Enviar mensaje por WhatsApp
 // ============================================================
+// ============================================================
+// MÓDULO 2 — Descargar audio de WhatsApp a partir del media_id
+// Aislado: no se llama todavía desde ningún lado del flujo existente.
+// Paso 1: resolver media_id → URL temporal de descarga
+// Paso 2: descargar el binario desde esa URL (requiere el mismo token)
+// ============================================================
+async function descargarAudio(mediaId) {
+  const metaResponse = await fetch(`https://graph.facebook.com/v25.0/${mediaId}`, {
+    headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}` },
+  });
+  const meta = await metaResponse.json();
+  if (!metaResponse.ok || !meta.url) {
+    console.error(`❌ Error obteniendo URL del audio ${mediaId}:`, JSON.stringify(meta));
+    throw new Error(`No se pudo resolver la URL del audio: ${JSON.stringify(meta)}`);
+  }
+
+  const audioResponse = await fetch(meta.url, {
+    headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}` },
+  });
+  if (!audioResponse.ok) {
+    throw new Error(`No se pudo descargar el audio desde ${meta.url}`);
+  }
+
+  const buffer = Buffer.from(await audioResponse.arrayBuffer());
+  return { buffer, mimeType: meta.mime_type };
+}
+
 async function enviarMensaje(numero, texto) {
   const response = await fetch(`https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}/messages`, {
     method: "POST",
