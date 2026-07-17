@@ -449,8 +449,11 @@ app.post("/webhook", async (req, res) => {
       try {
         const { buffer, mimeType } = await descargarAudio(message.audio?.id);
         console.log(`⬇️ Audio descargado OK — ${buffer.length} bytes, tipo: ${mimeType}`);
+        // MÓDULO 3 — prueba de transcripción (temporal, solo para testear este módulo)
+        const texto = await transcribirAudio(buffer, mimeType);
+        console.log(`📝 Transcripción: "${texto}"`);
       } catch (err) {
-        console.error(`❌ Falló la descarga de audio:`, err.message);
+        console.error(`❌ Falló la descarga o transcripción de audio:`, err.message);
       }
       return; // por ahora no se procesa más, solo se detecta y descarga de prueba
     }
@@ -809,6 +812,29 @@ async function descargarAudio(mediaId) {
 
   const buffer = Buffer.from(await audioResponse.arrayBuffer());
   return { buffer, mimeType: meta.mime_type };
+}
+
+// ============================================================
+// MÓDULO 3 — Transcribir audio con OpenAI (gpt-4o-mini-transcribe)
+// Aislado: no se llama todavía desde ningún lado del flujo existente.
+// ============================================================
+async function transcribirAudio(buffer, mimeType) {
+  const tipoLimpio = (mimeType || "audio/ogg").split(";")[0]; // WhatsApp a veces manda "audio/ogg; codecs=opus"
+  const form = new FormData();
+  form.append("file", new Blob([buffer], { type: tipoLimpio }), "audio.ogg");
+  form.append("model", "gpt-4o-mini-transcribe");
+
+  const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${OPENAI_API_KEY}` },
+    body: form,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    console.error(`❌ Error transcribiendo audio:`, JSON.stringify(data));
+    throw new Error(`OpenAI transcription error: ${JSON.stringify(data)}`);
+  }
+  return data.text;
 }
 
 async function enviarMensaje(numero, texto) {
