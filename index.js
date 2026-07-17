@@ -440,7 +440,15 @@ app.post("/webhook", async (req, res) => {
     const change = entry?.changes?.[0];
     const value = change?.value;
     const message = value?.messages?.[0];
-    if (!message || message.type !== "text") return;
+    if (!message) return;
+ 
+    // MÓDULO 1 — detección de audio (aislado, no toca el flujo de texto)
+    if (message.type === "audio") {
+      console.log(`🎤 Audio recibido de ${message.from} — media_id: ${message.audio?.id}`);
+      return; // por ahora no se procesa, solo se detecta y loguea
+    }
+ 
+    if (message.type !== "text") return;
  
     from = message.from;
     const textoRecibido = message.text.body;
