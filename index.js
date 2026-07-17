@@ -442,28 +442,26 @@ app.post("/webhook", async (req, res) => {
     const message = value?.messages?.[0];
     if (!message) return;
 
-    // MÓDULO 1 — detección de audio (aislado, no toca el flujo de texto)
+    from = message.from;
+    let textoRecibido;
+
     if (message.type === "audio") {
-      console.log(`🎤 Audio recibido de ${message.from} — media_id: ${message.audio?.id}`);
-      // MÓDULO 2 — prueba de descarga (temporal, solo para testear este módulo)
       try {
         const { buffer, mimeType } = await descargarAudio(message.audio?.id);
-        console.log(`⬇️ Audio descargado OK — ${buffer.length} bytes, tipo: ${mimeType}`);
-        // MÓDULO 3 — prueba de transcripción (temporal, solo para testear este módulo)
-        const texto = await transcribirAudio(buffer, mimeType);
-        console.log(`📝 Transcripción: "${texto}"`);
+        textoRecibido = await transcribirAudio(buffer, mimeType);
+        console.log(`🎤📝 Audio transcripto de ${from}: "${textoRecibido}"`);
       } catch (err) {
         console.error(`❌ Falló la descarga o transcripción de audio:`, err.message);
+        await enviarMensaje(from, "No pude escuchar bien tu audio 😅 ¿me lo podés escribir?");
+        return;
       }
-      return; // por ahora no se procesa más, solo se detecta y descarga de prueba
+    } else if (message.type === "text") {
+      textoRecibido = message.text.body;
+      console.log(`📩 Mensaje de ${from}: ${textoRecibido}`);
+    } else {
+      return; // tipo no soportado (imagen, sticker, etc.) — se ignora
     }
 
-    if (message.type !== "text") return;
- 
-    from = message.from;
-    const textoRecibido = message.text.body;
-    console.log(`📩 Mensaje de ${from}: ${textoRecibido}`);
- 
     const conv = await getConv(from);
     const esPrimerMensaje = conv.messages.length === 0;
     conv.ultimoMensaje = new Date().toISOString();
