@@ -11,6 +11,71 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
+// ============================================================
+// PRECIOS (final cliente, con entrega inmediata) — para calcular_cuotas
+// ============================================================
+const PRECIOS = {
+  "iPhone 11 normal 64GB": 1700000,
+  "iPhone 11 normal 128GB": 1900000,
+  "iPhone 11 Pro 64GB": 2100000,
+  "iPhone 11 Pro 256GB": 2300000,
+  "iPhone 11 Pro Max 64GB": 2200000,
+  "iPhone 11 Pro Max 256GB": 2400000,
+  "iPhone 12 normal 64GB": 2000000,
+  "iPhone 12 normal 128GB": 2300000,
+  "iPhone 12 Pro 128GB": 2600000,
+  "iPhone 12 Pro 256GB": 2800000,
+  "iPhone 12 Pro Max 128GB": 3000000,
+  "iPhone 12 Pro Max 256GB": 3200000,
+  "iPhone 13 normal 128GB": 2750000,
+  "iPhone 13 normal 256GB": 3000000,
+  "iPhone 13 nuevo en caja 128GB": 4400000,
+  "iPhone 13 Pro 128GB": 3400000,
+  "iPhone 13 Pro 256GB": 3700000,
+  "iPhone 13 Pro 512GB": 4400000,
+  "iPhone 13 Pro Max 128GB": 3600000,
+  "iPhone 13 Pro Max 256GB": 4200000,
+  "iPhone 14 normal 128GB": 2900000,
+  "iPhone 14 normal 256GB": 3200000,
+  "iPhone 14 Plus 128GB": 3500000,
+  "iPhone 14 Plus 256GB": 3700000,
+  "iPhone 14 Pro 128GB": 3800000,
+  "iPhone 14 Pro 256GB": 4200000,
+  "iPhone 14 Pro Max 128GB": 4100000,
+  "iPhone 14 Pro Max 256GB": 4700000,
+  "iPhone 15 normal 128GB": 3700000,
+  "iPhone 15 normal 256GB": 4300000,
+  "iPhone 15 nuevo en caja 128GB": 5400000,
+  "iPhone 15 Plus 128GB": 4300000,
+  "iPhone 15 Plus 256GB": 4500000,
+  "iPhone 15 Pro 128GB": 4500000,
+  "iPhone 15 Pro 256GB": 4800000,
+  "iPhone 15 Pro 512GB": 5300000,
+  "iPhone 15 Pro Max 256GB": 5150000,
+  "iPhone 15 Pro Max 512GB": 6000000,
+  "iPhone 16 normal 128GB": 4700000,
+  "iPhone 16 normal 256GB": 5400000,
+  "iPhone 16 nuevo en caja 128GB": 6000000,
+  "iPhone 16 Plus 128GB": 5200000,
+  "iPhone 16 Plus 256GB": 5400000,
+  "iPhone 16 Pro 128GB": 5700000,
+  "iPhone 16 Pro 256GB": 6100000,
+  "iPhone 16 Pro Max 256GB": 6500000,
+  "iPhone 16 Pro Max 512GB": 7200000,
+  "iPhone 17 normal 256GB": 6000000,
+  "iPhone 17 nuevo en caja 256GB": 6500000,
+  "iPhone 17 Air 256GB": 7500000,
+  "iPhone 17 Pro nuevo en caja 256GB": 9800000,
+  "iPhone 17 Pro nuevo en caja 512GB": 12000000,
+  "iPhone 17 Pro Max nuevo en caja 256GB": 10800000,
+  "iPhone 17 Pro Max nuevo en caja 512GB": 12800000,
+};
+
+// Factores fijos por plazo: saldo financiable × factor = valor de cada cuota
+const FACTOR_6_CUOTAS = 0.19425;
+const FACTOR_12_CUOTAS = 0.110229;
+const FACTOR_18_CUOTAS = 0.083167;
+
 // Caption fijo que acompaña la foto del modelo — genérico para todos.
 const CAPTION_MODELO = (modeloBase) =>
   `🔥 ${modeloBase}\nImportado de EEUU, 100% original de fábrica 📱✅\nDisponible en todos los colores para entrega inmediata\nGarantía escrita de 1 año + delivery GRATIS`;
@@ -284,6 +349,53 @@ function ejecutarMostrarModelo({ modeloBase }, numero) {
 }
 
 // ============================================================
+// TOOL: calcular_cuotas (function calling)
+// ============================================================
+const CALCULAR_CUOTAS_TOOL = {
+  name: "calcular_cuotas",
+  description:
+    "Calcula las 3 opciones de cuotas (6/12/18 meses) para un producto exacto del catálogo, con o sin entrega de dinero/equipo usado como parte de pago. Usar siempre que el cliente pregunte por precio o cuotas de un modelo — nunca calcules a mano ni inventes un número.",
+  input_schema: {
+    type: "object",
+    properties: {
+      producto: {
+        type: "string",
+        enum: Object.keys(PRECIOS),
+        description:
+          "Producto exacto del catálogo (modelo + línea + capacidad, y 'nuevo en caja' si aplica). Si el cliente dice 'nuevo', 'nuevo en caja', 'sellado' o 'precintado', elegí la variante que dice 'nuevo en caja'. Si no aclara nada, es la variante estándar (sin esa frase).",
+      },
+      montoEntrega: {
+        type: "number",
+        description:
+          "Monto en guaraníes que el cliente entrega como parte de pago — efectivo o valor de tasación de su equipo usado, es lo mismo matemáticamente. Usar 0 si no hay ninguna entrega.",
+      },
+    },
+    required: ["producto", "montoEntrega"],
+  },
+};
+
+function ejecutarCalcularCuotas({ producto, montoEntrega }) {
+  const precio = PRECIOS[producto];
+  if (precio === undefined) {
+    return { error: `Producto no encontrado en el catálogo: ${producto}` };
+  }
+  const entrega = Number(montoEntrega) || 0;
+  const saldoFinal = Math.max(precio - entrega, 0);
+
+  const redondear = (n) => Math.round(n / 1000) * 1000; // redondeo a miles de guaraníes
+
+  return {
+    producto,
+    precio,
+    montoEntrega: entrega,
+    saldoFinal,
+    cuota6: redondear(saldoFinal * FACTOR_6_CUOTAS),
+    cuota12: redondear(saldoFinal * FACTOR_12_CUOTAS),
+    cuota18: redondear(saldoFinal * FACTOR_18_CUOTAS),
+  };
+}
+
+// ============================================================
 // FUNCIÓN: Llamar a GPT (OpenAI) — IA principal
 // Formato de tools: "function" / tool_calls en la respuesta del
 // assistant / role "tool" para el resultado.
@@ -294,6 +406,15 @@ const MOSTRAR_MODELO_TOOL_GPT = {
     name: MOSTRAR_MODELO_TOOL.name,
     description: MOSTRAR_MODELO_TOOL.description,
     parameters: MOSTRAR_MODELO_TOOL.input_schema,
+  },
+};
+
+const CALCULAR_CUOTAS_TOOL_GPT = {
+  type: "function",
+  function: {
+    name: CALCULAR_CUOTAS_TOOL.name,
+    description: CALCULAR_CUOTAS_TOOL.description,
+    parameters: CALCULAR_CUOTAS_TOOL.input_schema,
   },
 };
 
@@ -312,7 +433,7 @@ async function llamarGPT(historial, numero) {
         model: "gpt-4o",
         max_tokens: 1000,
         messages: mensajes,
-        tools: [MOSTRAR_MODELO_TOOL_GPT],
+        tools: [MOSTRAR_MODELO_TOOL_GPT, CALCULAR_CUOTAS_TOOL_GPT],
       }),
     });
     const data = await response.json();
@@ -344,6 +465,20 @@ async function llamarGPT(historial, numero) {
         });
         continue;
       }
+
+      if (toolCall.function.name === "calcular_cuotas") {
+        const input = JSON.parse(toolCall.function.arguments);
+        console.log(`🧮 [GPT] pidió calcular cuotas:`, JSON.stringify(input));
+        const resultado = ejecutarCalcularCuotas(input);
+        console.log(`🧮 Resultado:`, JSON.stringify(resultado));
+        mensajes.push(mensaje);
+        mensajes.push({
+          role: "tool",
+          tool_call_id: toolCall.id,
+          content: JSON.stringify(resultado),
+        });
+        continue;
+      }
     }
 
     return mensaje.content || "";
@@ -369,7 +504,7 @@ async function llamarClaude(historial, numero) {
         max_tokens: 1000,
         system: SYSTEM_PROMPT,
         messages: mensajes,
-        tools: [MOSTRAR_MODELO_TOOL],
+        tools: [MOSTRAR_MODELO_TOOL, CALCULAR_CUOTAS_TOOL],
       }),
     });
     const data = await response.json();
@@ -396,6 +531,24 @@ async function llamarClaude(historial, numero) {
               content: resultado.urlImagen
                 ? "Imagen ya enviada al cliente. No vuelvas a mostrar la imagen en esta misma respuesta. Tu respuesta de texto tiene que cerrar preguntando si quiere conocer las cuotas de este modelo, corta y con un emoji si aporta, nunca vacía."
                 : JSON.stringify(resultado),
+            },
+          ],
+        });
+        continue;
+      }
+
+      if (toolUse.name === "calcular_cuotas") {
+        console.log(`🧮 Claude pidió calcular cuotas:`, JSON.stringify(toolUse.input));
+        const resultado = ejecutarCalcularCuotas(toolUse.input);
+        console.log(`🧮 Resultado:`, JSON.stringify(resultado));
+        mensajes.push({ role: "assistant", content: data.content });
+        mensajes.push({
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: toolUse.id,
+              content: JSON.stringify(resultado),
             },
           ],
         });
