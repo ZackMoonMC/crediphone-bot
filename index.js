@@ -550,6 +550,51 @@ function ejecutarMostrarModelo({ modeloBase }, numero) {
 }
 
 // ============================================================
+// TOOLS NUEVAS: promo_regalos y tienda_local_direccion
+// ⚠️ PENDIENTE: subir las fotos reales a /images con estos nombres
+// exactos, y ajustar la línea de caption marcada abajo cuando José
+// tenga el link de Google Maps + horario definitivos.
+// ============================================================
+const NOMBRE_ARCHIVO_REGALOS = "regalos_promo_placeholder.jpg"; // TODO: José sube la foto real con este nombre
+const NOMBRE_ARCHIVO_LOCAL = "tienda_local_placeholder.jpg"; // TODO: José sube la foto real con este nombre
+
+const PROMO_REGALOS_TOOL = {
+  name: "promo_regalos",
+  description:
+    "Muestra la foto de los regalos/promoción que incluye la compra (cargador, funda, cristal antishock, etc). Usar cuando el cliente pregunta específicamente por los regalos o la promoción.",
+  input_schema: {
+    type: "object",
+    properties: {},
+  },
+};
+
+function ejecutarPromoRegalos() {
+  return {
+    urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_REGALOS}`,
+    // TODO: José ajusta este texto cuando tenga la lista final de regalos/promo
+    caption: "🎁 Estos son los regalos que incluye tu compra: cargador turbo 20W, funda y cristal antishock.",
+  };
+}
+
+const TIENDA_LOCAL_TOOL = {
+  name: "tienda_local_direccion",
+  description:
+    "Muestra la foto del local físico de Crediphone con dirección y horarios. Usar cuando el cliente duda si es una estafa, pregunta por el local, la dirección, o pide la ubicación.",
+  input_schema: {
+    type: "object",
+    properties: {},
+  },
+};
+
+function ejecutarTiendaLocal() {
+  return {
+    urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_LOCAL}`,
+    // TODO: José reemplaza esta línea completa cuando tenga el link de Google Maps + horario definitivos
+    caption: "📍 Este es nuestro local — dirección y horarios pendientes de confirmar.",
+  };
+}
+
+// ============================================================
 // TOOL: calcular_cuotas (function calling)
 // ============================================================
 const CALCULAR_CUOTAS_TOOL = {
@@ -619,6 +664,24 @@ const CALCULAR_CUOTAS_TOOL_GPT = {
   },
 };
 
+const PROMO_REGALOS_TOOL_GPT = {
+  type: "function",
+  function: {
+    name: PROMO_REGALOS_TOOL.name,
+    description: PROMO_REGALOS_TOOL.description,
+    parameters: PROMO_REGALOS_TOOL.input_schema,
+  },
+};
+
+const TIENDA_LOCAL_TOOL_GPT = {
+  type: "function",
+  function: {
+    name: TIENDA_LOCAL_TOOL.name,
+    description: TIENDA_LOCAL_TOOL.description,
+    parameters: TIENDA_LOCAL_TOOL.input_schema,
+  },
+};
+
 async function llamarGPT(historial, numero) {
   // GPT espera el system prompt como un mensaje más, con role "system"
   let mensajes = [{ role: "system", content: SYSTEM_PROMPT }, ...historial];
@@ -634,7 +697,7 @@ async function llamarGPT(historial, numero) {
         model: "gpt-4o",
         max_tokens: 1000,
         messages: mensajes,
-        tools: [MOSTRAR_MODELO_TOOL_GPT, CALCULAR_CUOTAS_TOOL_GPT],
+        tools: [MOSTRAR_MODELO_TOOL_GPT, CALCULAR_CUOTAS_TOOL_GPT, PROMO_REGALOS_TOOL_GPT, TIENDA_LOCAL_TOOL_GPT],
       }),
     });
     const data = await response.json();
@@ -680,6 +743,32 @@ async function llamarGPT(historial, numero) {
         });
         continue;
       }
+
+      if (toolCall.function.name === "promo_regalos") {
+        console.log(`🎁 [GPT] pidió mostrar regalos/promo`);
+        const resultado = ejecutarPromoRegalos();
+        await enviarImagen(numero, resultado.urlImagen, resultado.caption);
+        mensajes.push(mensaje);
+        mensajes.push({
+          role: "tool",
+          tool_call_id: toolCall.id,
+          content: "Imagen de regalos/promo ya enviada al cliente. No la repitas, respondé breve preguntando si sigue interesado.",
+        });
+        continue;
+      }
+
+      if (toolCall.function.name === "tienda_local_direccion") {
+        console.log(`📍 [GPT] pidió mostrar local/dirección`);
+        const resultado = ejecutarTiendaLocal();
+        await enviarImagen(numero, resultado.urlImagen, resultado.caption);
+        mensajes.push(mensaje);
+        mensajes.push({
+          role: "tool",
+          tool_call_id: toolCall.id,
+          content: "Imagen del local ya enviada al cliente. No la repitas, respondé breve retomando el flujo de venta.",
+        });
+        continue;
+      }
     }
 
     return mensaje.content || "";
@@ -705,7 +794,7 @@ async function llamarClaude(historial, numero) {
         max_tokens: 1000,
         system: SYSTEM_PROMPT,
         messages: mensajes,
-        tools: [MOSTRAR_MODELO_TOOL, CALCULAR_CUOTAS_TOOL],
+        tools: [MOSTRAR_MODELO_TOOL, CALCULAR_CUOTAS_TOOL, PROMO_REGALOS_TOOL, TIENDA_LOCAL_TOOL],
       }),
     });
     const data = await response.json();
@@ -750,6 +839,42 @@ async function llamarClaude(historial, numero) {
               type: "tool_result",
               tool_use_id: toolUse.id,
               content: JSON.stringify(resultado),
+            },
+          ],
+        });
+        continue;
+      }
+
+      if (toolUse.name === "promo_regalos") {
+        console.log(`🎁 Claude pidió mostrar regalos/promo`);
+        const resultado = ejecutarPromoRegalos();
+        await enviarImagen(numero, resultado.urlImagen, resultado.caption);
+        mensajes.push({ role: "assistant", content: data.content });
+        mensajes.push({
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: toolUse.id,
+              content: "Imagen de regalos/promo ya enviada al cliente. No la repitas, respondé breve preguntando si sigue interesado.",
+            },
+          ],
+        });
+        continue;
+      }
+
+      if (toolUse.name === "tienda_local_direccion") {
+        console.log(`📍 Claude pidió mostrar local/dirección`);
+        const resultado = ejecutarTiendaLocal();
+        await enviarImagen(numero, resultado.urlImagen, resultado.caption);
+        mensajes.push({ role: "assistant", content: data.content });
+        mensajes.push({
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: toolUse.id,
+              content: "Imagen del local ya enviada al cliente. No la repitas, respondé breve retomando el flujo de venta.",
             },
           ],
         });
