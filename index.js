@@ -584,7 +584,7 @@ function ejecutarPromoRegalos() {
   return {
     urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_REGALOS}`,
     // TODO: José ajusta este texto cuando tenga la lista final de regalos/promo
-    caption: "🎁 Estos son los regalos que incluye tu compra: cargador turbo 20W, funda y cristal antishock.",
+    caption: "🎁 En Crediphone no solo te llevás tu iPhone. También incluimos accesorios y un regalo a elección. 🙌",
   };
 }
 
