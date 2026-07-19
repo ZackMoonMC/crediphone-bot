@@ -308,7 +308,8 @@ El [producto] queda así 👇
 ✅ 12 cuotas Gs. [cuotas.12]
 ✅ 18 cuotas Gs. [cuotas.18]
 
-🎁 Accesorios de regalo y garantía de 1 año incluidos.
+🛡️ Garantía de 1 año
+🚚 Delivery gratis
 
 ### PLANTILLA CON ENTREGA
 
@@ -318,7 +319,8 @@ Con la entrega, el [producto] queda así 👇
 ✅ 12 cuotas Gs. [cuotas.12]
 ✅ 18 cuotas Gs. [cuotas.18]
 
-🎁 Accesorios de regalo y garantía de 1 año incluidos.
+🛡️ Garantía de 1 año
+🚚 Delivery gratis
 
 Si la operación incluye una entrega:
 
