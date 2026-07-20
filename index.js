@@ -78,7 +78,7 @@ const FACTOR_18_CUOTAS = 0.083167;
 
 // Caption fijo que acompaña la foto del modelo — genérico para todos.
 const CAPTION_MODELO = (modeloBase) =>
-  `✨ ${modeloBase}\n *Recién llegados😍✨*\nImpecables, listo para entrega inmediata 🚀`;
+  `✨ ${modeloBase}\n📸 *Foto real😍✨*\n✅ Disponible en todos los colores.`;
 // Link exacto del formulario — se usa para detectar cuándo el bot
 // realmente lo compartió, sin falsos positivos por la palabra "formulario".
 const LINK_FORMULARIO = "https://crediphone-leads.onrender.com/formulario.html";
@@ -165,7 +165,7 @@ Respondé de forma breve, cercana y positiva confirmando que el modelo está dis
 
 Mensaje:
 
-Sí, tenemos disponible el {MODELO}, disponible en todos los colores y listo para retirar hoy. 🚀
+Sí, tenemos disponible el {MODELO}, listo para retirar hoy. 🚀
 
 Paso 2 — Mostrar el equipo
 
