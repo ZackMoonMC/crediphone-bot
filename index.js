@@ -416,7 +416,7 @@ Ejemplo:
 
 ## CUÁNDO UTILIZAR LA HERRAMIENTA
 
-Cuando el cliente responda la pregunta del BLOQUE 2, ejecutá inmediatamente la herramienta `promo_regalos`, independientemente de cuál sea su respuesta.
+Cuando el cliente responda la pregunta del BLOQUE 2, ejecutá inmediatamente la herramienta promo_regalos, independientemente de cuál sea su respuesta.
 
 Después de mostrar la promoción:
 
