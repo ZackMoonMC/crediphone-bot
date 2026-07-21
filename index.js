@@ -568,15 +568,19 @@ conv.messages.push({ role: "assistant", content: mensajeBienvenida, timestamp: n
     content: msg.content
 }));
  
-    const respuestaClaude = await generarRespuesta(historialClaude, from);
-    
     conv.messages.push({ role: "assistant", content: respuestaClaude, timestamp: new Date().toISOString() });
     conv.ultimoMensaje = new Date().toISOString();
     if (respuestaClaude.includes(LINK_FORMULARIO)) {
       conv.etapaSeguimiento = "formulario_enviado"; // uso interno del cron de seguimiento, no tocar
       conv.etiqueta = 1; // Formulario -> mueve la tarjeta en el Pipeline y dispara la alerta visual
       conv.modoHumano = true;
+
+      // Envío automático de foto de regalos junto con el pase a modo humano (aplica en ambos casos: cierre natural o derivación a pedido del cliente)
+      const promoRegalos = ejecutarPromoRegalos();
+      await enviarImagen(from, promoRegalos.urlImagen, promoRegalos.caption);
+
       console.log(`📋 Formulario detectado (link exacto) - Modo humano activado para ${from}`);
+      console.log(`🎁 Foto de regalos enviada automáticamente para ${from}`);
     } else if (!conv.etapaSeguimiento) {
       conv.etapaSeguimiento = "cotizando";
     }
