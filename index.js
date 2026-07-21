@@ -640,14 +640,18 @@ function ejecutarMostrarModelo({ modeloBase }, numero) {
   return resultado;
 }
 
-// ============================================================
-// TOOLS NUEVAS: promo_regalos y tienda_local_direccion
+// TOOLS NUEVAS: promo_regalos y enviar_foto_info
 // ⚠️ PENDIENTE: subir las fotos reales a /images con estos nombres
 // exactos, y ajustar la línea de caption marcada abajo cuando José
 // tenga el link de Google Maps + horario definitivos.
-// ============================================================
+// ==========================================================================
 const NOMBRE_ARCHIVO_REGALOS = "regalos_promo.jpg"; // TODO: José sube la foto real con este nombre
 const NOMBRE_ARCHIVO_LOCAL = "tienda_local_placeholder.jpg"; // TODO: José sube la foto real con este nombre
+const NOMBRE_ARCHIVO_REQUISITOS = "requisitos.jpg"; // TODO: José sube la foto real con este nombre
+const NOMBRE_ARCHIVO_PROCESO = "proceso_solicitud_placeholder.jpg"; // TODO: José sube la foto real con este nombre
+const NOMBRE_ARCHIVO_BENEFICIOS = "beneficios_placeholder.jpg"; // TODO: José sube la foto real con este nombre
+const NOMBRE_ARCHIVO_GARANTIA = "garantia_placeholder.jpg"; // TODO: José sube la foto real con este nombre
+const NOMBRE_ARCHIVO_CUOTAS = "como_pagar_cuotas_placeholder.jpg"; // TODO: José sube la foto real con este nombre
 
 const PROMO_REGALOS_TOOL = {
   name: "promo_regalos",
@@ -667,22 +671,52 @@ function ejecutarPromoRegalos() {
   };
 }
 
-const TIENDA_LOCAL_TOOL = {
-  name: "tienda_local_direccion",
+const ENVIAR_FOTO_INFO_TOOL = {
+  name: "enviar_foto_info",
   description:
-    "Muestra la foto del local físico de Crediphone con dirección y horarios. Usar cuando el cliente duda si es una estafa, pregunta por el local, la dirección, o pide la ubicación.",
+    "Envía una foto informativa según el tema que el cliente esté consultando: ubicación del local, requisitos para solicitar, cómo es el proceso de solicitud, beneficios de comprar en Crediphone, garantía del equipo, o cómo se pagan las cuotas. Usar cuando el cliente pregunta por alguno de estos temas o duda de la seriedad/proceso.",
   input_schema: {
     type: "object",
-    properties: {},
+    properties: {
+      tipo: {
+        type: "string",
+        enum: ["local", "requisitos", "proceso_solicitud", "beneficios", "garantia", "como_pagar_cuotas"],
+        description: "Categoría de la foto a enviar",
+      },
+    },
+    required: ["tipo"],
   },
 };
 
-function ejecutarTiendaLocal() {
-  return {
+const INFO_FOTOS = {
+  local: {
     urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_LOCAL}`,
-    // TODO: José reemplaza esta línea completa cuando tenga el link de Google Maps + horario definitivos
     caption: "📍 Este es nuestro local — dirección y horarios pendientes de confirmar.",
-  };
+  },
+  requisitos: {
+    urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_REQUISITOS}`,
+    caption: "📋 Estos son los requisitos para solicitar tu iPhone.",
+  },
+  proceso_solicitud: {
+    urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_PROCESO}`,
+    caption: "🚀 Así es el proceso de solicitud, paso a paso.",
+  },
+  beneficios: {
+    urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_BENEFICIOS}`,
+    caption: "✨ Estos son los beneficios de comprar con Crediphone.",
+  },
+  garantia: {
+    urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_GARANTIA}`,
+    caption: "🛡️ Así es la garantía que respalda tu equipo.",
+  },
+  como_pagar_cuotas: {
+    urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_CUOTAS}`,
+    caption: "💳 Así podés pagar tus cuotas.",
+  },
+};
+
+function ejecutarFotoInfo(tipo) {
+  return INFO_FOTOS[tipo];
 }
 
 // ============================================================
@@ -764,12 +798,12 @@ const PROMO_REGALOS_TOOL_GPT = {
   },
 };
 
-const TIENDA_LOCAL_TOOL_GPT = {
+const ENVIAR_FOTO_INFO_TOOL_GPT = {
   type: "function",
   function: {
-    name: TIENDA_LOCAL_TOOL.name,
-    description: TIENDA_LOCAL_TOOL.description,
-    parameters: TIENDA_LOCAL_TOOL.input_schema,
+    name: ENVIAR_FOTO_INFO_TOOL.name,
+    description: ENVIAR_FOTO_INFO_TOOL.description,
+    parameters: ENVIAR_FOTO_INFO_TOOL.input_schema,
   },
 };
 
@@ -788,7 +822,7 @@ async function llamarGPT(historial, numero) {
         model: "gpt-4o",
         max_tokens: 1000,
         messages: mensajes,
-        tools: [MOSTRAR_MODELO_TOOL_GPT, CALCULAR_CUOTAS_TOOL_GPT, PROMO_REGALOS_TOOL_GPT, TIENDA_LOCAL_TOOL_GPT],
+        tools: [MOSTRAR_MODELO_TOOL_GPT, CALCULAR_CUOTAS_TOOL_GPT, PROMO_REGALOS_TOOL_GPT, ENVIAR_FOTO_INFO_TOOL_GPT],
       }),
     });
     const data = await response.json();
@@ -848,18 +882,19 @@ async function llamarGPT(historial, numero) {
         continue;
       }
 
-      if (toolCall.function.name === "tienda_local_direccion") {
-        console.log(`📍 [GPT] pidió mostrar local/dirección`);
-        const resultado = ejecutarTiendaLocal();
-        await enviarImagen(numero, resultado.urlImagen, resultado.caption);
-        mensajes.push(mensaje);
-        mensajes.push({
-          role: "tool",
-          tool_call_id: toolCall.id,
-          content: "Imagen del local ya enviada al cliente. No la repitas, respondé breve retomando el flujo de venta.",
-        });
-        continue;
-      }
+      if (toolCall.function.name === "enviar_foto_info") {
+  const argsGPT = JSON.parse(toolCall.function.arguments);
+  console.log(`📸 [GPT] pidió mostrar foto: ${argsGPT.tipo}`);
+  const resultado = ejecutarFotoInfo(argsGPT.tipo);
+  await enviarImagen(numero, resultado.urlImagen, resultado.caption);
+  mensajes.push(mensaje);
+  mensajes.push({
+    role: "tool",
+    tool_call_id: toolCall.id,
+    content: "Imagen enviada al cliente. No la repitas, respondé breve retomando el flujo de venta.",
+  });
+  continue;
+}
     }
 
     return mensaje.content || "";
@@ -885,7 +920,7 @@ async function llamarClaude(historial, numero) {
         max_tokens: 1000,
         system: SYSTEM_PROMPT,
         messages: mensajes,
-        tools: [MOSTRAR_MODELO_TOOL, CALCULAR_CUOTAS_TOOL, PROMO_REGALOS_TOOL, TIENDA_LOCAL_TOOL],
+        tools: [MOSTRAR_MODELO_TOOL, CALCULAR_CUOTAS_TOOL, PROMO_REGALOS_TOOL, ENVIAR_FOTO_INFO_TOOL],
       }),
     });
     const data = await response.json();
@@ -954,14 +989,14 @@ async function llamarClaude(historial, numero) {
         continue;
       }
 
-      if (toolUse.name === "tienda_local_direccion") {
-        console.log(`📍 Claude pidió mostrar local/dirección`);
-        const resultado = ejecutarTiendaLocal();
-        await enviarImagen(numero, resultado.urlImagen, resultado.caption);
-        mensajes.push({ role: "assistant", content: data.content });
-        mensajes.push({
-          role: "user",
-          content: [
+      if (toolUse.name === "enviar_foto_info") {
+  console.log(`📸 Claude pidió mostrar foto: ${toolInput.tipo}`);
+  const resultado = ejecutarFotoInfo(toolInput.tipo);
+  await enviarImagen(numero, resultado.urlImagen, resultado.caption);
+  mensajes.push({ role: "assistant", content: data.content });
+  mensajes.push({
+    role: "user",
+    content: [
             {
               type: "tool_result",
               tool_use_id: toolUse.id,
