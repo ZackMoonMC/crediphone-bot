@@ -544,7 +544,7 @@ app.post("/webhook", async (req, res) => {
     const lines = [
   "¡Hola! ¿Qué tal? ☺️✨ Te saluda Max de CrediPhone.",
   "",
-  "Vimos que te interesó nuestra promo SMS de iPhones en comodas cuotas. Te cuento que tenemos modelos nuevos y seminuevos, sin entrega inicial y con retiro en el día 📲🙌.",
+  "Vimos que te interesó nuestra promo SMS de iPhones financiados. Tenemos disponible modelos nuevos y seminuevos, sin entrega inicial y con retiro en el día 📲🙌.",
   "",
   "Para ayudarte rápido, ¿qué modelo tenías en mente? 👇"
 ];
