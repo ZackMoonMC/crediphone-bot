@@ -701,7 +701,7 @@ const INFO_FOTOS = {
   },
   requisitos: {
     urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_REQUISITOS}`,
-    caption: "📋 Estos son los requisitos para acceder a la financiación.\n\n¿Cuál sería tu perfil laboral? Para avanzar con la solicitud 👉",
+    caption: "",
   },
   proceso_solicitud: {
     urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_PROCESO}`,
