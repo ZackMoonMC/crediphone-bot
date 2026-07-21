@@ -701,7 +701,9 @@ const INFO_FOTOS = {
   },
   requisitos: {
     urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_REQUISITOS}`,
-    caption: "",
+    caption: "📋 Estos son los requisitos para acceder a la financiación.
+
+¿Cuál sería tu perfil laboral? Para avanzar con la solicitud 👉",
   },
   proceso_solicitud: {
     urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_PROCESO}`,
@@ -883,7 +885,7 @@ async function llamarGPT(historial, numero) {
         mensajes.push({
           role: "tool",
           tool_call_id: toolCall.id,
-          content: "Imagen de regalos/promo ya enviada al cliente. No la repitas, respondé breve preguntando si sigue interesado.",
+          content: "Imagen de regalos/promo ya enviada al cliente. No la repitas, No agregues ningún mensaje de texto adicional",
         });
         continue;
       }
@@ -897,7 +899,7 @@ async function llamarGPT(historial, numero) {
   mensajes.push({
     role: "tool",
     tool_call_id: toolCall.id,
-    content: "Imagen enviada al cliente. No la repitas, respondé breve retomando el flujo de venta.",
+    content: "Imagen enviada al cliente. No la repitas, No agregues ningún mensaje de texto adicional",
   });
   continue;
 }
@@ -988,7 +990,7 @@ async function llamarClaude(historial, numero) {
             {
               type: "tool_result",
               tool_use_id: toolUse.id,
-              content: "Imagen de regalos/promo ya enviada al cliente. No la repitas, respondé breve preguntando si sigue interesado.",
+              content: "Imagen de regalos/promo ya enviada al cliente. No la repitas, No agregues ningún mensaje de texto adicional.",
             },
           ],
         });
@@ -1005,8 +1007,8 @@ async function llamarClaude(historial, numero) {
     content: [
             {
               type: "tool_result",
-              tool_use_id: toolUse.id,
-              content: "Imagen del local ya enviada al cliente. No la repitas, respondé breve retomando el flujo de venta.",
+   tool_use_id: toolUse.id,
+    content: "Imagen ya enviada al cliente junto con su pregunta de seguimiento en el caption. No agregues ningún mensaje de texto adicional.",
             },
           ],
         });
