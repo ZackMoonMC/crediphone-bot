@@ -564,12 +564,19 @@ app.post("/webhook", async (req, res) => {
     if (conv.messages.length > 40) conv.messages = conv.messages.slice(-40);
  
     if (esPrimerMensaje) {
-    const lines = [
-  "¡Hola! ¿Qué tal? ☺️✨ Te saluda Max de CrediPhone.",
+const lines = [
+  "👋 ¡Hola! Soy Max, asesor virtual de *Crediphone*.",
   "",
-  "Vimos que te interesó nuestra promo SMS de iPhones financiados. Tenemos disponible modelos nuevos y seminuevos, sin entrega inicial y con retiro en el día 📲🙌.",
+  "*Tú iPhone, así de fácil:*",
+  "1️⃣ Elegí el modelo.",
+  "2️⃣ Completá el formulario.",
+  "3️⃣ Evaluamos en el día.",
+  "4️⃣ ¡Aprobada! 🎉",
+  "Retirás en tienda o te la enviamos. 🛵💨",
   "",
-  "Para ayudarte rápido, ¿qué modelo tenías en mente? 👇"
+  "✅ Sin entrega inicial.",
+  "",
+  "¿Qué modelo te vemos?"
 ];
 
 const mensajeBienvenida = lines.join('\n');
