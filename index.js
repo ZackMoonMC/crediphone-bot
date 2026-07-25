@@ -764,7 +764,7 @@ async function llamarGPT(historial, numero) {
           role: "tool",
           tool_call_id: toolCall.id,
           content: resultado.urlImagen
-            ? "Imagen ya enviada al cliente. No vuelvas a mostrar la imagen en esta misma respuesta. Tu respuesta de texto tiene que cerrar preguntando si quiere conocer las cuotas de este modelo, corta y con un emoji si aporta, nunca vacía."
+            ? "Imagen ya enviada al cliente. No vuelvas a mostrar la imagen en esta misma respuesta. Tu respuesta de texto tiene que cerrar preguntando '¿Arrancamos con la solicitud de este o querés ver los requisitos? 🙌', corta y sin agregar nada más."
             : JSON.stringify(resultado),
         });
         continue;
