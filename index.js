@@ -78,7 +78,7 @@ const FACTOR_18_CUOTAS = 0.083167;
 
 // Caption fijo que acompaña la foto del modelo — genérico para todos.
 const CAPTION_MODELO = (modeloBase) =>
-  `Tenemos disponible el\n ${modeloBase}😍✨\nListo para entrega inmediata 🚀.`;
+  `${modeloBase}😍✨\nLlevátelo a cuotas hoy mismo! 🤩⚡\n "Sin pagar entrega"`;
 // Link exacto del formulario — se usa para detectar cuándo el bot
 // realmente lo compartió, sin falsos positivos por la palabra "formulario".
 const LINK_FORMULARIO = "https://crediphone-leads.onrender.com/formulario.html";
