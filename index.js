@@ -574,7 +574,7 @@ const NOMBRE_ARCHIVO_REGALOS = "regalos_promo.jpg"; // TODO: José sube la foto 
 const NOMBRE_ARCHIVO_LOCAL = "tienda_local_placeholder.jpg"; // TODO: José sube la foto real con este nombre
 const NOMBRE_ARCHIVO_REQUISITOS = "requisitos.jpg"; // TODO: José sube la foto real con este nombre
 const NOMBRE_ARCHIVO_PROCESO = "proceso_solicitud_placeholder.jpg"; // TODO: José sube la foto real con este nombre
-const NOMBRE_ARCHIVO_BENEFICIOS = "beneficios_placeholder.jpg"; // TODO: José sube la foto real con este nombre
+const NOMBRE_ARCHIVO_BENEFICIOS = "beneficios.jpg"; // TODO: José sube la foto real con este nombre
 const NOMBRE_ARCHIVO_GARANTIA = "garantia_placeholder.jpg"; // TODO: José sube la foto real con este nombre
 const NOMBRE_ARCHIVO_CUOTAS = "como_pagar_cuotas_placeholder.jpg"; // TODO: José sube la foto real con este nombre
 
@@ -620,7 +620,7 @@ const INFO_FOTOS = {
   },
   requisitos: {
     urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_REQUISITOS}`,
-    caption: "📋 Estos son los requisitos para acceder a la financiación.\n\n¿Cuál sería tu perfil laboral? Para avanzar con la solicitud 👉",
+    caption: "✅ Si cumplís con alguno de estos perfiles, podemos avanzar con tu solicitud. ¿Tenés alguna consulta? 😊",
   },
   proceso_solicitud: {
     urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_PROCESO}`,
@@ -628,7 +628,7 @@ const INFO_FOTOS = {
   },
   beneficios: {
     urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_BENEFICIOS}`,
-    caption: "✨ Estos son los beneficios de comprar con Crediphone.",
+    caption: "🎁 Además, por hoy te llevás unos auriculares inalámbricos de regalo. 🥳",
   },
   garantia: {
     urlImagen: `https://crediphone-iasales.onrender.com/images/${NOMBRE_ARCHIVO_GARANTIA}`,
