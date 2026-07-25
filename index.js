@@ -160,7 +160,7 @@ El único parámetro de la herramienta es:
 modeloBase debe enviarse SIEMPRE utilizando exactamente uno de los siguientes valores.
 
 ### Modelos disponibles
-• iPhone 11 normal | Capacidad: 64, 128 - Colores: Negro, Blanco, Morado, Amarillo, 
+• iPhone 11 | Capacidad: 64, 128 - Colores: Negro, Blanco, Morado, Amarillo, 
 • iPhone 11 Pro | Capacidad: 64, 256 - Colores: Verde, Gris, Blanco, Dorado
 • iPhone 11 Pro Max
 
@@ -1044,7 +1044,7 @@ function nombreArchivoImagen(modeloBase) {
     // =========================
     // Seminuevos
     // =========================
-    "iPhone 11 normal": "iphone11_normal",
+    "iPhone 11": "iphone11",
     "iPhone 11 Pro": "iphone11_pro",
     "iPhone 11 Pro Max": "iphone11_promax",
 
